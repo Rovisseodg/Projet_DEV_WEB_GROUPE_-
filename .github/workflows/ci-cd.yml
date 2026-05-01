@@ -1,0 +1,100 @@
+name: CI/CD - MaMutuelle
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_DB: mamutuelle_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+        extensions: pgsql, pdo_pgsql
+    
+    - name: Install Composer dependencies
+      run: |
+        cd backend
+        composer install
+    
+    - name: Copy environment file
+      run: |
+        cd backend
+        cp .env.example .env
+        php artisan key:generate
+    
+    - name: Run migrations
+      env:
+        DB_HOST: 127.0.0.1
+        DB_DATABASE: mamutuelle_test
+        DB_USERNAME: postgres
+        DB_PASSWORD: postgres
+      run: |
+        cd backend
+        php artisan migrate
+    
+    - name: Run tests
+      env:
+        DB_HOST: 127.0.0.1
+        DB_DATABASE: mamutuelle_test
+        DB_USERNAME: postgres
+        DB_PASSWORD: postgres
+      run: |
+        cd backend
+        php artisan test
+    
+    - name: Run linter (PHP CodeSniffer)
+      run: |
+        cd backend
+        vendor/bin/phpcs app --standard=PSR12
+      continue-on-error: true
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Deploy to Railway
+      env:
+        RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
+        RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
+      run: |
+        # Installation railway CLI
+        npm i -g @railway/cli
+        
+        # Déploiement
+        railway up --service backend
+      continue-on-error: true
+    
+    - name: Deploy frontend to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./frontend
+        cname: mamutuelle.example.com
+      continue-on-error: true
