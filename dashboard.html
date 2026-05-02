@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MaMutuelle – Tableau de bord de gestion">
+    <title>MaMutuelle – Dashboard</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- CSS global -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- CSS spécifique au dashboard -->
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+    <div class="dashboard-layout">
+
+        <!-- ===== SIDEBAR ===== -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <span class="brand-ma">Ma</span><span class="brand-mutuelle">Mutuelle</span>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-item active" data-section="dashboard">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Vue d'ensemble</span>
+                </div>
+                <div class="nav-item" data-section="alertes">
+                    <i class="fas fa-bell"></i>
+                    <span>Alertes</span>
+                    <span class="nav-badge" id="badge-alertes" style="display:none;"></span>
+                </div>
+                <div class="nav-item" data-section="adherents">
+                    <i class="fas fa-users"></i>
+                    <span>Adhérents</span>
+                </div>
+                <div class="nav-item" data-section="cotisations">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <span>Cotisations</span>
+                </div>
+                <div class="nav-item" data-section="prets">
+                    <i class="fas fa-hand-holding-usd"></i>
+                    <span>Prêts</span>
+                </div>
+                <div class="nav-item" data-section="sinistres">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Sinistres</span>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="btn-logout" id="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Déconnexion</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- ===== CONTENU PRINCIPAL ===== -->
+        <div class="main-content">
+
+            <header class="dashboard-header">
+                <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="page-title" id="page-title">Vue d'ensemble</h1>
+                <div class="header-user">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="user-name">…</span>
+                </div>
+            </header>
+
+            <div class="content-area">
+
+                <!-- SECTION : DASHBOARD -->
+                <section id="section-dashboard" class="content-section active">
+                    <div class="stats-grid" id="statsContainer">
+                        <div class="stat-card skeleton"></div>
+                        <div class="stat-card skeleton"></div>
+                        <div class="stat-card skeleton"></div>
+                        <div class="stat-card skeleton"></div>
+                    </div>
+                </section>
+
+                <!-- SECTION : ALERTES -->
+                <section id="section-alertes" class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title"><i class="fas fa-bell me-2"></i>Alertes et Notifications</h2>
+                        <button class="btn-action btn-secondary" onclick="loadAlertes()">
+                            <i class="fas fa-sync-alt me-1"></i>Rafraîchir
+                        </button>
+                    </div>
+                    <div class="table-card mb-4">
+                        <div class="table-card-header danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Cotisations en Retard
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead><tr><th>Adhérent</th><th>Email</th><th>Montant</th><th>Date Échéance</th><th>Jours de Retard</th><th>Actions</th></tr></thead>
+                                <tbody id="alertesCotisationsBody"><tr><td colspan="6" class="loading-row">Chargement…</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="table-card">
+                        <div class="table-card-header warning">
+                            <i class="fas fa-calendar-alt me-2"></i>Prêts Arrivant à Échéance
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead><tr><th>Adhérent</th><th>Email</th><th>Montant</th><th>Date Échéance</th><th>Statut</th><th>Actions</th></tr></thead>
+                                <tbody id="alertesPretsBody"><tr><td colspan="6" class="loading-row">Chargement…</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION : ADHÉRENTS -->
+                <section id="section-adherents" class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title"><i class="fas fa-users me-2"></i>Gestion des Adhérents</h2>
+                        <button class="btn-action btn-primary" onclick="openAdherentModal()">
+                            <i class="fas fa-plus me-1"></i>Nouvel Adhérent
+                        </button>
+                    </div>
+                    <div class="table-card">
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead><tr><th>Numéro</th><th>Nom</th><th>Email</th><th>Téléphone</th><th>Statut</th><th>Actions</th></tr></thead>
+                                <tbody id="adherentsBody"><tr><td colspan="6" class="loading-row">Chargement…</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION : COTISATIONS -->
+                <section id="section-cotisations" class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title"><i class="fas fa-file-invoice-dollar me-2"></i>Gestion des Cotisations</h2>
+                        <button class="btn-action btn-primary" onclick="openCotisationModal()">
+                            <i class="fas fa-plus me-1"></i>Nouvelle Cotisation
+                        </button>
+                    </div>
+                    <div class="table-card">
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead><tr><th>Adhérent</th><th>Montant</th><th>Date Échéance</th><th>Statut</th><th>Actions</th></tr></thead>
+                                <tbody id="cotisationsBody"><tr><td colspan="5" class="loading-row">Chargement…</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION : PRÊTS -->
+                <section id="section-prets" class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title"><i class="fas fa-hand-holding-usd me-2"></i>Gestion des Prêts</h2>
+                        <button class="btn-action btn-primary" onclick="openPretModal()">
+                            <i class="fas fa-plus me-1"></i>Nouveau Prêt
+                        </button>
+                    </div>
+                    <div class="table-card">
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead><tr><th>Adhérent</th><th>Montant</th><th>Taux</th><th>Durée (mois)</th><th>Statut</th><th>Actions</th></tr></thead>
+                                <tbody id="pretsBody"><tr><td colspan="6" class="loading-row">Chargement…</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION : SINISTRES -->
+                <section id="section-sinistres" class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title"><i class="fas fa-shield-alt me-2"></i>Gestion des Sinistres</h2>
+                        <button class="btn-action btn-primary" onclick="openSinistreModal()">
+                            <i class="fas fa-plus me-1"></i>Nouveau Sinistre
+                        </button>
+                    </div>
+                    <div class="table-card">
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead><tr><th>Adhérent</th><th>Description</th><th>Type</th><th>Date</th><th>Statut</th><th>Actions</th></tr></thead>
+                                <tbody id="sinistresBody"><tr><td colspan="6" class="loading-row">Chargement…</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+            </div><!-- /content-area -->
+        </div><!-- /main-content -->
+    </div><!-- /dashboard-layout -->
+
+    <!-- MODAL : ADHÉRENT -->
+    <div id="adherentModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-head">
+                <h2 id="adherentModalTitle">Nouvel Adhérent</h2>
+                <button class="modal-close" onclick="closeModal('adherentModal')">&times;</button>
+            </div>
+            <form id="adherentForm">
+                <div id="adherentError" class="modal-error"></div>
+                <div class="form-row-2">
+                    <div class="form-group"><label for="adherentNom">Nom</label><input type="text" id="adherentNom" required></div>
+                    <div class="form-group"><label for="adherentPrenom">Prénom</label><input type="text" id="adherentPrenom" required></div>
+                </div>
+                <div class="form-group"><label for="adherentEmail">Email</label><input type="email" id="adherentEmail" required></div>
+                <div class="form-row-2">
+                    <div class="form-group"><label for="adherentTel">Téléphone</label><input type="tel" id="adherentTel"></div>
+                    <div class="form-group"><label for="adherentNumero">Numéro Adhérent</label><input type="text" id="adherentNumero" required></div>
+                </div>
+                <div class="form-group">
+                    <label for="adherentStatut">Statut</label>
+                    <select id="adherentStatut">
+                        <option value="actif">Actif</option>
+                        <option value="suspendu">Suspendu</option>
+                        <option value="retraite">Retraité</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-action btn-secondary" onclick="closeModal('adherentModal')">Annuler</button>
+                    <button type="submit" class="btn-action btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL : COTISATION -->
+    <div id="cotisationModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-head">
+                <h2 id="cotisationModalTitle">Nouvelle Cotisation</h2>
+                <button class="modal-close" onclick="closeModal('cotisationModal')">&times;</button>
+            </div>
+            <form id="cotisationForm">
+                <div id="cotisationError" class="modal-error"></div>
+                <div class="form-group">
+                    <label for="cotisationAdherent">Adhérent</label>
+                    <select id="cotisationAdherent" required><option value="">-- Sélectionner --</option></select>
+                </div>
+                <div class="form-group"><label for="cotisationMontant">Montant (FCFA)</label><input type="number" id="cotisationMontant" step="0.01" required></div>
+                <div class="form-group"><label for="cotisationEcheance">Date Échéance</label><input type="date" id="cotisationEcheance" required></div>
+                <div class="form-group">
+                    <label for="cotisationStatut">Statut</label>
+                    <select id="cotisationStatut">
+                        <option value="en attente">En attente</option>
+                        <option value="payée">Payée</option>
+                        <option value="en retard">En retard</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-action btn-secondary" onclick="closeModal('cotisationModal')">Annuler</button>
+                    <button type="submit" class="btn-action btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL : PRÊT -->
+    <div id="pretModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-head">
+                <h2 id="pretModalTitle">Nouveau Prêt</h2>
+                <button class="modal-close" onclick="closeModal('pretModal')">&times;</button>
+            </div>
+            <form id="pretForm">
+                <div id="pretError" class="modal-error"></div>
+                <div class="form-group">
+                    <label for="pretAdherent">Adhérent</label>
+                    <select id="pretAdherent" required><option value="">-- Sélectionner --</option></select>
+                </div>
+                <div class="form-row-2">
+                    <div class="form-group"><label for="pretMontant">Montant (FCFA)</label><input type="number" id="pretMontant" step="0.01" required></div>
+                    <div class="form-group"><label for="pretTaux">Taux Intérêt (%)</label><input type="number" id="pretTaux" step="0.1" min="0"></div>
+                </div>
+                <div class="form-row-2">
+                    <div class="form-group"><label for="pretDuree">Durée (mois)</label><input type="number" id="pretDuree" required></div>
+                    <div class="form-group"><label for="pretDate">Date Début</label><input type="date" id="pretDate" required></div>
+                </div>
+                <div class="form-group">
+                    <label for="pretStatut">Statut</label>
+                    <select id="pretStatut">
+                        <option value="en attente">En attente</option>
+                        <option value="approuvé">Approuvé</option>
+                        <option value="remboursé">Remboursé</option>
+                        <option value="rejeté">Rejeté</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-action btn-secondary" onclick="closeModal('pretModal')">Annuler</button>
+                    <button type="submit" class="btn-action btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL : SINISTRE -->
+    <div id="sinistreModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-head">
+                <h2 id="sinistreModalTitle">Nouveau Sinistre</h2>
+                <button class="modal-close" onclick="closeModal('sinistreModal')">&times;</button>
+            </div>
+            <form id="sinistreForm">
+                <div id="sinistreError" class="modal-error"></div>
+                <div class="form-group">
+                    <label for="sinistreAdherent">Adhérent</label>
+                    <select id="sinistreAdherent" required><option value="">-- Sélectionner --</option></select>
+                </div>
+                <div class="form-group"><label for="sinistreDescription">Description</label><textarea id="sinistreDescription" required></textarea></div>
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label for="sinistreType">Type</label>
+                        <select id="sinistreType" required>
+                            <option value="maladie">Maladie</option>
+                            <option value="accident">Accident</option>
+                            <option value="décès">Décès</option>
+                            <option value="hospitalisation">Hospitalisation</option>
+                            <option value="autre">Autre</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label for="sinistreDate">Date Sinistre</label><input type="date" id="sinistreDate" required></div>
+                </div>
+                <div class="form-group">
+                    <label for="sinistreStatut">Statut</label>
+                    <select id="sinistreStatut">
+                        <option value="déclaré">Déclaré</option>
+                        <option value="en cours">En cours</option>
+                        <option value="approuvé">Approuvé</option>
+                        <option value="rejeté">Rejeté</option>
+                        <option value="remboursé">Remboursé</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-action btn-secondary" onclick="closeModal('sinistreModal')">Annuler</button>
+                    <button type="submit" class="btn-action btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- JS global (apiCall, isAuthenticated, TOKEN_KEY…) -->
+    <script src="js/script.js"></script>
+    <!-- JS spécifique au dashboard -->
+    <script src="js/dashboard.js"></script>
+
+</body>
+</html>
