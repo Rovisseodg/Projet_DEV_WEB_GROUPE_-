@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MaMutuelle – Tableau de bord</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* ---- Stat cards ---- */
+        .kpi-card {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            padding: 1.4rem 1.5rem;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            gap: 1.1rem;
+            transition: all var(--transition);
+        }
+        .kpi-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+        .kpi-icon {
+            width: 52px; height: 52px;
+            border-radius: var(--radius);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.35rem; flex-shrink: 0;
+        }
+        .kpi-icon.blue   { background: var(--primary-light);   color: var(--primary); }
+        .kpi-icon.green  { background: var(--secondary-light);  color: var(--secondary); }
+        .kpi-icon.orange { background: var(--warning-light);    color: var(--warning); }
+        .kpi-icon.red    { background: var(--danger-light);     color: var(--danger); }
+        .kpi-value { font-size: 1.9rem; font-weight: 800; color: var(--dark); line-height: 1.1; }
+        .kpi-label { font-size: var(--font-size-xs); color: var(--gray-500); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+        .kpi-trend { font-size: var(--font-size-xs); font-weight: 600; margin-top: 4px; }
+        .kpi-trend.up   { color: var(--secondary); }
+        .kpi-trend.down { color: var(--danger); }
+
+        /* ---- Section cards ---- */
+        .dash-card {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+        }
+        .dash-card-header {
+            padding: 1.1rem 1.4rem;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex; align-items: center; justify-content: space-between;
+            font-weight: 700; font-size: 0.95rem; color: var(--dark);
+        }
+        .dash-card-header .icon { font-size: 1rem; margin-right: 8px; }
+
+        /* ---- Table ---- */
+        .dash-table { width: 100%; border-collapse: collapse; font-size: var(--font-size-sm); }
+        .dash-table thead th {
+            background: var(--gray-100); color: var(--gray-500);
+            font-size: var(--font-size-xs); font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.6px;
+            padding: 0.75rem 1rem; border-bottom: 1px solid var(--gray-200);
+            white-space: nowrap;
+        }
+        .dash-table tbody td {
+            padding: 0.85rem 1rem; border-bottom: 1px solid var(--gray-100);
+            color: var(--gray-700); vertical-align: middle;
+        }
+        .dash-table tbody tr:last-child td { border-bottom: none; }
+        .dash-table tbody tr:hover { background: var(--gray-100); }
+
+        /* ---- Status pills ---- */
+        .pill {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 0.3rem 0.7rem; border-radius: 20px;
+            font-size: var(--font-size-xs); font-weight: 600;
+        }
+        .pill-green  { background: var(--secondary-light); color: var(--secondary-dark); }
+        .pill-orange { background: var(--warning-light);   color: #92400e; }
+        .pill-red    { background: var(--danger-light);    color: #b91c1c; }
+        .pill-blue   { background: var(--primary-light);   color: var(--primary-dark); }
+        .pill-gray   { background: var(--gray-100);        color: var(--gray-500); }
+
+        /* ---- Alert items ---- */
+        .alert-item {
+            display: flex; align-items: flex-start; gap: 10px;
+            padding: 0.8rem 1rem; border-bottom: 1px solid var(--gray-100);
+            transition: background var(--transition);
+        }
+        .alert-item:last-child { border-bottom: none; }
+        .alert-item:hover { background: var(--gray-100); }
+        .alert-item-icon {
+            width: 32px; height: 32px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.8rem; flex-shrink: 0;
+        }
+        .alert-item-icon.warn { background: var(--warning-light); color: var(--warning); }
+        .alert-item-icon.info { background: var(--primary-light); color: var(--primary); }
+        .alert-item-icon.danger { background: var(--danger-light); color: var(--danger); }
+        .alert-item-title { font-weight: 600; font-size: var(--font-size-sm); color: var(--dark); }
+        .alert-item-sub   { font-size: var(--font-size-xs); color: var(--gray-500); margin-top: 1px; }
+
+        /* ---- Avatar ---- */
+        .avatar {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: var(--gradient-primary);
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-weight: 700; font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+
+        /* ---- Quick actions ---- */
+        .quick-action {
+            display: flex; flex-direction: column; align-items: center;
+            gap: 8px; padding: 1.1rem 0.5rem;
+            border: 1.5px solid var(--gray-200); border-radius: var(--radius);
+            background: var(--white); cursor: pointer;
+            transition: all var(--transition); text-decoration: none;
+            color: var(--gray-700);
+        }
+        .quick-action:hover {
+            border-color: var(--primary); background: var(--primary-light);
+            color: var(--primary); transform: translateY(-2px); box-shadow: var(--shadow-sm);
+        }
+        .quick-action i { font-size: 1.4rem; }
+        .quick-action span { font-size: var(--font-size-xs); font-weight: 600; text-align: center; }
+
+        /* ---- Mobile sidebar overlay ---- */
+        .sidebar-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.45); z-index: 99;
+        }
+        .sidebar-overlay.open { display: block; }
+
+        @media (max-width: 991px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0 !important; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Sidebar overlay (mobile) -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<!-- ===== SIDEBAR ===== -->
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+        <i class="fas fa-shield-alt" style="color:#7ee8a4;font-size:1.2rem"></i>
+        <span>Ma<span class="brand-accent">Mutuelle</span></span>
+    </div>
+
+    <nav class="sidebar-nav">
+        <div class="sidebar-section-title">Principal</div>
+
+        <a href="dashboard.html" class="sidebar-item active">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Tableau de bord</span>
+        </a>
+        <a href="adherents.html" class="sidebar-item">
+            <i class="fas fa-users"></i>
+            <span>Adhérents</span>
+        </a>
+        <a href="cotisations.html" class="sidebar-item">
+            <i class="fas fa-money-bill-wave"></i>
+            <span>Cotisations</span>
+        </a>
+        <a href="prets.html" class="sidebar-item">
+            <i class="fas fa-credit-card"></i>
+            <span>Prêts</span>
+        </a>
+        <a href="sinistres.html" class="sidebar-item">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>Sinistres</span>
+        </a>
+
+        <div class="sidebar-section-title" style="margin-top:0.5rem">Compte</div>
+
+        <a href="#" class="sidebar-item">
+            <i class="fas fa-user-circle"></i>
+            <span>Mon profil</span>
+        </a>
+        <a href="#" class="sidebar-item">
+            <i class="fas fa-cog"></i>
+            <span>Paramètres</span>
+        </a>
+        <a href="#" class="sidebar-item" id="logoutBtn">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Déconnexion</span>
+        </a>
+    </nav>
+
+    <!-- User info bas de sidebar -->
+    <div style="padding:1rem 1.25rem;border-top:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:10px">
+        <div class="avatar" id="sidebarAvatar">A</div>
+        <div style="overflow:hidden">
+            <div style="color:#fff;font-size:0.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="sidebarName">Chargement…</div>
+            <div style="color:rgba(255,255,255,0.4);font-size:0.7rem" id="sidebarRole">—</div>
+        </div>
+    </div>
+</aside>
+
+<!-- ===== MAIN ===== -->
+<div class="main-content">
+
+    <!-- Topbar -->
+    <div class="main-topbar">
+        <div style="display:flex;align-items:center;gap:12px">
+            <button onclick="toggleSidebar()"
+                    style="background:none;border:1px solid var(--gray-200);border-radius:var(--radius-sm);
+                           width:36px;height:36px;cursor:pointer;color:var(--gray-500);
+                           display:flex;align-items:center;justify-content:center">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div>
+                <div class="main-topbar-title">Tableau de bord</div>
+                <div style="font-size:0.72rem;color:var(--gray-400)" id="currentDate"></div>
+            </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+            <!-- Notification bell -->
+            <button style="background:none;border:1px solid var(--gray-200);border-radius:var(--radius-sm);
+                           width:36px;height:36px;cursor:pointer;color:var(--gray-500);
+                           display:flex;align-items:center;justify-content:center;position:relative">
+                <i class="fas fa-bell"></i>
+                <span id="notifBadge" style="position:absolute;top:4px;right:4px;width:8px;height:8px;
+                      background:var(--danger);border-radius:50%;display:none"></span>
+            </button>
+            <!-- Avatar -->
+            <div style="display:flex;align-items:center;gap:8px">
+                <div class="avatar" id="topbarAvatar">A</div>
+                <div style="display:none" class="d-md-block">
+                    <div style="font-size:0.82rem;font-weight:600;color:var(--dark)" id="topbarName">—</div>
+                    <div style="font-size:0.7rem;color:var(--gray-400)" id="topbarRole">—</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Body -->
+    <div class="main-body">
+
+        <!-- Bienvenue -->
+        <div style="margin-bottom:1.5rem">
+            <h4 style="font-weight:800;margin:0">Bonjour, <span id="welcomeName">…</span> 👋</h4>
+            <p style="color:var(--gray-500);font-size:var(--font-size-sm);margin:2px 0 0">
+                Voici un résumé de l'activité de votre mutuelle.
+            </p>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-xl-3">
+                <div class="kpi-card">
+                    <div class="kpi-icon blue"><i class="fas fa-users"></i></div>
+                    <div>
+                        <div class="kpi-value" id="kpiAdherents">—</div>
+                        <div class="kpi-label">Adhérents</div>
+                        <div class="kpi-trend up" id="kpiAdherentsTrend"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-xl-3">
+                <div class="kpi-card">
+                    <div class="kpi-icon green"><i class="fas fa-check-circle"></i></div>
+                    <div>
+                        <div class="kpi-value" id="kpiCotisations">—</div>
+                        <div class="kpi-label">Cotisations payées</div>
+                        <div class="kpi-trend up" id="kpiCotisationsTrend"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-xl-3">
+                <div class="kpi-card">
+                    <div class="kpi-icon orange"><i class="fas fa-credit-card"></i></div>
+                    <div>
+                        <div class="kpi-value" id="kpiPrets">—</div>
+                        <div class="kpi-label">Prêts actifs</div>
+                        <div class="kpi-trend" id="kpiPretsTrend"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-xl-3">
+                <div class="kpi-card">
+                    <div class="kpi-icon red"><i class="fas fa-exclamation-triangle"></i></div>
+                    <div>
+                        <div class="kpi-value" id="kpiSinistres">—</div>
+                        <div class="kpi-label">Sinistres en cours</div>
+                        <div class="kpi-trend" id="kpiSinistresTrend"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions rapides -->
+        <div class="dash-card mb-4">
+            <div class="dash-card-header">
+                <span><i class="fas fa-bolt icon" style="color:var(--warning)"></i>Actions rapides</span>
+            </div>
+            <div style="padding:1.25rem">
+                <div class="row g-2">
+                    <div class="col-6 col-md-3">
+                        <a href="adherents.html" class="quick-action">
+                            <i class="fas fa-user-plus" style="color:var(--primary)"></i>
+                            <span>Nouvel adhérent</span>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <a href="cotisations.html" class="quick-action">
+                            <i class="fas fa-money-bill-wave" style="color:var(--secondary)"></i>
+                            <span>Saisir cotisation</span>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <a href="prets.html" class="quick-action">
+                            <i class="fas fa-file-invoice-dollar" style="color:var(--warning)"></i>
+                            <span>Demande de prêt</span>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <a href="sinistres.html" class="quick-action">
+                            <i class="fas fa-exclamation-circle" style="color:var(--danger)"></i>
+                            <span>Déclarer sinistre</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Graphique + Alertes -->
+        <div class="row g-3 mb-4">
+            <div class="col-lg-7">
+                <div class="dash-card h-100">
+                    <div class="dash-card-header">
+                        <span><i class="fas fa-chart-bar icon" style="color:var(--primary)"></i>Aperçu des activités</span>
+                        <select id="chartPeriod" style="font-size:var(--font-size-xs);border:1px solid var(--gray-200);
+                                border-radius:var(--radius-sm);padding:4px 8px;color:var(--gray-700);background:var(--white)">
+                            <option value="month">Ce mois</option>
+                            <option value="quarter">Ce trimestre</option>
+                            <option value="year">Cette année</option>
+                        </select>
+                    </div>
+                    <div style="padding:1.25rem">
+                        <canvas id="activityChart" height="220"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="dash-card h-100">
+                    <div class="dash-card-header">
+                        <span><i class="fas fa-bell icon" style="color:var(--warning)"></i>Alertes</span>
+                        <span class="badge bg-warning" style="color:var(--dark)" id="alertCount">0</span>
+                    </div>
+                    <div id="alertsList">
+                        <div style="padding:2rem;text-align:center;color:var(--gray-400)">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tableau adhérents récents + Répartition -->
+        <div class="row g-3">
+            <div class="col-lg-8">
+                <div class="dash-card">
+                    <div class="dash-card-header">
+                        <span><i class="fas fa-users icon" style="color:var(--primary)"></i>Adhérents récents</span>
+                        <a href="adherents.html" class="btn btn-outline-primary btn-sm">Voir tout</a>
+                    </div>
+                    <div style="overflow-x:auto">
+                        <table class="dash-table">
+                            <thead>
+                                <tr>
+                                    <th style="padding-left:1.25rem">N° Adhérent</th>
+                                    <th>Nom complet</th>
+                                    <th>Email</th>
+                                    <th>Statut</th>
+                                    <th>Inscription</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adherentsTable">
+                                <tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--gray-400)">
+                                    <i class="fas fa-spinner fa-spin me-2"></i>Chargement…
+                                </td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="dash-card">
+                    <div class="dash-card-header">
+                        <span><i class="fas fa-chart-pie icon" style="color:var(--secondary)"></i>Répartition statuts</span>
+                    </div>
+                    <div style="padding:1.25rem">
+                        <canvas id="pieChart" height="200"></canvas>
+                    </div>
+                    <div style="padding:0 1.25rem 1.25rem;display:flex;flex-direction:column;gap:8px" id="pieStats"></div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /main-body -->
+</div><!-- /main-content -->
+
+
+<script>
+const API_URL   = 'https://projetdevwebgroupe-production.up.railway.app/api';
+const TOKEN_KEY = 'mamutuelle_token';
+const USER_KEY  = 'mamutuelle_user';
+
+/* ---- Auth guard ---- */
+const token = localStorage.getItem(TOKEN_KEY);
+if (!token) window.location.href = 'login.html';
+
+const user = JSON.parse(localStorage.getItem(USER_KEY) || '{}');
+const headers = {
+    'Authorization': `Bearer ${token}`,
+    'Accept': 'application/json',
+    'Content-Type': 'application/json'
+};
+
+/* ---- Infos utilisateur ---- */
+function initUser() {
+    const name  = user.name  || 'Utilisateur';
+    const role  = user.role  || 'Membre';
+    const init  = name.charAt(0).toUpperCase();
+
+    document.getElementById('sidebarAvatar').textContent = init;
+    document.getElementById('topbarAvatar').textContent  = init;
+    document.getElementById('sidebarName').textContent   = name;
+    document.getElementById('topbarName').textContent    = name;
+    document.getElementById('sidebarRole').textContent   = role;
+    document.getElementById('topbarRole').textContent    = role;
+    document.getElementById('welcomeName').textContent   = name.split(' ')[0];
+
+    const days = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+    const months = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+    const now = new Date();
+    document.getElementById('currentDate').textContent =
+        `${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+}
+
+/* ---- Logout ---- */
+document.getElementById('logoutBtn').addEventListener('click', e => {
+    e.preventDefault();
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
+    window.location.href = 'login.html';
+});
+
+/* ---- Sidebar toggle (mobile) ---- */
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('open');
+}
+function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('open');
+}
+
+/* ---- Statut pill ---- */
+function pillStatut(statut) {
+    const map = {
+        'actif'      : ['pill-green',  '●'],
+        'suspendu'   : ['pill-red',    '●'],
+        'retraité'   : ['pill-gray',   '●'],
+        'payée'      : ['pill-green',  '✓'],
+        'en attente' : ['pill-orange', '◌'],
+        'en retard'  : ['pill-red',    '!'],
+        'approuvé'   : ['pill-green',  '✓'],
+        'rejeté'     : ['pill-red',    '✗'],
+        'déclaré'    : ['pill-blue',   '●'],
+    };
+    const [cls, dot] = map[statut] || ['pill-gray', '●'];
+    return `<span class="pill ${cls}">${dot} ${statut}</span>`;
+}
+
+/* ---- Bar chart ---- */
+let chartInstance = null;
+
+function buildChart(adherents, cotisations, prets, sinistres) {
+    const ctx = document.getElementById('activityChart').getContext('2d');
+    if (chartInstance) chartInstance.destroy();
+    chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Adhérents', 'Cotisations\npayées', 'Prêts\nactifs', 'Sinistres\nen cours'],
+            datasets: [{
+                label: 'Statistiques',
+                data: [adherents, cotisations, prets, sinistres],
+                backgroundColor: [
+                    'rgba(0,102,204,0.82)',
+                    'rgba(0,170,85,0.82)',
+                    'rgba(255,170,0,0.82)',
+                    'rgba(255,51,51,0.82)'
+                ],
+                borderRadius: 8,
+                borderSkipped: false,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => ` ${ctx.parsed.y} enregistrement(s)`
+                    }
+                }
+            },
+            scales: {
+                y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { stepSize: 1 } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+}
+
+/* ---- Pie chart ---- */
+let pieInstance = null;
+
+function buildPie(actifs, suspendus, retaites) {
+    const ctx = document.getElementById('pieChart').getContext('2d');
+    if (pieInstance) pieInstance.destroy();
+    pieInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Actifs', 'Suspendus', 'Retraités'],
+            datasets: [{
+                data: [actifs, suspendus, retaites],
+                backgroundColor: ['rgba(0,170,85,0.82)', 'rgba(255,51,51,0.82)', 'rgba(0,102,204,0.82)'],
+                borderWidth: 2,
+                borderColor: '#fff',
+            }]
+        },
+        options: {
+            responsive: true,
+            cutout: '65%',
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    document.getElementById('pieStats').innerHTML = [
+        { label: 'Actifs',     val: actifs,    cls: 'pill-green' },
+        { label: 'Suspendus',  val: suspendus, cls: 'pill-red'   },
+        { label: 'Retraités',  val: retaites,  cls: 'pill-blue'  },
+    ].map(r => `
+        <div style="display:flex;justify-content:space-between;align-items:center;
+                    font-size:var(--font-size-sm)">
+            <span class="pill ${r.cls}" style="font-size:0.7rem">${r.label}</span>
+            <span style="font-weight:700;color:var(--dark)">${r.val}</span>
+        </div>
+    `).join('');
+}
+
+/* ---- Alertes ---- */
+function renderAlerts(list) {
+    const icons = {
+        'cotisation_retard' : ['warn',   'fa-clock'],
+        'pret_echeance'     : ['orange', 'fa-credit-card'],
+        'sinistre'          : ['danger', 'fa-exclamation'],
+        'default'           : ['info',   'fa-info-circle'],
+    };
+
+    const container = document.getElementById('alertsList');
+    document.getElementById('alertCount').textContent = list.length;
+    if (list.length) document.getElementById('notifBadge').style.display = 'block';
+
+    if (!list.length) {
+        container.innerHTML = `
+            <div style="padding:2.5rem;text-align:center;color:var(--gray-400)">
+                <i class="fas fa-check-circle" style="font-size:2rem;color:var(--secondary);margin-bottom:8px"></i>
+                <div style="font-size:var(--font-size-sm)">Aucune alerte active</div>
+            </div>`;
+        return;
+    }
+
+    container.innerHTML = list.slice(0, 5).map(a => {
+        const key  = Object.keys(icons).find(k => a.type_alerte?.includes(k)) || 'default';
+        const [ic, fa] = icons[key];
+        return `
+            <div class="alert-item">
+                <div class="alert-item-icon ${ic}">
+                    <i class="fas ${fa}"></i>
+                </div>
+                <div>
+                    <div class="alert-item-title">${(a.type_alerte || 'Alerte').replace(/_/g,' ')}</div>
+                    <div class="alert-item-sub">${a.message || ''}</div>
+                </div>
+            </div>`;
+    }).join('');
+}
+
+/* ---- Adhérents table ---- */
+function renderAdherents(list) {
+    const tbody = document.getElementById('adherentsTable');
+    if (!list.length) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--gray-400)">Aucun adhérent</td></tr>';
+        return;
+    }
+    tbody.innerHTML = list.slice(0, 6).map(a => `
+        <tr>
+            <td style="padding-left:1.25rem">
+                <span style="background:var(--gray-100);padding:3px 8px;border-radius:var(--radius-sm);
+                             font-size:var(--font-size-xs);font-weight:600">${a.numero_adherent}</span>
+            </td>
+            <td style="font-weight:600">${a.nom} ${a.prenom}</td>
+            <td style="color:var(--gray-500)">${a.email}</td>
+            <td>${pillStatut(a.statut)}</td>
+            <td style="color:var(--gray-500)">${new Date(a.date_inscription).toLocaleDateString('fr-FR')}</td>
+        </tr>
+    `).join('');
+}
+
+/* ---- Chargement principal ---- */
+async function loadDashboard() {
+    try {
+        /* Stats */
+        const statsRes = await fetch(`${API_URL}/stats`, { headers });
+        if (statsRes.ok) {
+            const s = await statsRes.json();
+            document.getElementById('kpiAdherents').textContent  = s.adherents_total   ?? 0;
+            document.getElementById('kpiCotisations').textContent = s.cotisations_payees ?? 0;
+            document.getElementById('kpiPrets').textContent      = s.prets_actifs       ?? 0;
+            document.getElementById('kpiSinistres').textContent  = s.sinistres_en_cours ?? 0;
+
+            buildChart(
+                s.adherents_total   ?? 0,
+                s.cotisations_payees ?? 0,
+                s.prets_actifs       ?? 0,
+                s.sinistres_en_cours ?? 0
+            );
+        }
+    } catch (e) { console.warn('Stats:', e); }
+
+    try {
+        /* Adhérents */
+        const adhRes = await fetch(`${API_URL}/adherents`, { headers });
+        if (adhRes.ok) {
+            const data = await adhRes.json();
+            const list = data.data || data || [];
+            renderAdherents(list);
+
+            const actifs    = list.filter(a => a.statut === 'actif').length;
+            const suspendus = list.filter(a => a.statut === 'suspendu').length;
+            const retaites  = list.filter(a => a.statut === 'retraité').length;
+            buildPie(actifs, suspendus, retaites);
+        }
+    } catch (e) {
+        document.getElementById('adherentsTable').innerHTML =
+            '<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--danger)">Erreur de chargement</td></tr>';
+    }
+
+    try {
+        /* Alertes */
+        const alRes = await fetch(`${API_URL}/alertes`, { headers });
+        if (alRes.ok) {
+            const data = await alRes.json();
+            renderAlerts(data.data || data || []);
+        } else {
+            renderAlerts([]);
+        }
+    } catch (e) { renderAlerts([]); }
+}
+
+initUser();
+loadDashboard();
+</script>
+</body>
+</html>

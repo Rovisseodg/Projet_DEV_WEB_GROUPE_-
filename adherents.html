@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MaMutuelle – Adhérents</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* ---- Pill statuts ---- */
+        .pill {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 0.3rem 0.7rem; border-radius: 20px;
+            font-size: var(--font-size-xs); font-weight: 600;
+        }
+        .pill-green  { background: var(--secondary-light); color: var(--secondary-dark); }
+        .pill-orange { background: var(--warning-light);   color: #92400e; }
+        .pill-red    { background: var(--danger-light);    color: #b91c1c; }
+        .pill-blue   { background: var(--primary-light);   color: var(--primary-dark); }
+        .pill-gray   { background: var(--gray-100);        color: var(--gray-500); }
+
+        /* ---- Dash card ---- */
+        .dash-card {
+            background: var(--white); border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden;
+        }
+        .dash-card-header {
+            padding: 1.1rem 1.4rem; border-bottom: 1px solid var(--gray-200);
+            display: flex; align-items: center; justify-content: space-between;
+            font-weight: 700; font-size: 0.95rem; color: var(--dark);
+        }
+
+        /* ---- Table ---- */
+        .dash-table { width: 100%; border-collapse: collapse; font-size: var(--font-size-sm); }
+        .dash-table thead th {
+            background: var(--gray-100); color: var(--gray-500);
+            font-size: var(--font-size-xs); font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.6px;
+            padding: 0.75rem 1rem; border-bottom: 1px solid var(--gray-200); white-space: nowrap;
+        }
+        .dash-table tbody td {
+            padding: 0.9rem 1rem; border-bottom: 1px solid var(--gray-100);
+            color: var(--gray-700); vertical-align: middle;
+        }
+        .dash-table tbody tr:last-child td { border-bottom: none; }
+        .dash-table tbody tr:hover { background: var(--gray-100); cursor: pointer; }
+
+        /* ---- KPI ---- */
+        .kpi-mini {
+            background: var(--white); border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg); padding: 1.1rem 1.25rem;
+            box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 1rem;
+        }
+        .kpi-mini .icon {
+            width: 44px; height: 44px; border-radius: var(--radius);
+            display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;
+        }
+        .kpi-mini .val { font-size: 1.6rem; font-weight: 800; color: var(--dark); line-height: 1; }
+        .kpi-mini .lbl { font-size: var(--font-size-xs); color: var(--gray-500); font-weight: 500; text-transform: uppercase; letter-spacing: 0.4px; margin-top: 2px; }
+
+        /* ---- Avatar ---- */
+        .avatar {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: var(--gradient-primary);
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-weight: 700; font-size: 0.85rem; flex-shrink: 0;
+        }
+        .avatar-sm {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: var(--gradient-primary);
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-weight: 700; font-size: 0.75rem; flex-shrink: 0;
+        }
+
+        /* ---- Sidebar overlay ---- */
+        .sidebar-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.45); z-index: 99;
+        }
+        .sidebar-overlay.open { display: block; }
+
+        /* ---- Search ---- */
+        .search-box {
+            display: flex; align-items: center;
+            border: 1.5px solid var(--gray-200); border-radius: var(--radius);
+            background: var(--white); padding: 0 0.75rem; gap: 8px;
+            transition: border-color var(--transition);
+        }
+        .search-box:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,102,204,0.10); }
+        .search-box input {
+            border: none; outline: none; background: transparent;
+            font-family: var(--font); font-size: var(--font-size-sm);
+            padding: 0.55rem 0; width: 220px;
+        }
+        .search-box i { color: var(--gray-400); font-size: 0.85rem; }
+
+        /* ---- Detail panel ---- */
+        .detail-panel {
+            position: fixed; top: 0; right: -420px; width: 420px;
+            height: 100vh; background: var(--white);
+            border-left: 1px solid var(--gray-200);
+            box-shadow: var(--shadow-xl); z-index: 150;
+            transition: right 0.35s cubic-bezier(0.16,1,0.3,1);
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+        .detail-panel.open { right: 0; }
+        .detail-panel-header {
+            padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--gray-200);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .detail-panel-body { flex: 1; overflow-y: auto; padding: 1.5rem; }
+        .detail-row {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            padding: 0.65rem 0; border-bottom: 1px solid var(--gray-100);
+            font-size: var(--font-size-sm);
+        }
+        .detail-row:last-child { border-bottom: none; }
+        .detail-row .lbl { color: var(--gray-500); font-weight: 500; }
+        .detail-row .val { color: var(--dark); font-weight: 600; text-align: right; max-width: 60%; }
+
+        @media (max-width: 991px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0 !important; }
+            .detail-panel { width: 100%; right: -100%; }
+            .search-box input { width: 140px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<!-- ===== SIDEBAR ===== -->
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+        <i class="fas fa-shield-alt" style="color:#7ee8a4;font-size:1.2rem"></i>
+        <span>Ma<span class="brand-accent">Mutuelle</span></span>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="sidebar-section-title">Principal</div>
+        <a href="dashboard.html" class="sidebar-item"><i class="fas fa-tachometer-alt"></i><span>Tableau de bord</span></a>
+        <a href="adherents.html" class="sidebar-item active"><i class="fas fa-users"></i><span>Adhérents</span></a>
+        <a href="cotisations.html" class="sidebar-item"><i class="fas fa-money-bill-wave"></i><span>Cotisations</span></a>
+        <a href="prets.html" class="sidebar-item"><i class="fas fa-credit-card"></i><span>Prêts</span></a>
+        <a href="sinistres.html" class="sidebar-item"><i class="fas fa-exclamation-triangle"></i><span>Sinistres</span></a>
+        <div class="sidebar-section-title" style="margin-top:0.5rem">Compte</div>
+        <a href="#" class="sidebar-item"><i class="fas fa-user-circle"></i><span>Mon profil</span></a>
+        <a href="#" class="sidebar-item"><i class="fas fa-cog"></i><span>Paramètres</span></a>
+        <a href="#" class="sidebar-item" id="logoutBtn"><i class="fas fa-sign-out-alt"></i><span>Déconnexion</span></a>
+    </nav>
+    <div style="padding:1rem 1.25rem;border-top:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:10px">
+        <div class="avatar" id="sidebarAvatar">A</div>
+        <div style="overflow:hidden">
+            <div style="color:#fff;font-size:0.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="sidebarName">…</div>
+            <div style="color:rgba(255,255,255,0.4);font-size:0.7rem" id="sidebarRole">—</div>
+        </div>
+    </div>
+</aside>
+
+<!-- ===== MAIN ===== -->
+<div class="main-content">
+
+    <!-- Topbar -->
+    <div class="main-topbar">
+        <div style="display:flex;align-items:center;gap:12px">
+            <button onclick="toggleSidebar()"
+                    style="background:none;border:1px solid var(--gray-200);border-radius:var(--radius-sm);
+                           width:36px;height:36px;cursor:pointer;color:var(--gray-500);
+                           display:flex;align-items:center;justify-content:center">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div>
+                <div class="main-topbar-title">Gestion des Adhérents</div>
+                <div style="font-size:0.72rem;color:var(--gray-400)">Liste complète · <span id="totalLabel">0</span> adhérent(s)</div>
+            </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+            <button onclick="openModal()"
+                    class="btn btn-primary btn-sm">
+                <i class="fas fa-user-plus"></i> Nouvel adhérent
+            </button>
+            <div class="avatar" id="topbarAvatar">A</div>
+        </div>
+    </div>
+
+    <div class="main-body">
+
+        <!-- KPI mini -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="kpi-mini">
+                    <div class="icon" style="background:var(--primary-light);color:var(--primary)"><i class="fas fa-users"></i></div>
+                    <div><div class="val" id="kpiTotal">—</div><div class="lbl">Total</div></div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="kpi-mini">
+                    <div class="icon" style="background:var(--secondary-light);color:var(--secondary)"><i class="fas fa-check-circle"></i></div>
+                    <div><div class="val" id="kpiActifs">—</div><div class="lbl">Actifs</div></div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="kpi-mini">
+                    <div class="icon" style="background:var(--danger-light);color:var(--danger)"><i class="fas fa-pause-circle"></i></div>
+                    <div><div class="val" id="kpiSuspendus">—</div><div class="lbl">Suspendus</div></div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="kpi-mini">
+                    <div class="icon" style="background:var(--primary-light);color:var(--primary)"><i class="fas fa-user-clock"></i></div>
+                    <div><div class="val" id="kpiRetraites">—</div><div class="lbl">Retraités</div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtres -->
+        <div class="dash-card mb-3">
+            <div style="padding:1rem 1.25rem;display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Rechercher un adhérent…">
+                </div>
+                <select id="filterStatut" style="border:1.5px solid var(--gray-200);border-radius:var(--radius);
+                        padding:0.55rem 0.9rem;font-family:var(--font);font-size:var(--font-size-sm);
+                        color:var(--gray-700);background:var(--white);outline:none;cursor:pointer">
+                    <option value="">Tous les statuts</option>
+                    <option value="actif">Actif</option>
+                    <option value="suspendu">Suspendu</option>
+                    <option value="retraité">Retraité</option>
+                </select>
+                <select id="filterGenre" style="border:1.5px solid var(--gray-200);border-radius:var(--radius);
+                        padding:0.55rem 0.9rem;font-family:var(--font);font-size:var(--font-size-sm);
+                        color:var(--gray-700);background:var(--white);outline:none;cursor:pointer">
+                    <option value="">Tous les genres</option>
+                    <option value="M">Masculin</option>
+                    <option value="F">Féminin</option>
+                </select>
+                <button onclick="loadAdherents()" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-sync-alt"></i> Actualiser
+                </button>
+                <button onclick="exportCSV()" class="btn btn-outline-secondary btn-sm" style="margin-left:auto">
+                    <i class="fas fa-download"></i> Exporter CSV
+                </button>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="dash-card">
+            <div class="dash-card-header">
+                <span><i class="fas fa-users" style="color:var(--primary);margin-right:8px"></i>Adhérents</span>
+                <span style="font-size:var(--font-size-xs);color:var(--gray-500)" id="tableInfo"></span>
+            </div>
+            <div style="overflow-x:auto">
+                <table class="dash-table">
+                    <thead>
+                        <tr>
+                            <th style="padding-left:1.25rem;width:40px">
+                                <input type="checkbox" id="selectAll" style="accent-color:var(--primary);cursor:pointer">
+                            </th>
+                            <th>Adhérent</th>
+                            <th>N° Adhérent</th>
+                            <th>Téléphone</th>
+                            <th>Ville</th>
+                            <th>Statut</th>
+                            <th>Inscription</th>
+                            <th style="text-align:right;padding-right:1.25rem">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adherentsTable">
+                        <tr><td colspan="8" style="text-align:center;padding:3rem;color:var(--gray-400)">
+                            <i class="fas fa-spinner fa-spin" style="font-size:1.5rem"></i>
+                            <div style="margin-top:8px;font-size:var(--font-size-sm)">Chargement…</div>
+                        </td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- Pagination -->
+            <div style="padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;
+                        border-top:1px solid var(--gray-100);font-size:var(--font-size-sm)">
+                <span style="color:var(--gray-500)" id="paginationInfo">—</span>
+                <div style="display:flex;gap:6px" id="paginationBtns"></div>
+            </div>
+        </div>
+
+    </div>
+</div><!-- /main-content -->
+
+<!-- ===== PANNEAU DE DÉTAIL ===== -->
+<div class="detail-panel" id="detailPanel">
+    <div class="detail-panel-header">
+        <div style="display:flex;align-items:center;gap:12px">
+            <div class="avatar" id="detailAvatar">?</div>
+            <div>
+                <div style="font-weight:700;font-size:1rem" id="detailName">—</div>
+                <div style="font-size:var(--font-size-xs);color:var(--gray-500)" id="detailNumero">—</div>
+            </div>
+        </div>
+        <button onclick="closeDetail()"
+                style="background:none;border:none;cursor:pointer;color:var(--gray-400);
+                       font-size:1.2rem;padding:4px;border-radius:var(--radius-sm)">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div class="detail-panel-body" id="detailBody">
+        <div style="text-align:center;color:var(--gray-400);padding:2rem">Sélectionnez un adhérent</div>
+    </div>
+    <div style="padding:1rem 1.5rem;border-top:1px solid var(--gray-200);display:flex;gap:8px">
+        <button class="btn btn-outline-danger btn-sm w-100" id="detailDeleteBtn">
+            <i class="fas fa-trash"></i> Supprimer
+        </button>
+        <button class="btn btn-primary btn-sm w-100" onclick="closeDetail()">
+            <i class="fas fa-times"></i> Fermer
+        </button>
+    </div>
+</div>
+
+<!-- ===== MODAL AJOUT ===== -->
+<div id="modalOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);
+     backdrop-filter:blur(3px);z-index:200;align-items:center;justify-content:center;padding:1rem">
+    <div style="background:var(--white);border-radius:var(--radius-xl);box-shadow:var(--shadow-xl);
+                width:100%;max-width:560px;max-height:90vh;overflow-y:auto;
+                animation:mm-scalein 0.25s cubic-bezier(0.16,1,0.3,1)">
+
+        <!-- Header modal -->
+        <div style="padding:1.5rem;border-bottom:1px solid var(--gray-200);
+                    display:flex;align-items:center;justify-content:space-between">
+            <div>
+                <h5 style="margin:0;font-weight:800">Nouvel adhérent</h5>
+                <p style="margin:2px 0 0;font-size:var(--font-size-xs);color:var(--gray-500)">Remplissez les informations de l'adhérent</p>
+            </div>
+            <button onclick="closeModal()" style="background:none;border:none;cursor:pointer;
+                    color:var(--gray-400);font-size:1.2rem;border-radius:var(--radius-sm);padding:4px">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Body modal -->
+        <div style="padding:1.5rem">
+            <div id="modalAlert" class="alert d-none"></div>
+            <form id="adherentForm">
+                <!-- Nom / Prénom -->
+                <div class="row g-3 mb-3">
+                    <div class="col-6">
+                        <label class="form-label">Nom *</label>
+                        <div class="input-group">
+                            <i class="input-icon fas fa-user"></i>
+                            <input type="text" class="form-control" name="nom" placeholder="Dupont" required>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">Prénom *</label>
+                        <div class="input-group">
+                            <i class="input-icon fas fa-user"></i>
+                            <input type="text" class="form-control" name="prenom" placeholder="Jean" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div class="mb-3">
+                    <label class="form-label">Email *</label>
+                    <div class="input-group">
+                        <i class="input-icon fas fa-envelope"></i>
+                        <input type="email" class="form-control" name="email" placeholder="jean@exemple.com" required>
+                    </div>
+                </div>
+
+                <!-- Téléphone / N° Adhérent -->
+                <div class="row g-3 mb-3">
+                    <div class="col-6">
+                        <label class="form-label">Téléphone</label>
+                        <div class="input-group">
+                            <i class="input-icon fas fa-phone"></i>
+                            <input type="text" class="form-control" name="telephone" placeholder="+226 00 00 00 00">
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">N° Adhérent *</label>
+                        <div class="input-group">
+                            <i class="input-icon fas fa-id-card"></i>
+                            <input type="text" class="form-control" name="numero_adherent" placeholder="ADH001" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Date inscription / Naissance -->
+                <div class="row g-3 mb-3">
+                    <div class="col-6">
+                        <label class="form-label">Date d'inscription *</label>
+                        <input type="date" class="form-control" name="date_inscription" required>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">Date de naissance</label>
+                        <input type="date" class="form-control" name="date_naissance">
+                    </div>
+                </div>
+
+                <!-- Genre / Statut -->
+                <div class="row g-3 mb-3">
+                    <div class="col-6">
+                        <label class="form-label">Genre</label>
+                        <select class="form-select" name="genre">
+                            <option value="">Sélectionner</option>
+                            <option value="M">Masculin</option>
+                            <option value="F">Féminin</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">Statut</label>
+                        <select class="form-select" name="statut">
+                            <option value="actif">Actif</option>
+                            <option value="suspendu">Suspendu</option>
+                            <option value="retraité">Retraité</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Adresse -->
+                <div class="mb-3">
+                    <label class="form-label">Adresse</label>
+                    <div class="input-group">
+                        <i class="input-icon fas fa-map-marker-alt"></i>
+                        <input type="text" class="form-control" name="adresse" placeholder="Rue, quartier…">
+                    </div>
+                </div>
+
+                <!-- Ville / Code postal -->
+                <div class="row g-3">
+                    <div class="col-7">
+                        <label class="form-label">Ville</label>
+                        <input type="text" class="form-control" name="ville" placeholder="Ouagadougou">
+                    </div>
+                    <div class="col-5">
+                        <label class="form-label">Code postal</label>
+                        <input type="text" class="form-control" name="code_postal" placeholder="01 BP…">
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Footer modal -->
+        <div style="padding:1.25rem 1.5rem;border-top:1px solid var(--gray-200);display:flex;gap:10px;justify-content:flex-end">
+            <button onclick="closeModal()" class="btn btn-outline-secondary">Annuler</button>
+            <button onclick="saveAdherent()" class="btn btn-primary" id="saveBtn">
+                <i class="fas fa-save"></i> Enregistrer
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+const API_URL   = 'https://projetdevwebgroupe-production.up.railway.app/api';
+const TOKEN_KEY = 'mamutuelle_token';
+const USER_KEY  = 'mamutuelle_user';
+
+const token = localStorage.getItem(TOKEN_KEY);
+if (!token) window.location.href = 'login.html';
+
+const user    = JSON.parse(localStorage.getItem(USER_KEY) || '{}');
+const headers = { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json', 'Content-Type': 'application/json' };
+
+/* ---- Init user ---- */
+function initUser() {
+    const name = user.name || 'Utilisateur';
+    const init = name.charAt(0).toUpperCase();
+    document.getElementById('sidebarAvatar').textContent = init;
+    document.getElementById('topbarAvatar').textContent  = init;
+    document.getElementById('sidebarName').textContent   = name;
+    document.getElementById('sidebarRole').textContent   = user.role || '—';
+}
+
+/* ---- Logout ---- */
+document.getElementById('logoutBtn').addEventListener('click', e => {
+    e.preventDefault();
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
+    window.location.href = 'login.html';
+});
+
+/* ---- Sidebar ---- */
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('open');
+}
+function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('open');
+}
+
+/* ---- Données ---- */
+let allAdherents = [];
+const PAGE_SIZE  = 10;
+let   currentPage = 1;
+let   filtered   = [];
+let   selectedId  = null;
+
+/* ---- Pill statut ---- */
+function pillStatut(s) {
+    const map = { actif: 'pill-green', suspendu: 'pill-red', 'retraité': 'pill-blue' };
+    return `<span class="pill ${map[s] || 'pill-gray'}">${s}</span>`;
+}
+
+/* ---- KPIs ---- */
+function updateKPIs(list) {
+    document.getElementById('kpiTotal').textContent     = list.length;
+    document.getElementById('kpiActifs').textContent    = list.filter(a => a.statut === 'actif').length;
+    document.getElementById('kpiSuspendus').textContent = list.filter(a => a.statut === 'suspendu').length;
+    document.getElementById('kpiRetraites').textContent = list.filter(a => a.statut === 'retraité').length;
+    document.getElementById('totalLabel').textContent   = list.length;
+}
+
+/* ---- Render table ---- */
+function renderTable(list, page = 1) {
+    currentPage = page;
+    filtered    = list;
+    const total = list.length;
+    const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+    const start = (page - 1) * PAGE_SIZE;
+    const slice = list.slice(start, start + PAGE_SIZE);
+
+    document.getElementById('tableInfo').textContent = `${total} résultat(s)`;
+    document.getElementById('paginationInfo').textContent = `${start + 1}–${Math.min(start + PAGE_SIZE, total)} sur ${total}`;
+
+    const tbody = document.getElementById('adherentsTable');
+    if (!slice.length) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:3rem;color:var(--gray-400)">
+            <i class="fas fa-users-slash" style="font-size:1.5rem;margin-bottom:8px;display:block"></i>
+            Aucun adhérent trouvé
+        </td></tr>`;
+    } else {
+        tbody.innerHTML = slice.map(a => `
+            <tr onclick="showDetail(${a.id})" data-id="${a.id}">
+                <td style="padding-left:1.25rem" onclick="event.stopPropagation()">
+                    <input type="checkbox" class="row-check" data-id="${a.id}" style="accent-color:var(--primary);cursor:pointer">
+                </td>
+                <td>
+                    <div style="display:flex;align-items:center;gap:10px">
+                        <div class="avatar-sm" style="background:linear-gradient(135deg,${strColor(a.nom)})">
+                            ${a.prenom.charAt(0)}${a.nom.charAt(0)}
+                        </div>
+                        <div>
+                            <div style="font-weight:600;color:var(--dark)">${a.nom} ${a.prenom}</div>
+                            <div style="font-size:var(--font-size-xs);color:var(--gray-400)">${a.email}</div>
+                        </div>
+                    </div>
+                </td>
+                <td><span style="background:var(--gray-100);padding:3px 8px;border-radius:var(--radius-sm);
+                         font-size:var(--font-size-xs);font-weight:600">${a.numero_adherent}</span></td>
+                <td style="color:var(--gray-500)">${a.telephone || '—'}</td>
+                <td style="color:var(--gray-500)">${a.ville || '—'}</td>
+                <td>${pillStatut(a.statut)}</td>
+                <td style="color:var(--gray-500)">${new Date(a.date_inscription).toLocaleDateString('fr-FR')}</td>
+                <td style="text-align:right;padding-right:1.25rem" onclick="event.stopPropagation()">
+                    <button onclick="deleteAdherent(${a.id})" class="btn btn-outline-secondary btn-sm"
+                            style="color:var(--danger);border-color:var(--danger)">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    /* Pagination */
+    const btns = document.getElementById('paginationBtns');
+    btns.innerHTML = '';
+    for (let p = 1; p <= pages; p++) {
+        const btn = document.createElement('button');
+        btn.textContent = p;
+        btn.style.cssText = `width:30px;height:30px;border-radius:var(--radius-sm);border:1px solid var(--gray-200);
+            cursor:pointer;font-size:var(--font-size-xs);font-family:var(--font);
+            background:${p === page ? 'var(--primary)' : 'var(--white)'};
+            color:${p === page ? '#fff' : 'var(--gray-700)'};font-weight:${p === page ? '700' : '400'}`;
+        btn.onclick = () => renderTable(filtered, p);
+        btns.appendChild(btn);
+    }
+}
+
+/* Couleur avatar déterministe */
+function strColor(str = '') {
+    const colors = [
+        '#0066CC,#00AA55', '#0080ff,#00c875', '#6366f1,#8b5cf6',
+        '#f43f5e,#fb923c', '#0d9488,#0ea5e9', '#7c3aed,#a855f7'
+    ];
+    let h = 0;
+    for (const c of str) h = (h * 31 + c.charCodeAt(0)) % colors.length;
+    return colors[h];
+}
+
+/* ---- Chargement ---- */
+async function loadAdherents() {
+    document.getElementById('adherentsTable').innerHTML = `
+        <tr><td colspan="8" style="text-align:center;padding:3rem;color:var(--gray-400)">
+            <i class="fas fa-spinner fa-spin" style="font-size:1.5rem"></i>
+            <div style="margin-top:8px;font-size:var(--font-size-sm)">Chargement…</div>
+        </td></tr>`;
+    try {
+        const res  = await fetch(`${API_URL}/adherents`, { headers });
+        const data = await res.json();
+        allAdherents = data.data || data || [];
+        updateKPIs(allAdherents);
+        filterTable();
+    } catch (e) {
+        document.getElementById('adherentsTable').innerHTML =
+            `<tr><td colspan="8" style="text-align:center;padding:3rem;color:var(--danger)">
+                <i class="fas fa-exclamation-circle" style="font-size:1.5rem;margin-bottom:8px;display:block"></i>
+                Erreur de chargement
+            </td></tr>`;
+    }
+}
+
+/* ---- Filtres ---- */
+function filterTable() {
+    const s  = document.getElementById('searchInput').value.toLowerCase();
+    const st = document.getElementById('filterStatut').value;
+    const g  = document.getElementById('filterGenre').value;
+    const result = allAdherents.filter(a => {
+        const matchS  = !s  || `${a.nom} ${a.prenom} ${a.email} ${a.numero_adherent} ${a.ville || ''}`.toLowerCase().includes(s);
+        const matchSt = !st || a.statut === st;
+        const matchG  = !g  || a.genre === g;
+        return matchS && matchSt && matchG;
+    });
+    renderTable(result, 1);
+}
+document.getElementById('searchInput').addEventListener('input', filterTable);
+document.getElementById('filterStatut').addEventListener('change', filterTable);
+document.getElementById('filterGenre').addEventListener('change', filterTable);
+
+/* ---- Select all ---- */
+document.getElementById('selectAll').addEventListener('change', function () {
+    document.querySelectorAll('.row-check').forEach(cb => cb.checked = this.checked);
+});
+
+/* ---- Détail ---- */
+function showDetail(id) {
+    const a = allAdherents.find(x => x.id === id);
+    if (!a) return;
+    selectedId = id;
+    document.getElementById('detailAvatar').textContent = `${a.prenom.charAt(0)}${a.nom.charAt(0)}`;
+    document.getElementById('detailName').textContent   = `${a.nom} ${a.prenom}`;
+    document.getElementById('detailNumero').textContent = a.numero_adherent;
+
+    const rows = [
+        ['Email',         a.email],
+        ['Téléphone',     a.telephone || '—'],
+        ['Statut',        pillStatut(a.statut)],
+        ['Genre',         a.genre === 'M' ? 'Masculin' : a.genre === 'F' ? 'Féminin' : '—'],
+        ['Date de naissance', a.date_naissance ? new Date(a.date_naissance).toLocaleDateString('fr-FR') : '—'],
+        ['Date d\'inscription', new Date(a.date_inscription).toLocaleDateString('fr-FR')],
+        ['Adresse',       a.adresse || '—'],
+        ['Ville',         a.ville || '—'],
+        ['Code postal',   a.code_postal || '—'],
+    ];
+
+    document.getElementById('detailBody').innerHTML = `
+        <div style="background:var(--gradient-light);border-radius:var(--radius);padding:1rem;margin-bottom:1.25rem;text-align:center">
+            <div class="avatar" style="width:56px;height:56px;font-size:1.2rem;margin:0 auto 8px">
+                ${a.prenom.charAt(0)}${a.nom.charAt(0)}
+            </div>
+            <div style="font-weight:800;font-size:1.1rem">${a.nom} ${a.prenom}</div>
+            <div style="font-size:var(--font-size-xs);color:var(--gray-500)">${a.email}</div>
+        </div>
+        ${rows.map(([l, v]) => `
+            <div class="detail-row">
+                <span class="lbl">${l}</span>
+                <span class="val">${v}</span>
+            </div>
+        `).join('')}
+    `;
+
+    document.getElementById('detailDeleteBtn').onclick = () => deleteAdherent(id);
+    document.getElementById('detailPanel').classList.add('open');
+}
+
+function closeDetail() {
+    document.getElementById('detailPanel').classList.remove('open');
+    selectedId = null;
+}
+
+/* ---- Modal ---- */
+function openModal() {
+    document.getElementById('modalOverlay').style.display = 'flex';
+    document.getElementById('adherentForm').reset();
+    document.getElementById('modalAlert').className = 'alert d-none';
+    // Pré-remplir date du jour
+    document.querySelector('[name="date_inscription"]').value = new Date().toISOString().split('T')[0];
+}
+function closeModal() {
+    document.getElementById('modalOverlay').style.display = 'none';
+}
+
+/* ---- Sauvegarde ---- */
+async function saveAdherent() {
+    const form  = document.getElementById('adherentForm');
+    const body  = Object.fromEntries(new FormData(form).entries());
+    const alert = document.getElementById('modalAlert');
+    const btn   = document.getElementById('saveBtn');
+
+    if (!body.nom || !body.prenom || !body.email || !body.numero_adherent || !body.date_inscription) {
+        alert.className = 'alert alert-danger';
+        alert.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>Veuillez remplir tous les champs obligatoires.';
+        alert.classList.remove('d-none');
+        return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Enregistrement…';
+
+    try {
+        const res  = await fetch(`${API_URL}/adherents`, { method: 'POST', headers, body: JSON.stringify(body) });
+        const data = await res.json();
+        if (res.ok) {
+            alert.className = 'alert alert-success';
+            alert.innerHTML = '<i class="fas fa-check-circle me-2"></i>Adhérent enregistré avec succès !';
+            alert.classList.remove('d-none');
+            await loadAdherents();
+            setTimeout(closeModal, 1200);
+        } else {
+            let msg = data.message || 'Erreur lors de l\'enregistrement.';
+            if (data.errors) msg = Object.values(data.errors)[0]?.[0] || msg;
+            alert.className = 'alert alert-danger';
+            alert.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i>${msg}`;
+            alert.classList.remove('d-none');
+        }
+    } catch (e) {
+        alert.className = 'alert alert-danger';
+        alert.innerHTML = '<i class="fas fa-wifi me-2"></i>Erreur de connexion au serveur.';
+        alert.classList.remove('d-none');
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-save"></i> Enregistrer';
+}
+
+/* ---- Suppression ---- */
+async function deleteAdherent(id) {
+    if (!confirm('Supprimer cet adhérent définitivement ?')) return;
+    try {
+        const res = await fetch(`${API_URL}/adherents/${id}`, { method: 'DELETE', headers });
+        if (res.ok) {
+            closeDetail();
+            await loadAdherents();
+        } else {
+            alert('Erreur lors de la suppression.');
+        }
+    } catch (e) { alert('Erreur de connexion.'); }
+}
+
+/* ---- Export CSV ---- */
+function exportCSV() {
+    const cols = ['numero_adherent','nom','prenom','email','telephone','ville','statut','date_inscription'];
+    const head = 'N° Adhérent,Nom,Prénom,Email,Téléphone,Ville,Statut,Inscription';
+    const rows = filtered.map(a => cols.map(c => `"${a[c] || ''}"`).join(',')).join('\n');
+    const blob = new Blob([head + '\n' + rows], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = 'adherents.csv'; a.click();
+    URL.revokeObjectURL(url);
+}
+
+/* ---- Init ---- */
+initUser();
+loadAdherents();
+</script>
+</body>
+</html>
