@@ -3,65 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="MaMutuelle - Connexion à votre espace de gestion">
-    <title>MaMutuelle — Connexion</title>
-
-    <!-- Bootstrap CSS -->
+    <title>MaMutuelle – Connexion</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- MaMutuelle CSS unifié -->
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<!-- =============================================
-     PAGE LOGIN  — LAYOUT SPLIT
-     ============================================= -->
 <div class="auth-page">
 
-    <!-- ==================
-         PANNEAU GAUCHE
-         ================== -->
+    <!-- ===== PANNEAU GAUCHE ===== -->
     <div class="auth-panel-left">
 
         <!-- Logo -->
         <div class="auth-brand">
             <div class="auth-brand-icon">
-                <i class="fas fa-shield-alt" style="color:#fff;"></i>
+                <i class="fas fa-shield-alt" style="color:#fff"></i>
             </div>
-            <div class="auth-brand-name">
-                Ma<span>Mutuelle</span>
-            </div>
+            <div class="auth-brand-name">Ma<span>Mutuelle</span></div>
         </div>
 
-        <!-- Texte héro -->
+        <!-- Texte hero -->
         <div class="auth-hero">
-            <h1>
-                Bienvenue sur<br>
-                votre espace <em>sécurisé</em>
-            </h1>
+            <h1>Gérez votre mutuelle<br><em>simplement.</em></h1>
             <p>
-                Gérez vos adhérents, cotisations, prêts et sinistres
-                depuis une seule plateforme intuitive et fiable.
+                Accédez à votre espace personnel pour suivre vos cotisations,
+                vos prêts, vos sinistres et bien plus encore.
             </p>
-        </div>
 
-        <!-- Statistiques -->
-        <div class="auth-stats">
-            <div class="auth-stat">
-                <span class="auth-stat-value">100%</span>
-                <span class="auth-stat-label">Sécurisé</span>
-            </div>
-            <div class="auth-stat-divider"></div>
-            <div class="auth-stat">
-                <span class="auth-stat-value">24/7</span>
-                <span class="auth-stat-label">Disponible</span>
-            </div>
-            <div class="auth-stat-divider"></div>
-            <div class="auth-stat">
-                <span class="auth-stat-value">v1.0</span>
-                <span class="auth-stat-label">Version</span>
+            <!-- Statistiques -->
+            <div class="auth-stats">
+                <div class="auth-stat">
+                    <span class="auth-stat-value">1 200+</span>
+                    <span class="auth-stat-label">Adhérents</span>
+                </div>
+                <div class="auth-stat-divider"></div>
+                <div class="auth-stat">
+                    <span class="auth-stat-value">98%</span>
+                    <span class="auth-stat-label">Satisfaction</span>
+                </div>
+                <div class="auth-stat-divider"></div>
+                <div class="auth-stat">
+                    <span class="auth-stat-value">24/7</span>
+                    <span class="auth-stat-label">Disponible</span>
+                </div>
             </div>
         </div>
 
@@ -69,142 +54,145 @@
         <div class="auth-floats">
             <div class="auth-float-card">
                 <div class="auth-float-icon afc-green">
-                    <i class="fas fa-check" style="color:#fff; font-size:11px;"></i>
+                    <i class="fas fa-check" style="color:#7ee8a4;font-size:12px"></i>
                 </div>
-                <div>
-                    <div style="font-size:0.72rem;opacity:0.65;">Nouvelle cotisation</div>
-                    <div>Payée avec succès</div>
-                </div>
+                <span>Cotisation payée</span>
             </div>
             <div class="auth-float-card">
                 <div class="auth-float-icon afc-blue">
-                    <i class="fas fa-file-alt" style="color:#fff; font-size:11px;"></i>
+                    <i class="fas fa-credit-card" style="color:#fff;font-size:12px"></i>
                 </div>
-                <div>
-                    <div style="font-size:0.72rem;opacity:0.65;">Sinistre #142</div>
-                    <div>En cours de traitement</div>
-                </div>
+                <span>Prêt approuvé</span>
             </div>
         </div>
 
     </div><!-- /auth-panel-left -->
 
-    <!-- ==================
-         PANNEAU DROIT
-         ================== -->
-    <div class="auth-panel-right">
-        <div class="auth-form-box">
 
-            <!-- Logo mobile (visible uniquement sur mobile/tablette) -->
-            <div class="auth-mobile-brand text-center mb-4" style="display:none;">
-                <span style="font-size:1.5rem;font-weight:800;color:#1A1A1A;">
-                    <span style="color:#0066CC;">Ma</span><span style="color:#00AA55;">Mutuelle</span>
-                </span>
-                <span class="badge bg-primary ms-2" style="font-size:0.65rem;">v1.0</span>
+    <!-- ===== PANNEAU DROIT (formulaire) ===== -->
+    <div class="auth-panel-right">
+
+        <!-- Mini logo affiché uniquement sur mobile (le panneau gauche est caché) -->
+        <div class="auth-mobile-brand d-none mb-4"
+             style="justify-content:center;align-items:center;gap:10px">
+            <div style="width:38px;height:38px;background:var(--primary);
+                        border-radius:10px;display:flex;align-items:center;
+                        justify-content:center;color:#fff;font-size:18px">
+                <i class="fas fa-shield-alt"></i>
             </div>
+            <span style="font-size:1.4rem;font-weight:800;color:var(--dark)">
+                Ma<span style="color:var(--secondary)">Mutuelle</span>
+            </span>
+        </div>
+
+        <div class="auth-form-box">
 
             <!-- En-tête -->
             <div class="auth-form-header">
-                <h2>Connexion</h2>
-                <p>Entrez vos identifiants pour accéder à votre tableau de bord.</p>
-            </div>
-
-            <!-- Alertes -->
-            <div class="alert alert-danger" id="alertError" style="display:none;">
-                <i class="fas fa-exclamation-triangle"></i>
-                <span id="alertErrorMsg"></span>
-            </div>
-            <div class="alert alert-success" id="alertSuccess" style="display:none;">
-                <i class="fas fa-check-circle"></i>
-                <span id="alertSuccessMsg"></span>
+                <h2>Bon retour 👋</h2>
+                <p>Connectez-vous à votre espace adhérent</p>
             </div>
 
             <!-- Sélecteur de rôle -->
-            <div class="mb-1">
-                <label class="form-label">Se connecter en tant que</label>
-            </div>
-            <div class="role-selector mb-3">
-                <button class="role-btn active" data-role="admin" onclick="selectRole(this)" type="button">
-                    <span class="role-icon">👑</span>
-                    <span class="role-label">Admin</span>
-                </button>
-                <button class="role-btn" data-role="agent" onclick="selectRole(this)" type="button">
-                    <span class="role-icon">🧑‍💼</span>
-                    <span class="role-label">Agent</span>
-                </button>
-                <button class="role-btn" data-role="adherent" onclick="selectRole(this)" type="button">
+            <div class="role-selector mb-4">
+                <button type="button" class="role-btn active" data-role="adherent">
                     <span class="role-icon">👤</span>
                     <span class="role-label">Adhérent</span>
                 </button>
+                <button type="button" class="role-btn" data-role="agent">
+                    <span class="role-icon">🧑‍💼</span>
+                    <span class="role-label">Agent</span>
+                </button>
+                <button type="button" class="role-btn" data-role="admin">
+                    <span class="role-icon">⚙️</span>
+                    <span class="role-label">Admin</span>
+                </button>
             </div>
 
-            <!-- Champ email -->
-            <div class="mb-3">
-                <label class="form-label" for="email">Adresse email</label>
-                <div class="input-group">
-                    <i class="fas fa-envelope input-icon"></i>
-                    <input
-                        type="email"
-                        class="form-control"
-                        id="email"
-                        placeholder="exemple@mutuelle.bf"
-                        autocomplete="email"
-                    >
+            <!-- Alerte -->
+            <div id="alertBox" class="alert d-none" role="alert"></div>
+
+            <!-- Formulaire -->
+            <form id="loginForm" novalidate>
+                <input type="hidden" id="selectedRole" value="adherent">
+
+                <!-- Email -->
+                <div class="mb-3">
+                    <label class="form-label" for="email">Adresse email</label>
+                    <div class="input-group">
+                        <i class="input-icon fas fa-envelope"></i>
+                        <input
+                            type="email"
+                            class="form-control"
+                            id="email"
+                            placeholder="vous@exemple.com"
+                            autocomplete="email"
+                            required
+                        >
+                    </div>
+                    <div class="invalid-feedback">Veuillez saisir un email valide.</div>
                 </div>
-                <div class="invalid-feedback" id="emailError">Veuillez entrer une adresse email valide.</div>
-            </div>
 
-            <!-- Champ mot de passe -->
-            <div class="mb-3">
-                <label class="form-label" for="password">Mot de passe</label>
-                <div class="input-group">
-                    <i class="fas fa-lock input-icon"></i>
-                    <input
-                        type="password"
-                        class="form-control"
-                        id="password"
-                        placeholder="••••••••"
-                        autocomplete="current-password"
-                    >
-                    <button class="input-action" type="button" onclick="togglePassword()" title="Afficher / masquer">
-                        <i class="fas fa-eye" id="togglePwIcon"></i>
-                    </button>
+                <!-- Mot de passe -->
+                <div class="mb-3">
+                    <label class="form-label" for="password">Mot de passe</label>
+                    <div class="input-group">
+                        <i class="input-icon fas fa-lock"></i>
+                        <input
+                            type="password"
+                            class="form-control"
+                            id="password"
+                            placeholder="••••••••"
+                            autocomplete="current-password"
+                            required
+                        >
+                        <button type="button" class="input-action" id="togglePwd" aria-label="Afficher/masquer">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="invalid-feedback">Veuillez saisir votre mot de passe.</div>
                 </div>
-                <div class="invalid-feedback" id="pwError">Veuillez entrer votre mot de passe (min. 4 caractères).</div>
-            </div>
 
-            <!-- Options -->
-            <div class="auth-options">
-                <label class="remember-label">
-                    <input type="checkbox" id="remember">
-                    Se souvenir de moi
-                </label>
-                <a href="#" style="font-size:0.875rem; font-weight:600; color:var(--primary);">
-                    Mot de passe oublié ?
-                </a>
-            </div>
+                <!-- Remember + Forgot -->
+                <div class="auth-options">
+                    <label class="remember-label">
+                        <input type="checkbox" id="rememberMe">
+                        Se souvenir de moi
+                    </label>
+                    <a href="#" style="font-size:0.85rem;color:var(--primary);font-weight:600">
+                        Mot de passe oublié ?
+                    </a>
+                </div>
 
-            <!-- Bouton submit -->
-            <button class="btn btn-primary w-100 btn-lg" id="loginBtn" onclick="handleLogin()" type="button">
-                <span class="spinner-border spinner-border-sm d-none" id="loginSpinner" role="status" aria-hidden="true"></span>
-                <span id="loginBtnText">
-                    <i class="fas fa-sign-in-alt"></i> Se connecter
-                </span>
-            </button>
+                <!-- Bouton -->
+                <button type="submit" class="btn btn-primary w-100 btn-lg" id="submitBtn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Se connecter
+                </button>
+            </form>
 
             <!-- Divider -->
             <div class="auth-divider">ou</div>
 
+            <!-- Compte test info -->
+            <div style="background:var(--primary-light);border:1px solid #bfdbfe;
+                        border-radius:var(--radius);padding:0.85rem 1rem;
+                        font-size:0.82rem;color:var(--primary-dark)">
+                <i class="fas fa-info-circle me-1"></i>
+                <strong>Compte test :</strong>
+                admin@mamutuelle.fr &nbsp;/&nbsp; <strong>password</strong>
+            </div>
+
             <!-- Lien inscription -->
             <div class="auth-footer-link">
-                Pas encore de compte ?
+                Pas encore membre ?
                 <a href="register.html">Créer un compte</a>
             </div>
 
             <!-- Retour accueil -->
             <div class="auth-back-link">
                 <a href="index.html">
-                    <i class="fas fa-arrow-left" style="font-size:0.7rem;"></i> Retour à l'accueil
+                    <i class="fas fa-arrow-left me-1"></i> Retour à l'accueil
                 </a>
             </div>
 
@@ -213,163 +201,100 @@
 
 </div><!-- /auth-page -->
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 <script>
-// ============================================
-// CONFIG
-// ============================================
-const API_URL   = localStorage.getItem('apiUrl') || 'http://localhost:8000/api';
+const API_URL   = 'https://projetdevwebgroupe-production.up.railway.app/api';
 const TOKEN_KEY = 'mamutuelle_token';
 const USER_KEY  = 'mamutuelle_user';
 
-let selectedRole = 'admin';
-
-// Redirection si déjà connecté
+/* Rediriger si déjà connecté */
 if (localStorage.getItem(TOKEN_KEY)) {
-    window.location.href = '../backend/public/dashboard.html';
+    window.location.href = 'dashboard.html';
 }
 
-// ============================================
-// SÉLECTEUR DE RÔLE
-// ============================================
-function selectRole(btn) {
-    document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    selectedRole = btn.dataset.role;
-}
+/* ---- Sélecteur de rôle ---- */
+document.querySelectorAll('.role-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('selectedRole').value = btn.dataset.role;
+    });
+});
 
-// ============================================
-// TOGGLE MOT DE PASSE
-// ============================================
-function togglePassword() {
-    const input = document.getElementById('password');
-    const icon  = document.getElementById('togglePwIcon');
-    if (input.type === 'password') {
-        input.type    = 'text';
-        icon.className = 'fas fa-eye-slash';
+/* ---- Toggle mot de passe ---- */
+document.getElementById('togglePwd').addEventListener('click', function () {
+    const pwd  = document.getElementById('password');
+    const icon = this.querySelector('i');
+    if (pwd.type === 'password') {
+        pwd.type = 'text';
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
     } else {
-        input.type    = 'password';
-        icon.className = 'fas fa-eye';
+        pwd.type = 'password';
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
     }
+});
+
+/* ---- Afficher une alerte ---- */
+function showAlert(message, type) {
+    const box = document.getElementById('alertBox');
+    box.className = `alert alert-${type}`;
+    box.innerHTML = `<i class="fas fa-${type === 'danger' ? 'exclamation-circle' : 'check-circle'} me-2"></i>${message}`;
+    box.classList.remove('d-none');
 }
 
-// ============================================
-// ALERTES
-// ============================================
-function showError(msg) {
-    document.getElementById('alertSuccess').style.display = 'none';
-    document.getElementById('alertErrorMsg').textContent  = msg;
-    document.getElementById('alertError').style.display   = 'flex';
-}
-
-function showSuccess(msg) {
-    document.getElementById('alertError').style.display    = 'none';
-    document.getElementById('alertSuccessMsg').textContent  = msg;
-    document.getElementById('alertSuccess').style.display   = 'flex';
-}
-
-function hideAlerts() {
-    document.getElementById('alertError').style.display   = 'none';
-    document.getElementById('alertSuccess').style.display = 'none';
-}
-
-// ============================================
-// VALIDATION
-// ============================================
-function validate() {
-    let ok    = true;
-    const email = document.getElementById('email');
-    const pw    = document.getElementById('password');
-
-    email.classList.remove('is-invalid');
-    pw.classList.remove('is-invalid');
-
-    if (!email.value.trim() || !email.value.includes('@')) {
-        email.classList.add('is-invalid');
-        ok = false;
-    }
-    if (!pw.value || pw.value.length < 4) {
-        pw.classList.add('is-invalid');
-        ok = false;
-    }
-    return ok;
-}
-
-// ============================================
-// SOUMISSION
-// ============================================
-async function handleLogin() {
-    hideAlerts();
-    if (!validate()) return;
+/* ---- Soumission du formulaire ---- */
+document.getElementById('loginForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
 
     const email    = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
-    const btn      = document.getElementById('loginBtn');
-    const spinner  = document.getElementById('loginSpinner');
-    const btnText  = document.getElementById('loginBtnText');
+    const btn      = document.getElementById('submitBtn');
 
-    btn.disabled              = true;
-    spinner.classList.remove('d-none');
-    btnText.style.display     = 'none';
+    /* Validation basique */
+    if (!email || !password) {
+        showAlert('Veuillez remplir tous les champs.', 'danger');
+        return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border"></span> Connexion en cours…';
 
     try {
         const response = await fetch(`${API_URL}/login`, {
-            method:  'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body:    JSON.stringify({ email, password, role: selectedRole })
+            method : 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body   : JSON.stringify({ email, password })
         });
 
         const data = await response.json();
 
-        if (!response.ok) {
-            showError(data.error || 'Identifiants incorrects. Veuillez réessayer.');
-            return;
-        }
-
-        if (data.token) {
-            localStorage.setItem(TOKEN_KEY, data.token);
-            localStorage.setItem(USER_KEY, JSON.stringify(data.user));
-
-            if (document.getElementById('remember').checked) {
-                localStorage.setItem('mamutuelle_remember_email', email);
-            } else {
-                localStorage.removeItem('mamutuelle_remember_email');
+        if (response.ok && data.token) {
+            if (document.getElementById('rememberMe').checked) {
+                localStorage.setItem('mm_remember_email', email);
             }
+            localStorage.setItem(TOKEN_KEY, data.token);
+            localStorage.setItem(USER_KEY, JSON.stringify(data.user || {}));
 
-            showSuccess('Connexion réussie ! Redirection en cours…');
-
-            setTimeout(() => {
-                const role = data.user?.role || selectedRole;
-                window.location.href = (role === 'admin' || role === 'agent')
-                    ? '../backend/public/dashboard.html'
-                    : 'dashboard.html';
-            }, 1100);
+            showAlert('Connexion réussie ! Redirection…', 'success');
+            setTimeout(() => window.location.href = 'dashboard.html', 900);
+        } else {
+            showAlert(data.message || 'Email ou mot de passe incorrect.', 'danger');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Se connecter';
         }
 
     } catch (err) {
-        console.error('Login error:', err);
-        showError('Impossible de contacter le serveur. Vérifiez votre connexion.');
-    } finally {
-        btn.disabled          = false;
-        spinner.classList.add('d-none');
-        btnText.style.display = '';
+        showAlert('Impossible de joindre le serveur. Vérifiez votre connexion.', 'danger');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Se connecter';
     }
-}
-
-// Touche Entrée
-document.addEventListener('keydown', e => {
-    if (e.key === 'Enter') handleLogin();
 });
 
-// Pré-remplissage remember me
-const remembered = localStorage.getItem('mamutuelle_remember_email');
-if (remembered) {
-    document.getElementById('email').value      = remembered;
-    document.getElementById('remember').checked = true;
+/* ---- Pré-remplir email si remember ---- */
+const savedEmail = localStorage.getItem('mm_remember_email');
+if (savedEmail) {
+    document.getElementById('email').value = savedEmail;
+    document.getElementById('rememberMe').checked = true;
 }
 </script>
-
 </body>
 </html>
