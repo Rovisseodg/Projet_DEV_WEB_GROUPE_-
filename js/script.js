@@ -8,7 +8,7 @@ console.log('%cMaMutuelle App Loaded', 'color: #0066CC; font-size: 16px; font-we
 // CONFIGURATION
 // ============================================
 
-const API_URL = localStorage.getItem('apiUrl') || 'http://localhost:8000/api';
+const API_URL = 'https://projetdevwebgroupe-production.up.railway.app/api';
 const TOKEN_KEY = 'mamutuelle_token';
 const USER_KEY = 'mamutuelle_user';
 
