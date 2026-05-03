@@ -52,6 +52,9 @@ RUN echo '<VirtualHost *:$PORT>\n\
 # Activer mod_rewrite
 RUN a2enmod rewrite
 
+# Désactiver tous les MPM sauf prefork (nécessaire pour PHP)
+RUN a2dismod mpm_event mpm_worker && a2enmod mpm_prefork
+
 # Créer le script de démarrage
 RUN echo '#!/bin/bash\n\
 cd /var/www/html/backend\n\
