@@ -49,8 +49,7 @@ RUN echo "<VirtualHost *:80>\n\
     </Directory>\n\
     ErrorLog \${APACHE_LOG_DIR}/error.log\n\
     CustomLog \${APACHE_LOG_DIR}/access.log combined\n\
-</VirtualHost>" > /etc/apache2/sites-available/000-default.conf && \
-    echo "Listen \${PORT:-80}" >> /etc/apache2/ports.conf
+</VirtualHost>" > /etc/apache2/sites-available/000-default.conf
 
 # Activer mod_rewrite
 RUN a2enmod rewrite
@@ -107,7 +106,7 @@ php artisan migrate --force || echo "Migration failed, continuing..."\n\
 \n\
 # Configurer Apache pour utiliser le port Railway\n\
 if [ -n "$PORT" ]; then\n\
-    sed -i "s/Listen.*/Listen $PORT/" /etc/apache2/ports.conf\n\
+    sed -i "s/Listen 80/Listen $PORT/" /etc/apache2/ports.conf\n\
     sed -i "s/<VirtualHost \\*:80>/<VirtualHost *:$PORT>/" /etc/apache2/sites-available/000-default.conf\n\
 fi\n\
 \n\
