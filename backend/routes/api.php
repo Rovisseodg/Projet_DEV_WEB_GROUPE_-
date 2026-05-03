@@ -9,30 +9,40 @@ use App\Http\Controllers\SinistreController;
 use App\Http\Controllers\AlerteController;
 
 Route::get('/', function () {
-    return response()->json(['message' => 'MaMutuelle API', 'version' => '1.0']);
+    return response()->json([
+        'message' => 'MaMutuelle API',
+        'version' => '1.0',
+        'status' => 'running'
+    ]);
 });
 
-// Auth Routes
+// Auth Routes (sans middleware)
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-Route::get('/me', [AuthController::class, 'me'])->middleware('auth:api');
+Route::post('/refresh', [AuthController::class, 'refresh']);
 
-// Resource Routes
-Route::apiResource('adherents', AdherentController::class);
-Route::apiResource('cotisations', CotisationController::class);
-Route::apiResource('prets', PretController::class);
-Route::apiResource('sinistres', SinistreController::class);
+// Protected Routes (avec JWT middleware)
+Route::middleware('auth:api')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/me', [AuthController::class, 'me']);
 
-// Alertes Routes
-Route::get('/alertes', [AlerteController::class, 'index']);
-Route::get('/alertes/statistics', [AlerteController::class, 'statistics']);
+    // Resource Routes
+    Route::apiResource('adherents', AdherentController::class);
+    Route::apiResource('cotisations', CotisationController::class);
+    Route::apiResource('prets', PretController::class);
+    Route::apiResource('sinistres', SinistreController::class);
 
-// Stats
-Route::get('/stats', function () {
-    return response()->json([
-        'adherents_total' => \App\Models\Adherent::count(),
-        'cotisations_payees' => \App\Models\Cotisation::where('statut', 'payée')->count(),
-        'prets_actifs' => \App\Models\Pret::where('statut', 'approuvé')->count(),
-        'sinistres_en_cours' => \App\Models\Sinistre::where('statut', 'en cours')->count(),
-    ]);
+    // Alertes Routes
+    Route::get('/alertes', [AlerteController::class, 'index']);
+    Route::get('/alertes/statistics', [AlerteController::class, 'statistics']);
+
+    // Stats
+    Route::get('/stats', function () {
+        return response()->json([
+            'adherents_total' => \App\Models\Adherent::count(),
+            'cotisations_payees' => \App\Models\Cotisation::where('statut', 'payée')->count(),
+            'prets_actifs' => \App\Models\Pret::where('statut', 'approuvé')->count(),
+            'sinistres_en_cours' => \App\Models\Sinistre::where('statut', 'en cours')->count(),
+        ]);
+    });
 });
