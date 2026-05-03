@@ -52,12 +52,26 @@ RUN echo '<VirtualHost *:$PORT>\n\
 # Activer mod_rewrite
 RUN a2enmod rewrite
 
-# Désactiver tous les MPM sauf prefork (nécessaire pour PHP)
-RUN a2dismod mpm_event mpm_worker && a2enmod mpm_prefork
+# Configuration MPM - Désactiver tous les MPM et n'activer que prefork
+RUN a2dismod mpm_event mpm_worker mpm_prefork && \
+    a2enmod mpm_prefork && \
+    echo "LoadModule mpm_prefork_module /usr/lib/apache2/modules/mod_mpm_prefork.so" > /etc/apache2/mods-available/mpm_prefork.load
 
 # Créer le script de démarrage
 RUN echo '#!/bin/bash\n\
 cd /var/www/html/backend\n\
+\n\
+# Vérifier et corriger la configuration MPM\n\
+echo "Vérification MPM..."\n\
+apache2ctl -M | grep mpm || echo "Aucun MPM chargé"\n\
+\n\
+# Forcer la désactivation de tous les MPM sauf prefork\n\
+a2dismod mpm_event mpm_worker 2>/dev/null || true\n\
+a2enmod mpm_prefork 2>/dev/null || true\n\
+\n\
+echo "Configuration MPM après correction:"\n\
+apache2ctl -M | grep mpm\n\
+\n\
 # Utiliser les variables d'\''environnement de Railway pour PostgreSQL\n\
 if [ -n "$DATABASE_URL" ]; then\n\
     # Extraire les informations de connexion depuis DATABASE_URL\n\
@@ -95,10 +109,4 @@ RUN chmod +x /usr/local/bin/start.sh
 EXPOSE $PORT
 
 # Démarrer l'application
-CMD ["/usr/local/bin/start.sh"]
-
-# Exposer le port 80
-EXPOSE 80
-
-# Commande de démarrage
 CMD ["/usr/local/bin/start.sh"]
