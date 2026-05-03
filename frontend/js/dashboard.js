@@ -1,6 +1,6 @@
 // ============================================
 // DASHBOARD.JS – Logique spécifique au dashboard
-// Dépend de script.js (API_URL, TOKEN_KEY, USER_KEY, apiCall, isAuthenticated, logout)
+// Dépend de api.js (API_URL, TOKEN_KEY, USER_KEY, apiCall, isAuthenticated, logout)
 // ============================================
 
 // ============================================
