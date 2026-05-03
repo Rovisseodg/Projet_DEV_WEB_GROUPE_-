@@ -1,6 +1,6 @@
 // ============================================
 // LOGIN.JS – Logique spécifique à login.html
-// Dépend de script.js (login, isAuthenticated, TOKEN_KEY, USER_KEY)
+// Dépend de api.js (login, isAuthenticated, TOKEN_KEY, USER_KEY)
 // ============================================
 
 // ============================================

@@ -1,6 +1,6 @@
 // ============================================
 // REGISTER.JS – Logique spécifique à register.html
-// Dépend de script.js (register, isAuthenticated, TOKEN_KEY, USER_KEY)
+// Dépend de api.js (register, isAuthenticated, TOKEN_KEY, USER_KEY)
 // ============================================
 
 // ============================================

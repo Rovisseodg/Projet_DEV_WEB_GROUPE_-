@@ -13,17 +13,19 @@ return new class extends Migration
     {
         Schema::create('adherents', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->string('numero_adherent')->unique();
             $table->string('nom');
             $table->string('prenom');
-            $table->date('date_naissance');
-            $table->string('sexe');
-            $table->string('adresse');
-            $table->string('telephone');
-            $table->string('email');
-            $table->date('date_adhesion');
-            $table->enum('statut', ['actif', 'inactif', 'suspendu'])->default('actif');
-            $table->decimal('solde_cotisation', 10, 2)->default(0);
+            $table->date('date_naissance')->nullable();
+            $table->string('genre')->nullable();
+            $table->string('adresse')->nullable();
+            $table->string('ville')->nullable();
+            $table->string('code_postal')->nullable();
+            $table->string('telephone')->nullable();
+            $table->string('email')->unique();
+            $table->date('date_inscription')->nullable();
+            $table->enum('statut', ['actif', 'suspendu', 'retraite'])->default('actif');
             $table->timestamps();
         });
     }
