@@ -1,0 +1,38 @@
+# Railway configuration files to ignore
+Procfile
+start.sh
+nixpacks.toml
+
+# Development files
+.env
+.env.local
+.env.development
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+README.md
+docs/
+*.md
+
+# Node.js (if present)
+node_modules/
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Build artifacts
+vendor/
+storage/logs/
+bootstrap/cache/

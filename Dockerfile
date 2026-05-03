@@ -33,7 +33,7 @@ RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
 
 # Configurer Apache pour servir Laravel
-RUN echo '<VirtualHost *:80>\n\
+RUN echo '<VirtualHost *:$PORT>\n\
     DocumentRoot /var/www/html/backend/public\n\
     <Directory /var/www/html/backend/public>\n\
         AllowOverride All\n\
@@ -84,8 +84,8 @@ apache2-foreground' > /usr/local/bin/start.sh
 
 RUN chmod +x /usr/local/bin/start.sh
 
-# Exposer le port 80
-EXPOSE 80
+# Exposer le port dynamique de Railway
+EXPOSE $PORT
 
 # Démarrer l'application
 CMD ["/usr/local/bin/start.sh"]

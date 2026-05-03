@@ -1,23 +1,54 @@
-# 🐳 Docker Compose - MaMutuelle
+# 🐳 Docker Compose - MaMutuelle (Test local)
 version: '3.8'
 
 services:
   # Application Laravel
   app:
     build:
-      context: ./backend
+      context: .
       dockerfile: Dockerfile
     container_name: mamutuelle_app
     restart: unless-stopped
-    working_dir: /var/www
-    volumes:
-      - ./backend:/var/www
-      - ./backend/vendor:/var/www/vendor
+    ports:
+      - "8000:80"
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - DB_CONNECTION=pgsql
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_DATABASE=mamutuelle
+      - DB_USERNAME=mamutuelle_user
+      - DB_PASSWORD=mamutuelle_pass
+      - APP_KEY=base64:2Fh6U9w3Z8qTs1rV7yN0mJ6LxQ4pRfB2sC0gHjKlMzQ=
+      - JWT_SECRET=secure-jwt-secret-for-production-use-only-change-this
+    depends_on:
+      - db
     networks:
       - mamutuelle
 
   # Base de données PostgreSQL
   db:
+    image: postgres:15
+    container_name: mamutuelle_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: mamutuelle
+      POSTGRES_USER: mamutuelle_user
+      POSTGRES_PASSWORD: mamutuelle_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - mamutuelle
+
+volumes:
+  postgres_data:
+
+networks:
+  mamutuelle:
+    driver: bridge
     image: postgres:13
     container_name: mamutuelle_db
     restart: unless-stopped
