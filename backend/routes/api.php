@@ -26,23 +26,34 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
 
-    // Resource Routes
-    Route::apiResource('adherents', AdherentController::class);
-    Route::apiResource('cotisations', CotisationController::class);
-    Route::apiResource('prets', PretController::class);
-    Route::apiResource('sinistres', SinistreController::class);
+    // Routes réservées aux admins et agents
+    Route::middleware('App\Http\Middleware\CheckAdminOrAgent')->group(function () {
+        Route::apiResource('adherents', AdherentController::class);
+        Route::apiResource('cotisations', CotisationController::class);
+        Route::apiResource('prets', PretController::class);
+        Route::apiResource('sinistres', SinistreController::class);
+    });
 
-    // Alertes Routes
-    Route::get('/alertes', [AlerteController::class, 'index']);
-    Route::get('/alertes/statistics', [AlerteController::class, 'statistics']);
+    // Routes réservées aux admins uniquement
+    Route::middleware('App\Http\Middleware\CheckRole:admin')->group(function () {
+        Route::post('/register-admin', [AuthController::class, 'registerAdmin']);
+    });
 
-    // Stats
-    Route::get('/stats', function () {
-        return response()->json([
-            'adherents_total' => \App\Models\Adherent::count(),
-            'cotisations_payees' => \App\Models\Cotisation::where('statut', 'payée')->count(),
-            'prets_actifs' => \App\Models\Pret::where('statut', 'approuvé')->count(),
-            'sinistres_en_cours' => \App\Models\Sinistre::where('statut', 'en cours')->count(),
-        ]);
+    // Alertes Routes (accessibles aux admins et agents)
+    Route::middleware('App\Http\Middleware\CheckAdminOrAgent')->group(function () {
+        Route::get('/alertes', [AlerteController::class, 'index']);
+        Route::get('/alertes/statistics', [AlerteController::class, 'statistics']);
+    });
+
+    // Stats (accessibles aux admins et agents)
+    Route::middleware('App\Http\Middleware\CheckAdminOrAgent')->group(function () {
+        Route::get('/stats', function () {
+            return response()->json([
+                'adherents_total' => \App\Models\Adherent::count(),
+                'cotisations_payees' => \App\Models\Cotisation::where('statut', 'payée')->count(),
+                'prets_actifs' => \App\Models\Pret::where('statut', 'approuvé')->count(),
+                'sinistres_en_cours' => \App\Models\Sinistre::where('statut', 'en cours')->count(),
+            ]);
+        });
     });
 });

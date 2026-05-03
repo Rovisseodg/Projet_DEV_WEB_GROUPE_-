@@ -17,7 +17,7 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6',
-            'role' => 'string|in:admin,agent,adherent',
+            'role' => 'string|in:adherent', // Seuls les adhérents peuvent s'inscrire
         ]);
 
         if ($validator->fails()) {
@@ -28,7 +28,7 @@ class AuthController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => $request->role ?? 'adherent',
+            'role' => 'adherent', // Forcer le rôle adhérent pour l'inscription publique
         ]);
 
         $token = JWTAuth::fromUser($user);
@@ -39,6 +39,32 @@ class AuthController extends Controller
             'token' => $token,
             'token_type' => 'bearer',
             'expires_in' => JWTAuth::factory()->getTTL() * 60
+        ], 201);
+    }
+
+    public function registerAdmin(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:6',
+            'role' => 'required|string|in:admin,agent',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => $request->role,
+        ]);
+
+        return response()->json([
+            'message' => 'Utilisateur admin/agent créé avec succès',
+            'user' => $user,
         ], 201);
     }
 

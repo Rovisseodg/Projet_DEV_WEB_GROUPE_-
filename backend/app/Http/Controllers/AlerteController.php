@@ -44,7 +44,7 @@ class AlerteController extends Controller
                 'adherents.email',
                 'adherents.telephone',
                 'prets.montant',
-                DB::raw("date(prets.date_debut + (prets.duree_mois || ' months')::interval) as date_echeance"),
+                DB::raw("(prets.date_debut + (prets.duree_mois || ' months')::interval)::date as date_echeance"),
                 'prets.statut',
                 DB::raw("'pret' as type"),
                 DB::raw("0 as jours_retard")
