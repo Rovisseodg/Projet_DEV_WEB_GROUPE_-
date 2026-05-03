@@ -32,9 +32,11 @@ RUN cp -r frontend/* backend/public/ && \
     cp -r frontend/css/* backend/public/css/ 2>/dev/null || true && \
     cp -r frontend/js/* backend/public/js/ 2>/dev/null || true
 
-# Donner les permissions
+# Donner les permissions appropriées
 RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html
+    && find /var/www/html -type f -exec chmod 644 {} \; \
+    && find /var/www/html -type d -exec chmod 755 {} \; \
+    && chmod -R 775 /var/www/html/backend/storage /var/www/html/backend/bootstrap/cache
 
 # Configurer Apache pour servir Laravel
 RUN echo '<VirtualHost *:$PORT>\n\
@@ -42,8 +44,8 @@ RUN echo '<VirtualHost *:$PORT>\n\
     <Directory /var/www/html/backend/public>\n\
         AllowOverride All\n\
         Require all granted\n\
-        Options Indexes FollowSymLinks\n\
-        DirectoryIndex index.html index.php\n\
+        Options Indexes FollowSymLinks MultiViews\n\
+        DirectoryIndex index.php index.html\n\
     </Directory>\n\
     ErrorLog ${APACHE_LOG_DIR}/error.log\n\
     CustomLog ${APACHE_LOG_DIR}/access.log combined\n\
