@@ -57,22 +57,15 @@ RUN a2enmod rewrite
 # Configuration MPM - Désactiver tous les MPM et n'activer que prefork
 RUN a2dismod mpm_event mpm_worker mpm_prefork && \
     a2enmod mpm_prefork && \
-    echo "LoadModule mpm_prefork_module /usr/lib/apache2/modules/mod_mpm_prefork.so" > /etc/apache2/mods-available/mpm_prefork.load
+    echo "LoadModule mpm_prefork_module /usr/lib/apache2/modules/mod_mpm_prefork.so" > /etc/apache2/mods-available/mpm_prefork.load && \
+    echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 # Créer le script de démarrage
 RUN echo '#!/bin/bash\n\
 cd /var/www/html/backend\n\
 \n\
 # Vérifier et corriger la configuration MPM\n\
-echo "Vérification MPM..."\n\
-apache2ctl -M | grep mpm || echo "Aucun MPM chargé"\n\
-\n\
-# Forcer la désactivation de tous les MPM sauf prefork\n\
-a2dismod mpm_event mpm_worker 2>/dev/null || true\n\
-a2enmod mpm_prefork 2>/dev/null || true\n\
-\n\
-echo "Configuration MPM après correction:"\n\
-apache2ctl -M | grep mpm\n\
+echo "Configuration MPM vérifiée au build"\n\
 \n\
 # Utiliser les variables d'\''environnement de Railway pour PostgreSQL\n\
 if [ -n "$DATABASE_URL" ]; then\n\
