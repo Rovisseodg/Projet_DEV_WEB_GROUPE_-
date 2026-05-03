@@ -27,14 +27,14 @@ class AlerteController extends Controller
                 'cotisations.date_echeance',
                 'cotisations.statut',
                 DB::raw("'cotisation' as type"),
-                DB::raw("CAST((julianday('" . $today . "') - julianday(cotisations.date_echeance)) AS INTEGER) as jours_retard")
+                DB::raw("EXTRACT(DAY FROM (CURRENT_DATE - cotisations.date_echeance::date))::INTEGER as jours_retard")
             ])
             ->get();
 
         // Prêts arrivant à échéance ou en retard
         $pretsEcheance = DB::table('prets')
             ->join('adherents', 'prets.adherent_id', '=', 'adherents.id')
-            ->whereRaw("date(prets.date_debut, '+' || prets.duree_mois || ' months') <= date(?, '+7 days')", [$today])
+            ->whereRaw("(prets.date_debut + (prets.duree_mois || ' months')::interval) <= (CURRENT_DATE + interval '7 days')")
             ->where('prets.statut', '!=', 'remboursé')
             ->select([
                 'prets.id',
@@ -74,8 +74,8 @@ class AlerteController extends Controller
                 ->where('statut', '!=', 'payée')
                 ->sum('montant'),
             'prets_echeance_count' => DB::table('prets')
-                ->whereRaw("date(date_debut, '+' || duree_mois || ' months') <= date(?, '+7 days')", [$today])
-                ->where('statut', '!=', 'remboursé')
+            ->whereRaw("(date_debut + (duree_mois || ' months')::interval) <= (CURRENT_DATE + interval '7 days')")
+            ->where('statut', '!=', 'remboursé')
                 ->count()
         ];
 
