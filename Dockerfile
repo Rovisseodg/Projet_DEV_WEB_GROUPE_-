@@ -39,7 +39,7 @@ RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 775 /var/www/html/backend/storage /var/www/html/backend/bootstrap/cache
 
 # Configurer Apache pour servir Laravel
-RUN echo '<VirtualHost *:$PORT>\n\
+RUN echo "<VirtualHost *:80>\n\
     DocumentRoot /var/www/html/backend/public\n\
     <Directory /var/www/html/backend/public>\n\
         AllowOverride All\n\
@@ -47,9 +47,10 @@ RUN echo '<VirtualHost *:$PORT>\n\
         Options Indexes FollowSymLinks MultiViews\n\
         DirectoryIndex index.php index.html\n\
     </Directory>\n\
-    ErrorLog ${APACHE_LOG_DIR}/error.log\n\
-    CustomLog ${APACHE_LOG_DIR}/access.log combined\n\
-</VirtualHost>' > /etc/apache2/sites-available/000-default.conf
+    ErrorLog \${APACHE_LOG_DIR}/error.log\n\
+    CustomLog \${APACHE_LOG_DIR}/access.log combined\n\
+</VirtualHost>" > /etc/apache2/sites-available/000-default.conf && \
+    echo "Listen \${PORT:-80}" >> /etc/apache2/ports.conf
 
 # Activer mod_rewrite
 RUN a2enmod rewrite
@@ -103,12 +104,19 @@ fi\n\
 php artisan config:cache\n\
 php artisan route:cache\n\
 php artisan migrate --force || echo "Migration failed, continuing..."\n\
+\n\
+# Configurer Apache pour utiliser le port Railway\n\
+if [ -n "$PORT" ]; then\n\
+    sed -i "s/Listen.*/Listen $PORT/" /etc/apache2/ports.conf\n\
+    sed -i "s/<VirtualHost \\*:80>/<VirtualHost *:$PORT>/" /etc/apache2/sites-available/000-default.conf\n\
+fi\n\
+\n\
 apache2-foreground' > /usr/local/bin/start.sh
 
 RUN chmod +x /usr/local/bin/start.sh
 
 # Exposer le port dynamique de Railway
-EXPOSE $PORT
+EXPOSE 80
 
 # Démarrer l'application
 CMD ["/usr/local/bin/start.sh"]
