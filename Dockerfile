@@ -25,9 +25,8 @@ RUN mkdir -p backend/bootstrap/cache backend/storage/logs backend/storage/framew
 # Installer les dépendances PHP
 RUN cd backend && composer install --no-dev --optimize-autoloader
 
-# Copier les fichiers frontend dans le répertoire public de Laravel (sans écraser index.php)
-RUN mkdir -p backend/public/frontend && \
-    cp -r frontend/* backend/public/frontend/ && \
+# Copier les fichiers frontend dans le répertoire public de Laravel
+RUN cp frontend/*.html backend/public/ 2>/dev/null || true && \
     mkdir -p backend/public/css && \
     mkdir -p backend/public/js && \
     cp -r frontend/css/* backend/public/css/ 2>/dev/null || true && \
