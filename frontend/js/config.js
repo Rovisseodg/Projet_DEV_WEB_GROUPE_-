@@ -1,5 +1,18 @@
 // ============================================
 // CONFIGURATION GLOBALE
 // ============================================
-// Modifier cette variable pour changer l'URL de l'API
-window.API_URL = 'http://localhost:8000/api';
+// Configuration automatique de l'URL de l'API
+(function() {
+    // Détection de l'environnement
+    const hostname = window.location.hostname;
+
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        // Environnement de développement
+        window.API_URL = 'http://localhost:8000/api';
+    } else {
+        // Environnement de production (Railway)
+        window.API_URL = window.location.origin + '/api';
+    }
+
+    console.log('API URL configurée:', window.API_URL);
+})();

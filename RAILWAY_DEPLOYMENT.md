@@ -1,10 +1,12 @@
 # 🚀 Déploiement MaMutuelle sur Railway
 
-## 📋 Fichiers de configuration créés
+## 📋 Configuration Docker (RECOMMANDÉ)
 
-- **`Procfile`** : Définit le processus web pour Railway
-- **`start.sh`** : Script de démarrage avec vérifications d'erreur
-- **`nixpacks.toml`** : Configuration Railpack pour PHP/Laravel
+Le projet utilise maintenant Docker pour un déploiement plus fiable :
+
+- **`Dockerfile`** : Configuration Docker avec PHP 8.2 + Apache
+- **`railway.json`** : Configuration Railway pour Docker
+- **`.dockerignore`** : Optimisation du build Docker
 
 ## 🏗️ Structure du projet
 
@@ -12,9 +14,9 @@
 /
 ├── backend/          # API Laravel (point d'entrée)
 ├── frontend/         # Interface utilisateur
-├── nixpacks.toml     # Configuration Railpack
-├── Procfile         # Définition du processus Railway
-├── start.sh         # Script de démarrage
+├── Dockerfile        # Configuration Docker
+├── railway.json      # Configuration Railway
+├── .dockerignore     # Optimisation Docker
 └── docker-compose.yml
 ```
 
@@ -25,29 +27,64 @@
 Assurez-vous que :
 - ✅ Les dépendances sont installées : `composer install` dans `backend/`
 - ✅ Les clés sont configurées dans `backend/.env`
-- ✅ Le fichier `start.sh` est exécutable
+- ✅ Le `Dockerfile` est présent à la racine
 
 ### 2. Déploiement sur Railway
 
 1. **Connectez votre repository GitHub** à Railway
 2. **Railway détectera automatiquement** :
-   - Le langage PHP
-   - Le fichier `nixpacks.toml`
-   - Le script `start.sh`
+   - Le `Dockerfile` pour la construction
+   - La base PostgreSQL sera provisionnée
+   - Les variables d'environnement seront configurées
 
-3. **Ajoutez une base PostgreSQL** :
-   - Dans Railway Dashboard → Add → Database → PostgreSQL
-   - Railway créera automatiquement les variables d'environnement
+3. **Configuration automatique** :
+   - Railway lira `railway.json`
+   - Docker build sera exécuté
+   - Base PostgreSQL sera créée
 
 ### 3. Variables d'environnement
 
 Railway définit automatiquement :
 - `DATABASE_URL` - URL complète PostgreSQL
-- `PORT` - Port d'écoute (défaut: 8000)
+- `APP_URL` - URL de l'application déployée
+- `PORT` - Port d'écoute (80 dans Docker)
 
-### 4. Migration de la base de données
+### 4. Architecture Déploiement
 
-Après déploiement, exécutez dans Railway :
+```
+Railway App (Docker)
+├── Frontend (HTML/CSS/JS) → Servi depuis /backend/public
+├── Backend API (Laravel) → API REST avec JWT
+└── Base de Données (PostgreSQL) → Auto-provisionnée
+```
+
+### 5. Points d'Accès
+
+- **Application** : `https://your-app.railway.app/`
+- **API** : `https://your-app.railway.app/api/`
+- **Dashboard** : `https://your-app.railway.app/dashboard.html`
+
+### 6. Fonctionnalités
+
+✅ Authentification JWT
+✅ Gestion des adhérents
+✅ Gestion des cotisations
+✅ Gestion des prêts
+✅ Gestion des sinistres
+✅ Dashboard avec statistiques
+✅ Interface responsive
+
+### 7. Dépannage
+
+**Si le déploiement échoue :**
+1. Vérifiez les logs Railway
+2. Assurez-vous que le `Dockerfile` est à la racine
+3. Vérifiez que `railway.json` est présent
+4. Testez localement : `docker build -t mamutuelle .`
+
+**Variables d'environnement manquantes :**
+- Railway devrait les définir automatiquement
+- Vérifiez dans les settings du projet Railway
 ```bash
 php artisan migrate
 php artisan db:seed
