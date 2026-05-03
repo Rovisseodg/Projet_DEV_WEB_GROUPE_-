@@ -80,6 +80,28 @@ async function login(email, password) {
 }
 
 /**
+ * S'inscrire
+ */
+async function register(name, email, password, role) {
+    try {
+        const data = await apiCall('/register', {
+            method: 'POST',
+            body: JSON.stringify({ name, email, password, role })
+        });
+
+        if (data.token) {
+            localStorage.setItem(TOKEN_KEY, data.token);
+            localStorage.setItem(USER_KEY, JSON.stringify(data.user));
+            console.log('✓ Register successful');
+            return data;
+        }
+    } catch (error) {
+        console.error('Register failed:', error);
+        throw error;
+    }
+}
+
+/**
  * Se déconnecter
  */
 function logout() {
