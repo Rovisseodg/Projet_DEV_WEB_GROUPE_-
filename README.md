@@ -15,22 +15,22 @@ Lire: `docs/GUIDE_DEMARRAGE_RAPIDE.md`
 MaMutuelle/
 ├── backend/             # Laravel PHP API
 ├── frontend/            # HTML/CSS/JavaScript
-├── database/            # Migrations & seeds
-├── docs/                # Documentation
-├── deployment/          # Config déploiement
-└── .github/workflows/   # CI/CD
+├── database/            # Schémas SQL & migrations
+├── docs/                # Documentation complète
+└── .github/workflows/   # CI/CD (si configuré)
 ```
 
 ## 🛠 Stack
 
-- **Frontend:** HTML5, CSS3, JavaScript, Bootstrap 5
-- **Backend:** PHP 8.1, Laravel 10
-- **Database:** PostgreSQL 13
-- **Hosting:** GitHub Pages + Railway.app (gratuit)
+- **Frontend:** HTML5, CSS3, JavaScript, Bootstrap 5, Chart.js
+- **Backend:** PHP 8.1+, Laravel 11, JWT Auth
+- **Database:** PostgreSQL 13+
+- **Déploiement:** Compatible Nixpacks, Railway, Heroku
 
 ## 📖 Documentation
 
-- [GUIDE_DEMARRAGE_RAPIDE.md](docs/GUIDE_DEMARRAGE_RAPIDE.md) - Setup 30 min
+- [GUIDE_DEMARRAGE_RAPIDE.md](docs/GUIDE_DEMARRAGE_RAPIDE.md) - Setup complet
+- [MIGRATION_POSTGRESQL.md](docs/MIGRATION_POSTGRESQL.md) - Migration BD
 - [RAPPORT_PROJET.md](docs/RAPPORT_PROJET.md) - Specs complètes
 - [GUIDE_HEBERGEMENT.md](docs/GUIDE_HEBERGEMENT.md) - Déploiement
 
@@ -43,6 +43,8 @@ MaMutuelle/
 
 ## 📅 Timeline
 
+- ✅ Migration PostgreSQL
+- ✅ Réorganisation structure
 - Week 1-2: Backend core
 - Week 3-4: Frontend
 - Week 5: Security & tests
