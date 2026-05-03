@@ -101,8 +101,8 @@ document.getElementById('login-form').addEventListener('submit', async function 
     setLoading(true);
 
     try {
-        // Utilise la fonction login() de script.js
-        const data = await login(email, password);
+        // Utilise la fonction login() de api.js
+        const data = await login(email, password, remember);
 
         if (data && data.token) {
             // Option "Se souvenir de moi" : copie aussi en sessionStorage si non coché
