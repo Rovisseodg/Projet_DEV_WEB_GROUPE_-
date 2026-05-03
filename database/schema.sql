@@ -1,9 +1,7 @@
--- MySQL Schema - MaMutuelle
--- Version avec suppression des tables existantes
+-- PostgreSQL Schema - MaMutuelle
+-- Version PostgreSQL avec suppression des tables existantes
 
-SET FOREIGN_KEY_CHECKS = 0;
-
--- Suppression des tables existantes
+-- Suppression des tables existantes (dans l'ordre inverse des dépendances)
 DROP TABLE IF EXISTS audit_logs;
 DROP TABLE IF EXISTS alertes;
 DROP TABLE IF EXISTS prestations;
@@ -21,150 +19,141 @@ DROP TABLE IF EXISTS migrations;
 
 -- 1. USERS
 CREATE TABLE users (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
-    role VARCHAR(50) DEFAULT 'adherent',
+    role VARCHAR(50) DEFAULT 'adherent' CHECK (role IN ('admin', 'agent', 'adherent')),
     email_verified_at TIMESTAMP NULL,
     remember_token VARCHAR(100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 2. ADHERENTS
 CREATE TABLE adherents (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    user_id INT UNSIGNED UNIQUE,
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER UNIQUE REFERENCES users(id) ON DELETE CASCADE,
     nom VARCHAR(255) NOT NULL,
     prenom VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     telephone VARCHAR(20),
     numero_adherent VARCHAR(50) UNIQUE NOT NULL,
     date_inscription DATE NOT NULL,
-    statut VARCHAR(50) DEFAULT 'actif',
+    statut VARCHAR(50) DEFAULT 'actif' CHECK (statut IN ('actif', 'suspendu', 'retraite')),
     adresse VARCHAR(255),
     ville VARCHAR(100),
     code_postal VARCHAR(10),
     date_naissance DATE,
     genre VARCHAR(10),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 3. AYANTS_DROIT
 CREATE TABLE ayants_droit (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    adherent_id INT UNSIGNED NOT NULL,
+    id SERIAL PRIMARY KEY,
+    adherent_id INTEGER NOT NULL REFERENCES adherents(id) ON DELETE CASCADE,
     nom VARCHAR(255) NOT NULL,
     prenom VARCHAR(255) NOT NULL,
-    relation VARCHAR(50),
+    relation VARCHAR(50) CHECK (relation IN ('epoux', 'enfant', 'parent', 'autre')),
     date_naissance DATE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (adherent_id) REFERENCES adherents(id) ON DELETE CASCADE
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 4. COTISATIONS
 CREATE TABLE cotisations (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    adherent_id INT UNSIGNED NOT NULL,
-    montant DECIMAL(10, 2) NOT NULL,
+    id SERIAL PRIMARY KEY,
+    adherent_id INTEGER NOT NULL REFERENCES adherents(id) ON DELETE CASCADE,
+    montant NUMERIC(10, 2) NOT NULL,
     date_echeance DATE NOT NULL,
     date_paiement DATE,
-    statut VARCHAR(50) DEFAULT 'en attente',
+    statut VARCHAR(50) DEFAULT 'en attente' CHECK (statut IN ('en attente', 'payée', 'en retard', 'annulée')),
     reference_paiement VARCHAR(100),
-    mode_paiement VARCHAR(50),
+    mode_paiement VARCHAR(50) CHECK (mode_paiement IN ('virement', 'cheque', 'especes', 'carte')),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (adherent_id) REFERENCES adherents(id) ON DELETE CASCADE
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 5. PRETS
 CREATE TABLE prets (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    adherent_id INT UNSIGNED NOT NULL,
-    montant DECIMAL(10, 2) NOT NULL,
-    taux_interet DECIMAL(5, 2),
-    duree_mois INT NOT NULL,
+    id SERIAL PRIMARY KEY,
+    adherent_id INTEGER NOT NULL REFERENCES adherents(id) ON DELETE CASCADE,
+    montant NUMERIC(10, 2) NOT NULL,
+    taux_interet NUMERIC(5, 2),
+    duree_mois INTEGER NOT NULL,
     date_debut DATE NOT NULL,
     date_fin DATE,
-    statut VARCHAR(50) DEFAULT 'en attente',
+    statut VARCHAR(50) DEFAULT 'en attente' CHECK (statut IN ('en attente', 'approuvé', 'remboursé', 'rejeté')),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (adherent_id) REFERENCES adherents(id) ON DELETE CASCADE
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 6. REMBOURSEMENTS_PRETS
 CREATE TABLE remboursements_prets (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    pret_id INT UNSIGNED NOT NULL,
-    numero_echeance INT,
-    montant DECIMAL(10, 2) NOT NULL,
+    id SERIAL PRIMARY KEY,
+    pret_id INTEGER NOT NULL REFERENCES prets(id) ON DELETE CASCADE,
+    numero_echeance INTEGER,
+    montant NUMERIC(10, 2) NOT NULL,
     date_echeance DATE NOT NULL,
     date_paiement DATE,
-    statut VARCHAR(50) DEFAULT 'en attente',
+    statut VARCHAR(50) DEFAULT 'en attente' CHECK (statut IN ('en attente', 'payée', 'en retard')),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (pret_id) REFERENCES prets(id) ON DELETE CASCADE
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 7. SINISTRES
 CREATE TABLE sinistres (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    adherent_id INT UNSIGNED NOT NULL,
+    id SERIAL PRIMARY KEY,
+    adherent_id INTEGER NOT NULL REFERENCES adherents(id) ON DELETE CASCADE,
     description TEXT NOT NULL,
     date_sinistre DATE NOT NULL,
-    type_sinistre VARCHAR(100),
+    type_sinistre VARCHAR(100) CHECK (type_sinistre IN ('maladie', 'accident', 'décès', 'hospitalisation', 'autre')),
     statut VARCHAR(50) DEFAULT 'déclaré',
-    montant_reclamation DECIMAL(10, 2),
-    montant_remboursement DECIMAL(10, 2),
+    montant_reclamation NUMERIC(10, 2),
+    montant_remboursement NUMERIC(10, 2),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (adherent_id) REFERENCES adherents(id) ON DELETE CASCADE
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 8. PRESTATIONS
 CREATE TABLE prestations (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    sinistre_id INT UNSIGNED,
+    id SERIAL PRIMARY KEY,
+    sinistre_id INTEGER REFERENCES sinistres(id) ON DELETE CASCADE,
     type_prestation VARCHAR(100) NOT NULL,
     description TEXT,
-    montant DECIMAL(10, 2) NOT NULL,
+    montant NUMERIC(10, 2) NOT NULL,
     date_demande DATE NOT NULL,
     date_approbation DATE,
     statut VARCHAR(50) DEFAULT 'en attente',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (sinistre_id) REFERENCES sinistres(id) ON DELETE CASCADE
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 9. ALERTES
 CREATE TABLE alertes (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    adherent_id INT UNSIGNED NOT NULL,
+    id SERIAL PRIMARY KEY,
+    adherent_id INTEGER NOT NULL REFERENCES adherents(id) ON DELETE CASCADE,
     type_alerte VARCHAR(100),
     message TEXT,
     date_alerte TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     statut VARCHAR(50) DEFAULT 'active',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (adherent_id) REFERENCES adherents(id) ON DELETE CASCADE
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 10. AUDIT_LOGS
 CREATE TABLE audit_logs (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    user_id INT UNSIGNED,
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
     action VARCHAR(255) NOT NULL,
     table_name VARCHAR(100),
-    record_id INT,
+    record_id INTEGER,
     old_values TEXT,
     new_values TEXT,
     ip_address VARCHAR(45),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- INDEXES
@@ -196,5 +185,3 @@ INSERT INTO prets (adherent_id, montant, taux_interet, duree_mois, date_debut, s
 
 INSERT INTO sinistres (adherent_id, description, date_sinistre, type_sinistre, statut) VALUES
 (1, 'Consultation médicale', '2024-01-20', 'maladie', 'déclaré');
-
-SET FOREIGN_KEY_CHECKS = 1;
