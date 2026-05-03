@@ -3,58 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="MaMutuelle - Système de gestion d'une mutuelle">
-    <meta name="keywords" content="mutuelle, gestion, adhérents, cotisations, prêts">
+    <meta name="description" content="MaMutuelle - Système de gestion de mutuelle au Burkina Faso">
+    <meta name="keywords" content="mutuelle, gestion, adhérents, cotisations, prêts, Burkina Faso, Ouagadougou">
     <title>MaMutuelle - Gestion de Mutuelle</title>
-    
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+
+    <!-- CSS spécifique à index.html -->
+    <link rel="stylesheet" href="css/index.css">
 </head>
 <body>
+
     <!-- ===========================
-         NAVIGATION BAR
+         NAVIGATION
          =========================== -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm sticky-top">
-        <div class="container-fluid">
+    <nav class="navbar navbar-expand-lg sticky-top" id="mainNav">
+        <div class="container">
             <a class="navbar-brand" href="index.html">
-                <strong style="color: #0066CC;">Ma</strong><strong style="color: #00AA55;">Mutuelle</strong>
-                <span class="ms-2 badge bg-primary">v1.0</span>
+                <span class="brand-ma">Ma</span><span class="brand-mutuelle">Mutuelle</span>
+                <span class="brand-badge">v1.0</span>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
-                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler border-0 shadow-none" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Menu">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto align-items-center gap-1">
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="#accueil">
-                            <i class="fas fa-home"></i> Accueil
+                        <a class="nav-link active" href="#accueil">
+                            <i class="fas fa-home me-1"></i> Accueil
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#fonctionnalites">
-                            <i class="fas fa-star"></i> Fonctionnalités
+                            <i class="fas fa-star me-1"></i> Fonctionnalités
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#tarifs">
-                            <i class="fas fa-tag"></i> Tarifs
+                            <i class="fas fa-tag me-1"></i> Tarifs
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#contact">
-                            <i class="fas fa-envelope"></i> Contact
+                            <i class="fas fa-envelope me-1"></i> Contact
                         </a>
                     </li>
                     <li class="nav-item ms-2">
-                        <a class="btn btn-primary btn-sm" href="login.html">
-                            <i class="fas fa-sign-in-alt"></i> Connexion
+                        <a class="btn-nav-cta nav-link" href="login.html">
+                            <i class="fas fa-sign-in-alt me-1"></i> Connexion
                         </a>
                     </li>
                 </ul>
@@ -65,69 +72,120 @@
     <!-- ===========================
          HERO SECTION
          =========================== -->
-    <section class="hero-section py-5" id="accueil">
-        <div class="container">
-            <div class="row align-items-center g-4">
+    <section class="hero-section" id="accueil">
+        <div class="container position-relative">
+            <div class="row align-items-center g-5">
+
+                <!-- Texte gauche -->
                 <div class="col-lg-6">
-                    <h1 class="display-4 fw-bold mb-3">
-                        Gérez votre <span style="color: #0066CC;">mutuelle</span> 
-                        <span style="color: #00AA55;">simplement</span>
+                    <div class="hero-badge">
+                        <span class="dot"></span>
+                        Plateforme de gestion au Burkina Faso
+                    </div>
+                    <h1 class="hero-title">
+                        Gérez votre<br>
+                        <span class="accent-blue">mutuelle</span>
+                        <span class="accent-green"> simplement</span>
                     </h1>
-                    <p class="lead mb-4">
-                        MaMutuelle est une plateforme complète pour administrer vos adhérents, 
-                        gérer les cotisations, les prêts et les sinistres en toute transparence.
+                    <p class="hero-lead">
+                        MaMutuelle est la plateforme complète pour administrer vos adhérents,
+                        suivre les cotisations, gérer les prêts et les sinistres — le tout
+                        en toute transparence.
                     </p>
-                    <div class="d-grid gap-2 d-sm-flex">
-                        <a href="login.html" class="btn btn-primary btn-lg px-4 gap-3">
-                            <i class="fas fa-arrow-right"></i> Commencer maintenant
+                    <div class="d-flex flex-wrap gap-3 hero-buttons">
+                        <a href="register.html" class="btn-hero-primary">
+                            <i class="fas fa-rocket"></i> Commencer gratuitement
                         </a>
-                        <a href="#fonctionnalites" class="btn btn-outline-secondary btn-lg px-4">
-                            <i class="fas fa-info-circle"></i> En savoir plus
+                        <a href="#fonctionnalites" class="btn-hero-secondary">
+                            <i class="fas fa-play-circle"></i> Voir les fonctionnalités
                         </a>
                     </div>
+
+                    <!-- Trust indicators -->
+                    <div class="d-flex align-items-center gap-3 mt-4 flex-wrap">
+                        <span style="font-size:0.78rem; color:var(--gray-500);">
+                            <i class="fas fa-shield-alt text-success me-1"></i> Données sécurisées
+                        </span>
+                        <span style="font-size:0.78rem; color:var(--gray-500);">
+                            <i class="fas fa-check-circle text-success me-1"></i> Accès immédiat
+                        </span>
+                        <span style="font-size:0.78rem; color:var(--gray-500);">
+                            <i class="fas fa-mobile-alt text-success me-1"></i> Compatible mobile
+                        </span>
+                    </div>
                 </div>
+
+                <!-- Mockup dashboard droite -->
                 <div class="col-lg-6">
-                    <div class="text-center">
-                        <div style="background: linear-gradient(135deg, #0066CC 0%, #00AA55 100%); 
-                                    height: 300px; border-radius: 20px; display: flex; 
-                                    align-items: center; justify-content: center; color: white; 
-                                    font-size: 4rem;">
-                            <i class="fas fa-chart-line"></i>
+                    <div class="hero-visual">
+                        <div class="hero-visual-bar"></div>
+                        <div class="hero-visual-header">
+                            <span class="hero-dot red"></span>
+                            <span class="hero-dot yellow"></span>
+                            <span class="hero-dot green"></span>
+                            <span class="hero-visual-title">MaMutuelle — Tableau de bord</span>
+                        </div>
+                        <div class="hero-visual-body">
+                            <div class="mini-stats">
+                                <div class="mini-stat">
+                                    <div class="label">Adhérents</div>
+                                    <div class="val blue">248</div>
+                                </div>
+                                <div class="mini-stat">
+                                    <div class="label">Cotisations</div>
+                                    <div class="val green">1 840 000</div>
+                                </div>
+                                <div class="mini-stat">
+                                    <div class="label">Prêts actifs</div>
+                                    <div class="val orange">12</div>
+                                </div>
+                                <div class="mini-stat">
+                                    <div class="label">Sinistres</div>
+                                    <div class="val red">3</div>
+                                </div>
+                            </div>
+                            <div style="font-size:0.72rem; color:var(--gray-500); font-weight:600; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px;">
+                                Évolution des cotisations (6 mois)
+                            </div>
+                            <div class="hero-chart-wrap">
+                                <canvas id="heroChart"></canvas>
+                            </div>
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
     </section>
 
     <!-- ===========================
-         STATISTICS
+         STATS SECTION
          =========================== -->
-    <section class="py-5 bg-light">
+    <section class="stats-section">
         <div class="container">
-            <div class="row g-4 text-center">
-                <div class="col-md-3">
+            <div class="row g-0">
+                <div class="col-6 col-md-3">
                     <div class="stat-box">
-                        <h3 class="stat-number">5000+</h3>
-                        <p class="stat-label">Adhérents gérés</p>
+                        <span class="stat-number">500+</span>
+                        <span class="stat-label">Adhérents gérés</span>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-6 col-md-3">
                     <div class="stat-box">
-                        <h3 class="stat-number">99.5%</h3>
-                        <p class="stat-label">Disponibilité</p>
+                        <span class="stat-number">99.5%</span>
+                        <span class="stat-label">Disponibilité</span>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-6 col-md-3">
                     <div class="stat-box">
-                        <h3 class="stat-number">24/7</h3>
-                        <p class="stat-label">Support client</p>
+                        <span class="stat-number">24/7</span>
+                        <span class="stat-label">Accès en ligne</span>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-6 col-md-3">
                     <div class="stat-box">
-                        <h3 class="stat-number">2s</h3>
-                        <p class="stat-label">Temps de chargement</p>
+                        <span class="stat-number">FCFA</span>
+                        <span class="stat-label">Devise locale</span>
                     </div>
                 </div>
             </div>
@@ -137,157 +195,138 @@
     <!-- ===========================
          FEATURES SECTION
          =========================== -->
-    <section class="py-5" id="fonctionnalites">
+    <section class="features-section" id="fonctionnalites">
         <div class="container">
-            <h2 class="text-center mb-5 fw-bold">
-                Nos <span style="color: #0066CC;">Fonctionnalités</span>
-            </h2>
+            <div class="text-center">
+                <span class="section-label">Fonctionnalités</span>
+                <h2 class="section-title">Tout ce dont votre mutuelle a besoin</h2>
+                <p class="section-sub">
+                    Une suite complète d'outils pensés pour simplifier la gestion quotidienne
+                    de votre mutuelle, de l'adhésion au remboursement.
+                </p>
+            </div>
             <div class="row g-4">
-                <!-- Feature 1 -->
+
                 <div class="col-md-6 col-lg-3">
-                    <div class="feature-card h-100">
-                        <div class="feature-icon">
+                    <div class="feature-card">
+                        <div class="feature-icon-wrap fi-blue">
                             <i class="fas fa-users"></i>
                         </div>
-                        <h5 class="fw-bold">Gestion Adhérents</h5>
-                        <p class="text-muted small">
-                            Inscription rapide, gestion des profils et ayants droit, 
-                            historique complet des opérations.
-                        </p>
-                        <ul class="small text-start">
-                            <li>✓ Inscription simplifiée</li>
-                            <li>✓ Gestion ayants droit</li>
-                            <li>✓ Historique opérations</li>
+                        <h5>Gestion Adhérents</h5>
+                        <p>Inscription rapide, profils complets avec ayants droit, historique des opérations.</p>
+                        <ul class="feature-list-items">
+                            <li>Inscription simplifiée</li>
+                            <li>Gestion des ayants droit</li>
+                            <li>Historique complet</li>
                         </ul>
                     </div>
                 </div>
 
-                <!-- Feature 2 -->
                 <div class="col-md-6 col-lg-3">
-                    <div class="feature-card h-100">
-                        <div class="feature-icon" style="color: #00AA55;">
+                    <div class="feature-card">
+                        <div class="feature-icon-wrap fi-green">
                             <i class="fas fa-money-bill-wave"></i>
                         </div>
-                        <h5 class="fw-bold">Cotisations</h5>
-                        <p class="text-muted small">
-                            Suivi des paiements, alertes de retard automatiques, 
-                            calcul d'intérêts.
-                        </p>
-                        <ul class="small text-start">
-                            <li>✓ Suivi en temps réel</li>
-                            <li>✓ Alertes automatiques</li>
-                            <li>✓ Historique paiements</li>
+                        <h5>Cotisations</h5>
+                        <p>Suivi des paiements en FCFA, alertes automatiques de retard, rapports mensuels.</p>
+                        <ul class="feature-list-items">
+                            <li>Suivi en temps réel</li>
+                            <li>Alertes automatiques</li>
+                            <li>Historique des paiements</li>
                         </ul>
                     </div>
                 </div>
 
-                <!-- Feature 3 -->
                 <div class="col-md-6 col-lg-3">
-                    <div class="feature-card h-100">
-                        <div class="feature-icon">
-                            <i class="fas fa-credit-card"></i>
+                    <div class="feature-card">
+                        <div class="feature-icon-wrap fi-orange">
+                            <i class="fas fa-hand-holding-usd"></i>
                         </div>
-                        <h5 class="fw-bold">Gestion Prêts</h5>
-                        <p class="text-muted small">
-                            Demandes en ligne, amortissement calculé, suivi des remboursements.
-                        </p>
-                        <ul class="small text-start">
-                            <li>✓ Demande en ligne</li>
-                            <li>✓ Calcul automatique</li>
-                            <li>✓ Suivi remboursements</li>
+                        <h5>Gestion Prêts</h5>
+                        <p>Demandes en ligne, calcul automatique des remboursements, suivi des échéances.</p>
+                        <ul class="feature-list-items">
+                            <li>Demande en ligne</li>
+                            <li>Calcul automatique</li>
+                            <li>Suivi des remboursements</li>
                         </ul>
                     </div>
                 </div>
 
-                <!-- Feature 4 -->
                 <div class="col-md-6 col-lg-3">
-                    <div class="feature-card h-100">
-                        <div class="feature-icon" style="color: #FF3333;">
+                    <div class="feature-card">
+                        <div class="feature-icon-wrap fi-red">
                             <i class="fas fa-file-invoice"></i>
                         </div>
-                        <h5 class="fw-bold">Gestion Sinistres</h5>
-                        <p class="text-muted small">
-                            Déclaration en ligne, suivi d'état, gestion remboursements.
-                        </p>
-                        <ul class="small text-start">
-                            <li>✓ Déclaration rapide</li>
-                            <li>✓ Suivi dossier</li>
-                            <li>✓ Remboursement rapide</li>
+                        <h5>Gestion Sinistres</h5>
+                        <p>Déclaration rapide, suivi du dossier étape par étape, gestion des remboursements.</p>
+                        <ul class="feature-list-items">
+                            <li>Déclaration rapide</li>
+                            <li>Suivi du dossier</li>
+                            <li>Remboursement rapide</li>
                         </ul>
                     </div>
                 </div>
 
-                <!-- Feature 5 -->
                 <div class="col-md-6 col-lg-3">
-                    <div class="feature-card h-100">
-                        <div class="feature-icon" style="color: #FFAA00;">
+                    <div class="feature-card">
+                        <div class="feature-icon-wrap fi-blue">
                             <i class="fas fa-chart-bar"></i>
                         </div>
-                        <h5 class="fw-bold">Tableau de Bord</h5>
-                        <p class="text-muted small">
-                            Analytics temps réel, graphiques et rapports personnalisés.
-                        </p>
-                        <ul class="small text-start">
-                            <li>✓ Analytics en temps réel</li>
-                            <li>✓ Graphiques interactifs</li>
-                            <li>✓ Exports rapides</li>
+                        <h5>Tableau de Bord</h5>
+                        <p>Statistiques en temps réel, graphiques interactifs, vue d'ensemble immédiate.</p>
+                        <ul class="feature-list-items">
+                            <li>Analytics en temps réel</li>
+                            <li>Graphiques interactifs</li>
+                            <li>Indicateurs clés</li>
                         </ul>
                     </div>
                 </div>
 
-                <!-- Feature 6 -->
                 <div class="col-md-6 col-lg-3">
-                    <div class="feature-card h-100">
-                        <div class="feature-icon">
+                    <div class="feature-card">
+                        <div class="feature-icon-wrap fi-green">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <h5>Alertes</h5>
+                        <p>Notifications automatiques pour les retards de cotisation et les prêts à échéance.</p>
+                        <ul class="feature-list-items">
+                            <li>Alertes cotisations</li>
+                            <li>Alertes prêts</li>
+                            <li>Badge de notification</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card">
+                        <div class="feature-icon-wrap fi-orange">
                             <i class="fas fa-shield-alt"></i>
                         </div>
-                        <h5 class="fw-bold">Sécurité</h5>
-                        <p class="text-muted small">
-                            Authentification JWT, RBAC, chiffrement HTTPS, audit trail.
-                        </p>
-                        <ul class="small text-start">
-                            <li>✓ JWT secure</li>
-                            <li>✓ Encryption SSL/TLS</li>
-                            <li>✓ Audit trail complet</li>
+                        <h5>Sécurité</h5>
+                        <p>Authentification sécurisée, gestion des rôles (admin, agent, adhérent), HTTPS.</p>
+                        <ul class="feature-list-items">
+                            <li>Authentification sécurisée</li>
+                            <li>Gestion des rôles</li>
+                            <li>Chiffrement HTTPS</li>
                         </ul>
                     </div>
                 </div>
 
-                <!-- Feature 7 -->
                 <div class="col-md-6 col-lg-3">
-                    <div class="feature-card h-100">
-                        <div class="feature-icon" style="color: #00AA55;">
+                    <div class="feature-card">
+                        <div class="feature-icon-wrap fi-blue">
                             <i class="fas fa-mobile-alt"></i>
                         </div>
-                        <h5 class="fw-bold">Responsive</h5>
-                        <p class="text-muted small">
-                            Interface mobile-first, accessible sur tous les appareils.
-                        </p>
-                        <ul class="small text-start">
-                            <li>✓ Mobile optimisé</li>
-                            <li>✓ Tablet friendly</li>
-                            <li>✓ Desktop full</li>
+                        <h5>Mobile Friendly</h5>
+                        <p>Interface responsive optimisée pour smartphones et tablettes, accessible partout.</p>
+                        <ul class="feature-list-items">
+                            <li>Mobile optimisé</li>
+                            <li>Compatible tablette</li>
+                            <li>Accès hors bureau</li>
                         </ul>
                     </div>
                 </div>
 
-                <!-- Feature 8 -->
-                <div class="col-md-6 col-lg-3">
-                    <div class="feature-card h-100">
-                        <div class="feature-icon">
-                            <i class="fas fa-clock"></i>
-                        </div>
-                        <h5 class="fw-bold">Support 24/7</h5>
-                        <p class="text-muted small">
-                            Assistance complète, documentation détaillée, mise à jour régulière.
-                        </p>
-                        <ul class="small text-start">
-                            <li>✓ Chat live</li>
-                            <li>✓ Email support</li>
-                            <li>✓ Docs complètes</li>
-                        </ul>
-                    </div>
-                </div>
             </div>
         </div>
     </section>
@@ -295,69 +334,82 @@
     <!-- ===========================
          PRICING SECTION
          =========================== -->
-    <section class="py-5 bg-light" id="tarifs">
+    <section class="pricing-section" id="tarifs">
         <div class="container">
-            <h2 class="text-center mb-5 fw-bold">
-                Nos <span style="color: #0066CC;">Tarifs</span>
-            </h2>
-            <div class="row g-4">
+            <div class="text-center">
+                <span class="section-label">Tarifs</span>
+                <h2 class="section-title">Des offres adaptées à votre mutuelle</h2>
+                <p class="section-sub">
+                    Choisissez la formule qui correspond à la taille et aux besoins de votre organisation.
+                    Tous les prix sont en Franc CFA (FCFA).
+                </p>
+            </div>
+            <div class="row g-4 justify-content-center">
+
                 <!-- Plan Gratuit -->
-                <div class="col-md-4">
+                <div class="col-md-6 col-lg-4">
                     <div class="pricing-card">
-                        <h5 class="mb-3">Gratuit</h5>
-                        <div class="price">
-                            <span class="currency">€</span>
-                            <span class="amount">0</span>
-                            <span class="period">/mois</span>
+                        <div class="pricing-name">Gratuit</div>
+                        <div class="pricing-price">
+                            <span class="pricing-amount">0</span>
+                            <span class="pricing-currency">FCFA</span>
+                            <span class="pricing-period">/mois</span>
                         </div>
-                        <ul class="list-unstyled mt-4 mb-4">
-                            <li class="py-2"><i class="fas fa-check text-success"></i> Jusqu'à 100 adhérents</li>
-                            <li class="py-2"><i class="fas fa-check text-success"></i> Gestion basique</li>
-                            <li class="py-2"><i class="fas fa-check text-success"></i> Support email</li>
-                            <li class="py-2"><i class="fas fa-times text-danger"></i> Analytics avancée</li>
+                        <p class="pricing-desc">Idéal pour démarrer et tester la plateforme</p>
+                        <ul class="pricing-features">
+                            <li><i class="fas fa-check icon-yes"></i> Jusqu'à 50 adhérents</li>
+                            <li><i class="fas fa-check icon-yes"></i> Gestion basique</li>
+                            <li><i class="fas fa-check icon-yes"></i> Alertes automatiques</li>
+                            <li class="disabled"><i class="fas fa-times icon-no"></i> Analytics avancée</li>
+                            <li class="disabled"><i class="fas fa-times icon-no"></i> Support prioritaire</li>
                         </ul>
-                        <button class="btn btn-outline-primary w-100">Commencer</button>
+                        <a href="register.html" class="btn-pricing btn-pricing-outline">Commencer gratuitement</a>
                     </div>
                 </div>
 
-                <!-- Plan Pro -->
-                <div class="col-md-4">
+                <!-- Plan Standard -->
+                <div class="col-md-6 col-lg-4">
                     <div class="pricing-card featured">
-                        <div class="badge bg-primary position-absolute top-0 end-0">Populaire</div>
-                        <h5 class="mb-3">Pro</h5>
-                        <div class="price">
-                            <span class="currency">€</span>
-                            <span class="amount">49</span>
-                            <span class="period">/mois</span>
+                        <span class="pricing-badge">⭐ Le plus populaire</span>
+                        <div class="pricing-name">Standard</div>
+                        <div class="pricing-price">
+                            <span class="pricing-amount">25 000</span>
+                            <span class="pricing-currency">FCFA</span>
+                            <span class="pricing-period">/mois</span>
                         </div>
-                        <ul class="list-unstyled mt-4 mb-4">
-                            <li class="py-2"><i class="fas fa-check text-success"></i> Jusqu'à 5000 adhérents</li>
-                            <li class="py-2"><i class="fas fa-check text-success"></i> Toutes les fonctionnalités</li>
-                            <li class="py-2"><i class="fas fa-check text-success"></i> Analytics avancée</li>
-                            <li class="py-2"><i class="fas fa-check text-success"></i> Support prioritaire</li>
+                        <p class="pricing-desc">Pour les mutuelles en pleine croissance</p>
+                        <ul class="pricing-features">
+                            <li><i class="fas fa-check icon-yes"></i> Jusqu'à 500 adhérents</li>
+                            <li><i class="fas fa-check icon-yes"></i> Toutes les fonctionnalités</li>
+                            <li><i class="fas fa-check icon-yes"></i> Analytics avancée</li>
+                            <li><i class="fas fa-check icon-yes"></i> Support par email</li>
+                            <li class="disabled"><i class="fas fa-times icon-no"></i> Intégrations personnalisées</li>
                         </ul>
-                        <button class="btn btn-primary w-100">Choisir</button>
+                        <a href="register.html" class="btn-pricing btn-pricing-solid">Choisir ce plan</a>
                     </div>
                 </div>
 
-                <!-- Plan Enterprise -->
-                <div class="col-md-4">
+                <!-- Plan Entreprise -->
+                <div class="col-md-6 col-lg-4">
                     <div class="pricing-card">
-                        <h5 class="mb-3">Enterprise</h5>
-                        <div class="price">
-                            <span class="currency">€</span>
-                            <span class="amount">199+</span>
-                            <span class="period">/mois</span>
+                        <div class="pricing-name">Entreprise</div>
+                        <div class="pricing-price">
+                            <span class="pricing-amount">75 000+</span>
+                            <span class="pricing-currency">FCFA</span>
+                            <span class="pricing-period">/mois</span>
                         </div>
-                        <ul class="list-unstyled mt-4 mb-4">
-                            <li class="py-2"><i class="fas fa-check text-success"></i> Adhérents illimités</li>
-                            <li class="py-2"><i class="fas fa-check text-success"></i> Support 24/7</li>
-                            <li class="py-2"><i class="fas fa-check text-success"></i> Intégrations custom</li>
-                            <li class="py-2"><i class="fas fa-check text-success"></i> Audit trail complet</li>
+                        <p class="pricing-desc">Pour les grandes organisations et fédérations</p>
+                        <ul class="pricing-features">
+                            <li><i class="fas fa-check icon-yes"></i> Adhérents illimités</li>
+                            <li><i class="fas fa-check icon-yes"></i> Support téléphonique</li>
+                            <li><i class="fas fa-check icon-yes"></i> Intégrations personnalisées</li>
+                            <li><i class="fas fa-check icon-yes"></i> Audit trail complet</li>
+                            <li><i class="fas fa-check icon-yes"></i> Formation incluse</li>
                         </ul>
-                        <button class="btn btn-outline-primary w-100">Contacter</button>
+                        <a href="#contact" class="btn-pricing btn-pricing-dark">Nous contacter</a>
                     </div>
                 </div>
+
             </div>
         </div>
     </section>
@@ -365,56 +417,63 @@
     <!-- ===========================
          TESTIMONIALS
          =========================== -->
-    <section class="py-5">
+    <section class="testimonials-section">
         <div class="container">
-            <h2 class="text-center mb-5 fw-bold">Ce que disent nos clients</h2>
+            <div class="text-center">
+                <span class="section-label">Témoignages</span>
+                <h2 class="section-title">Ce que disent nos utilisateurs</h2>
+                <p class="section-sub">Des mutuelles du Burkina Faso font confiance à MaMutuelle pour leur gestion quotidienne.</p>
+            </div>
             <div class="row g-4">
+
                 <div class="col-md-4">
                     <div class="testimonial-card">
-                        <div class="stars mb-3">
-                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        <div class="testimonial-stars">★★★★★</div>
+                        <p class="testimonial-text">
+                            "MaMutuelle a complètement transformé notre gestion. Fini les cahiers et les calculs manuels — tout est automatisé, c'est un gain de temps énorme !"
+                        </p>
+                        <div class="testimonial-author">
+                            <div class="testimonial-avatar av-blue">KO</div>
+                            <div>
+                                <div class="testimonial-name">Koné Oumar</div>
+                                <div class="testimonial-role">Directeur, Mutuelle SONABEL</div>
+                            </div>
                         </div>
-                        <p class="fst-italic mb-3">
-                            "MaMutuelle a complètement transformé notre gestion administrative. 
-                            Gain de temps énorme!"
-                        </p>
-                        <p class="fw-bold">
-                            Jean Dupont<br>
-                            <small class="text-muted">Directeur, Mutuelle XYZ</small>
-                        </p>
                     </div>
                 </div>
+
                 <div class="col-md-4">
                     <div class="testimonial-card">
-                        <div class="stars mb-3">
-                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        <div class="testimonial-stars">★★★★★</div>
+                        <p class="testimonial-text">
+                            "L'interface est très intuitive. Même nos agents sans grande expérience informatique l'ont adoptée rapidement. Les alertes automatiques sont indispensables."
+                        </p>
+                        <div class="testimonial-author">
+                            <div class="testimonial-avatar av-green">ZA</div>
+                            <div>
+                                <div class="testimonial-name">Zongo Aminata</div>
+                                <div class="testimonial-role">Admin, Mutuelle des Enseignants</div>
+                            </div>
                         </div>
-                        <p class="fst-italic mb-3">
-                            "Interface intuitive, sécurité top-notch. Exactement ce qu'il nous fallait!"
-                        </p>
-                        <p class="fw-bold">
-                            Marie Martin<br>
-                            <small class="text-muted">Admin, Mutuelle ABC</small>
-                        </p>
                     </div>
                 </div>
+
                 <div class="col-md-4">
                     <div class="testimonial-card">
-                        <div class="stars mb-3">
-                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        <div class="testimonial-stars">★★★★☆</div>
+                        <p class="testimonial-text">
+                            "La gestion des sinistres est beaucoup plus rapide. Nos membres voient l'état de leur dossier en temps réel. On recommande fortement."
+                        </p>
+                        <div class="testimonial-author">
+                            <div class="testimonial-avatar av-dark">BB</div>
+                            <div>
+                                <div class="testimonial-name">Bambara Brice</div>
+                                <div class="testimonial-role">Manager, Mutuelle CNSS Bobo</div>
+                            </div>
                         </div>
-                        <p class="fst-italic mb-3">
-                            "Support excellent et mise à jour régulière. On recommande vivement!"
-                        </p>
-                        <p class="fw-bold">
-                            Paul Bernard<br>
-                            <small class="text-muted">Manager IT, Mutuelle DEF</small>
-                        </p>
                     </div>
                 </div>
+
             </div>
         </div>
     </section>
@@ -422,95 +481,168 @@
     <!-- ===========================
          CONTACT SECTION
          =========================== -->
-    <section class="py-5 bg-light" id="contact">
+    <section class="contact-section" id="contact">
         <div class="container">
-            <h2 class="text-center mb-5 fw-bold">
-                Nous <span style="color: #0066CC;">Contacter</span>
-            </h2>
-            <div class="row g-4">
+            <div class="text-center">
+                <span class="section-label">Contact</span>
+                <h2 class="section-title">Nous <span style="color:var(--primary)">Contacter</span></h2>
+                <p class="section-sub">Une question ? Notre équipe basée à Ouagadougou est disponible pour vous aider.</p>
+            </div>
+
+            <!-- Cartes de contact -->
+            <div class="row g-4 mb-4">
                 <div class="col-md-4">
-                    <div class="text-center contact-box">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <h6 class="fw-bold mt-3">Adresse</h6>
-                        <p class="text-muted">123 Rue de la Paix<br>75001 Paris, France</p>
+                    <div class="contact-card">
+                        <div class="contact-icon-wrap">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <h6>Adresse</h6>
+                        <p>Avenue Kwame N'Krumah<br>Ouagadougou, Burkina Faso</p>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="text-center contact-box">
-                        <i class="fas fa-phone"></i>
-                        <h6 class="fw-bold mt-3">Téléphone</h6>
-                        <p class="text-muted">+33 1 23 45 67 89<br>Lun-Ven: 9h-17h</p>
+                    <div class="contact-card">
+                        <div class="contact-icon-wrap">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <h6>Téléphone</h6>
+                        <p>+226 25 30 00 00<br>Lun–Ven : 8h–17h</p>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="text-center contact-box">
-                        <i class="fas fa-envelope"></i>
-                        <h6 class="fw-bold mt-3">Email</h6>
-                        <p class="text-muted">contact@mamutuelle.fr<br>support@mamutuelle.fr</p>
+                    <div class="contact-card">
+                        <div class="contact-icon-wrap">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <h6>Email</h6>
+                        <p>contact@mamutuelle.bf<br>support@mamutuelle.bf</p>
                     </div>
                 </div>
             </div>
+
+            <!-- Formulaire de contact -->
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="contact-form-wrap">
+                        <h5 class="mb-1" style="font-family:var(--font-head); font-weight:700;">Envoyer un message</h5>
+                        <p class="text-muted mb-4" style="font-size:0.88rem;">Remplissez le formulaire ci-dessous et nous vous répondrons dans les 24h.</p>
+                        <form id="contactForm" novalidate>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Nom complet</label>
+                                    <input type="text" class="form-control" placeholder="Koné Oumar" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Adresse e-mail</label>
+                                    <input type="email" class="form-control" placeholder="kone@exemple.com" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Téléphone</label>
+                                    <input type="tel" class="form-control" placeholder="+226 70 00 00 00">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Sujet</label>
+                                    <select class="form-select">
+                                        <option value="">-- Choisir --</option>
+                                        <option>Demande d'information</option>
+                                        <option>Support technique</option>
+                                        <option>Tarification</option>
+                                        <option>Partenariat</option>
+                                        <option>Autre</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Message</label>
+                                    <textarea class="form-control" rows="4" placeholder="Décrivez votre demande…" required></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <div id="contact-alert" style="display:none;" class="alert mb-3" role="alert"></div>
+                                    <button type="submit" class="btn-submit">
+                                        <i class="fas fa-paper-plane me-2"></i> Envoyer le message
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </section>
 
     <!-- ===========================
          FOOTER
          =========================== -->
-    <footer class="bg-dark text-white py-5">
+    <footer>
         <div class="container">
-            <div class="row g-4 mb-4">
-                <div class="col-md-3">
-                    <h6 class="fw-bold">À Propos</h6>
-                    <p class="small text-muted">
-                        MaMutuelle est la solution complète de gestion de mutuelle, 
-                        simple, sécurisée et gratuite.
+            <div class="row g-4 mb-2">
+                <div class="col-md-4">
+                    <div class="footer-brand">
+                        <span class="fm">Ma</span><span class="fg">Mutuelle</span>
+                    </div>
+                    <p class="footer-desc">
+                        La solution complète de gestion de mutuelle, simple, sécurisée et adaptée
+                        au contexte burkinabè. Développé à Ouagadougou.
                     </p>
+                    <div class="footer-social mt-3">
+                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                    </div>
                 </div>
-                <div class="col-md-3">
-                    <h6 class="fw-bold">Produit</h6>
-                    <ul class="list-unstyled small">
-                        <li><a href="#" class="text-muted text-decoration-none">Fonctionnalités</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Tarifs</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Documentation</a></li>
+                <div class="col-6 col-md-2">
+                    <h6>Produit</h6>
+                    <ul>
+                        <li><a href="#fonctionnalites">Fonctionnalités</a></li>
+                        <li><a href="#tarifs">Tarifs</a></li>
+                        <li><a href="#">Documentation</a></li>
+                        <li><a href="#">Mises à jour</a></li>
                     </ul>
                 </div>
-                <div class="col-md-3">
-                    <h6 class="fw-bold">Légal</h6>
-                    <ul class="list-unstyled small">
-                        <li><a href="#" class="text-muted text-decoration-none">CGU</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Politique vie privée</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Mentions légales</a></li>
+                <div class="col-6 col-md-2">
+                    <h6>Légal</h6>
+                    <ul>
+                        <li><a href="#">CGU</a></li>
+                        <li><a href="#">Vie privée</a></li>
+                        <li><a href="#">Mentions légales</a></li>
+                        <li><a href="#">Cookies</a></li>
                     </ul>
                 </div>
-                <div class="col-md-3">
-                    <h6 class="fw-bold">Suivez-nous</h6>
-                    <ul class="list-unstyled">
-                        <li><a href="#" class="text-muted"><i class="fab fa-facebook"></i> Facebook</a></li>
-                        <li><a href="#" class="text-muted"><i class="fab fa-twitter"></i> Twitter</a></li>
-                        <li><a href="#" class="text-muted"><i class="fab fa-linkedin"></i> LinkedIn</a></li>
+                <div class="col-6 col-md-2">
+                    <h6>Support</h6>
+                    <ul>
+                        <li><a href="#contact">Nous contacter</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Tutoriels</a></li>
+                        <li><a href="#">Signaler un bug</a></li>
+                    </ul>
+                </div>
+                <div class="col-6 col-md-2">
+                    <h6>Compte</h6>
+                    <ul>
+                        <li><a href="login.html">Connexion</a></li>
+                        <li><a href="register.html">Inscription</a></li>
+                        <li><a href="dashboard.html">Tableau de bord</a></li>
                     </ul>
                 </div>
             </div>
-            <hr class="bg-secondary">
-            <div class="row">
-                <div class="col-md-6">
-                    <p class="small text-muted">
-                        &copy; 2026 MaMutuelle. Tous droits réservés.
-                    </p>
-                </div>
-                <div class="col-md-6 text-end">
-                    <p class="small text-muted">
-                        Développé avec <i class="fas fa-heart text-danger"></i> en France
-                    </p>
-                </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 MaMutuelle. Tous droits réservés.</p>
+                <p>Développé avec <i class="fas fa-heart text-danger"></i> au Burkina Faso</p>
             </div>
         </div>
     </footer>
 
-    <!-- ===========================
-         SCRIPTS
-         =========================== -->
+    <!-- Back to top -->
+    <a href="#accueil" class="back-to-top" id="backToTop" aria-label="Retour en haut">
+        <i class="fas fa-chevron-up"></i>
+    </a>
+
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/script.js"></script>
+    <!-- JS spécifique à index.html -->
+    <script src="js/index.js"></script>
+
 </body>
 </html>
