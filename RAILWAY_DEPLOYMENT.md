@@ -1,17 +1,19 @@
 # 🚀 Déploiement MaMutuelle sur Railway
 
-## 📋 Prérequis
+## 📋 Fichiers de configuration créés
 
-- Compte Railway (https://railway.app)
-- Base de données PostgreSQL sur Railway
+- **`Procfile`** : Définit le processus web pour Railway
+- **`start.sh`** : Script de démarrage avec vérifications d'erreur
+- **`nixpacks.toml`** : Configuration Railpack pour PHP/Laravel
 
 ## 🏗️ Structure du projet
 
 ```
 /
-├── backend/          # API Laravel
+├── backend/          # API Laravel (point d'entrée)
 ├── frontend/         # Interface utilisateur
-├── nixpacks.toml     # Configuration Railway
+├── nixpacks.toml     # Configuration Railpack
+├── Procfile         # Définition du processus Railway
 ├── start.sh         # Script de démarrage
 └── docker-compose.yml
 ```
@@ -80,20 +82,28 @@ Après déploiement :
 
 ## 🐛 Dépannage
 
-### Erreur "Script start.sh not found"
-- Vérifiez que `start.sh` est à la racine
-- Assurez-vous qu'il est exécutable : `chmod +x start.sh`
+### Erreur "composer: command not found" ou "php: command not found"
+- **Cause** : Railway n'arrive pas à localiser PHP/Composer
+- **Solution** : Les fichiers `Procfile` et `nixpacks.toml` devraient résoudre ce problème
+- **Vérification** : Assurez-vous que `Procfile` et `nixpacks.toml` sont à la racine
+
+### Erreur "Application failed to respond"
+- **Cause** : Le serveur Laravel ne démarre pas
+- **Solution** : Vérifiez les logs Railway pour les erreurs spécifiques
+- **Commande de debug** : Dans Railway, allez dans "Deployments" → "View Logs"
 
 ### Erreur de base de données
-- Vérifiez les variables `DATABASE_URL`
-- Exécutez manuellement : `php artisan migrate`
+- **Cause** : Variables d'environnement incorrectes
+- **Solution** : Vérifiez que PostgreSQL est bien attaché au service
+- **Variables** : `DATABASE_URL` doit être définie automatiquement par Railway
 
-### Erreur de dépendances
-- Vérifiez que `composer.lock` est présent
-- Relancez le déploiement
+### Erreur "Migration skipped - database not ready"
+- **Cause** : Base de données pas encore disponible lors du déploiement
+- **Solution** : Normale lors du premier déploiement, les migrations se feront automatiquement
 
 ## 📞 Support
 
 Pour les problèmes de déploiement Railway :
 - [Documentation Railway](https://docs.railway.app/)
 - [Railpack Documentation](https://railpack.com/)
+- Vérifiez les logs de déploiement dans Railway Dashboard
