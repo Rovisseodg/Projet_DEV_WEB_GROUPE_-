@@ -18,6 +18,10 @@ WORKDIR /var/www/html
 # Copier les fichiers du projet
 COPY . .
 
+# Créer les répertoires nécessaires avant l'installation des dépendances
+RUN mkdir -p backend/bootstrap/cache backend/storage/logs backend/storage/framework/cache backend/storage/framework/sessions backend/storage/framework/views && \
+    chmod -R 775 backend/bootstrap/cache backend/storage
+
 # Installer les dépendances PHP
 RUN cd backend && composer install --no-dev --optimize-autoloader
 
