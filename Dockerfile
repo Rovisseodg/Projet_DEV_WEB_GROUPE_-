@@ -47,8 +47,8 @@ RUN echo "<VirtualHost *:80>\n\
         Options Indexes FollowSymLinks MultiViews\n\
         DirectoryIndex index.php index.html\n\
     </Directory>\n\
-    ErrorLog \${APACHE_LOG_DIR}/error.log\n\
-    CustomLog \${APACHE_LOG_DIR}/access.log combined\n\
+ErrorLog /proc/self/fd/2\n\
+CustomLog /proc/self/fd/1 combined\n\
 </VirtualHost>" > /etc/apache2/sites-available/000-default.conf
 
 # Activer mod_rewrite
