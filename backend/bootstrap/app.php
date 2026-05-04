@@ -11,8 +11,8 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // CORS configuration pour l'API
-        $middleware->statefulApi();
+        // Sanctum retiré : le projet utilise JWT (tymon/jwt-auth)
+        // $middleware->statefulApi(); ← causait l'erreur Sanctum
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
