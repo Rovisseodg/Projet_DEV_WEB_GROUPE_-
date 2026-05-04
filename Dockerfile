@@ -54,17 +54,16 @@ RUN echo "<VirtualHost *:80>\n\
 # Activer mod_rewrite
 RUN a2enmod rewrite
 
-# Configuration MPM - Nettoyer complètement et forcer prefork
-RUN apt-get update && apt-get install -y apache2 && \
-    a2dismod mpm_event mpm_worker mpm_prefork && \
+# Configuration MPM - forcer un seul MPM (prefork)
+RUN apt-get update && \
+    # Désactiver tous les MPM présents
+    a2dismod -f mpm_event mpm_worker mpm_prefork || true && \
+    # Supprimer toutes les activations MPM (empêche les doubles chargements)
+    rm -f /etc/apache2/mods-enabled/mpm_*.load 2>/dev/null || true && \
+    # Activer uniquement prefork
     a2enmod mpm_prefork && \
-    echo "LoadModule mpm_prefork_module /usr/lib/apache2/modules/mod_mpm_prefork.so" > /etc/apache2/mods-available/mpm_prefork.load && \
-    echo "ServerName localhost" >> /etc/apache2/apache2.conf && \
-    # Désactiver tous les autres MPM dans mods-available
-    rm -f /etc/apache2/mods-enabled/mpm_event.load 2>/dev/null || true && \
-    rm -f /etc/apache2/mods-enabled/mpm_worker.load 2>/dev/null || true && \
-    rm -f /etc/apache2/mods-enabled/mpm_prefork.load 2>/dev/null || true && \
-    ln -s /etc/apache2/mods-available/mpm_prefork.load /etc/apache2/mods-enabled/mpm_prefork.load
+    # S'assurer d'un ServerName pour éviter les warnings
+    echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 # Créer le script de démarrage
 RUN echo '#!/bin/bash\n\
@@ -72,7 +71,11 @@ cd /var/www/html/backend\n\
 \n\
 # Vérifier la configuration Apache avant démarrage\n\
 echo "Vérification configuration Apache..."\n\
-apache2ctl configtest || echo "Configuration test failed, continuing..."\n\
+echo "MPM activés (mods-enabled):"\n\
+ls -1 /etc/apache2/mods-enabled/mpm_*.load 2>/dev/null || echo "Aucun fichier mpm_*.load"\n\
+echo "MPM déclarés (apache2ctl -M | grep mpm):"\n\
+apache2ctl -M 2>/dev/null | grep -i mpm || true\n\
+apache2ctl configtest || { echo "Configuration test failed"; exit 1; }\n\
 \n\
 # Utiliser les variables d'\''environnement de Railway pour PostgreSQL\n\
 if [ -n "$DATABASE_URL" ]; then\n\
