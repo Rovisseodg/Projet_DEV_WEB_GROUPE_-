@@ -122,12 +122,18 @@
                             </div>
 
                             <!-- Bouton connexion -->
-                            <button type="submit" class="btn-login" id="btn-submit">
+                            <button
+                                type="submit"
+                                class="btn-login"
+                                id="btn-submit"
+                                aria-label="Se connecter"
+                                aria-busy="false"
+                            >
                                 <span id="btn-text">
-                                    <i class="fas fa-sign-in-alt me-2"></i>Se connecter
+                                    <i class="fas fa-sign-in-alt me-2" aria-hidden="true"></i>Se connecter
                                 </span>
-                                <span id="btn-loading" class="d-none">
-                                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                <span id="btn-loading" class="d-none" aria-hidden="true">
+                                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
                                     Connexion en cours…
                                 </span>
                             </button>

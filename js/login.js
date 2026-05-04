@@ -50,8 +50,15 @@ function setLoading(loading) {
     const spin = document.getElementById('btn-loading');
 
     btn.disabled = loading;
-    txt.classList.toggle('d-none', loading);
-    spin.classList.toggle('d-none', !loading);
+    btn.setAttribute('aria-busy', String(loading));
+
+    const showingText = !loading;
+    txt.classList.toggle('d-none', !showingText);
+    txt.setAttribute('aria-hidden', String(!showingText));
+
+    const showingSpinner = loading;
+    spin.classList.toggle('d-none', !showingSpinner);
+    spin.setAttribute('aria-hidden', String(!showingSpinner));
 }
 
 // ============================================
