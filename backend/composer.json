@@ -6,7 +6,7 @@
         "php": "^8.0",
         "laravel/framework": "^11.0",
         "laravel/tinker": "^2.8",
-        "tymon/jwt-auth": "^2.0",
+        "php-open-source-saver/jwt-auth": "^2.6",
         "doctrine/dbal": "^3.0"
     },
     "require-dev": {
