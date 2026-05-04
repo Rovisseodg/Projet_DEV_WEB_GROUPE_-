@@ -1,7 +1,5 @@
-# Utiliser l'image PHP officielle avec Apache
 FROM php:8.2-apache
 
-# Installer les extensions PHP nécessaires
 RUN apt-get update && apt-get install -y \
     libpq-dev \
     libzip-dev \
@@ -9,14 +7,12 @@ RUN apt-get update && apt-get install -y \
     git \
     && docker-php-ext-install pdo pdo_pgsql zip bcmath
 
-# Installer Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
 COPY . .
 
-# Créer les répertoires nécessaires
 RUN mkdir -p backend/bootstrap/cache \
     backend/storage/logs \
     backend/storage/framework/cache \
@@ -24,10 +20,9 @@ RUN mkdir -p backend/bootstrap/cache \
     backend/storage/framework/views \
     && chmod -R 775 backend/bootstrap/cache backend/storage
 
-# Installer les dépendances PHP
 RUN cd backend && composer install --no-dev --optimize-autoloader
 
-# Copier les fichiers frontend (ils sont à la RACINE, pas dans frontend/)
+# Copier les fichiers frontend (ils sont à la RACINE du repo)
 RUN cp index.html backend/public/ 2>/dev/null || true && \
     cp login.html backend/public/ 2>/dev/null || true && \
     cp register.html backend/public/ 2>/dev/null || true && \
@@ -41,7 +36,7 @@ RUN chown -R www-data:www-data /var/www/html \
     && find /var/www/html -type d -exec chmod 755 {} \; \
     && chmod -R 775 /var/www/html/backend/storage /var/www/html/backend/bootstrap/cache
 
-# Configurer Apache
+# VirtualHost Apache
 RUN printf '<VirtualHost *:80>\n\
     DocumentRoot /var/www/html/backend/public\n\
     <Directory /var/www/html/backend/public>\n\
@@ -56,7 +51,6 @@ RUN printf '<VirtualHost *:80>\n\
 
 RUN a2enmod rewrite
 
-# Debug PHP
 RUN printf "display_errors=On\nlog_errors=On\nerror_log=/proc/self/fd/2\nerror_reporting=E_ALL\n" \
     > /usr/local/etc/php/conf.d/laravel-railway-debug.ini
 
@@ -66,8 +60,51 @@ RUN a2dismod -f mpm_event mpm_worker mpm_prefork 2>/dev/null || true && \
     a2enmod mpm_prefork && \
     echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
-# Script de démarrage séparé (évite les problèmes d'interpolation)
-COPY start.sh /usr/local/bin/start.sh
+# Créer start.sh directement dans l'image (sans COPY)
+RUN printf '#!/bin/bash\n\
+set -e\n\
+\n\
+cd /var/www/html/backend\n\
+echo "=== Demarrage MaMutuelle ==="\n\
+\n\
+# 1. MPM\n\
+a2dismod -f mpm_event mpm_worker mpm_prefork 2>/dev/null || true\n\
+rm -f /etc/apache2/mods-enabled/mpm_*.load 2>/dev/null || true\n\
+a2enmod mpm_prefork\n\
+\n\
+# 2. PORT Railway - reconstruire ports.conf proprement\n\
+APP_PORT="${PORT:-80}"\n\
+echo "Port utilise : $APP_PORT"\n\
+printf "Listen 0.0.0.0:%%s\\n" "$APP_PORT" > /etc/apache2/ports.conf\n\
+sed -i "s|<VirtualHost \\*:80>|<VirtualHost *:${APP_PORT}>|" /etc/apache2/sites-available/000-default.conf\n\
+\n\
+# 3. Fichier .env\n\
+cat > .env << ENVEOF\n\
+APP_NAME=MaMutuelle\n\
+APP_ENV=production\n\
+APP_KEY=${APP_KEY:-base64:2Fh6U9w3Z8qTs1rV7yN0mJ6LxQ4pRfB2sC0gHjKlMzQ=}\n\
+APP_DEBUG=${APP_DEBUG:-false}\n\
+APP_URL=${APP_URL:-http://localhost}\n\
+LOG_CHANNEL=stderr\n\
+DB_CONNECTION=pgsql\n\
+DATABASE_URL=${DATABASE_URL:-}\n\
+SESSION_DRIVER=file\n\
+JWT_SECRET=${JWT_SECRET:-secure-jwt-secret-change-me}\n\
+ENVEOF\n\
+\n\
+# 4. Laravel cache + migrations\n\
+php artisan config:cache  || echo "[WARN] config:cache failed"\n\
+php artisan route:cache   || echo "[WARN] route:cache failed"\n\
+php artisan migrate --force || echo "[WARN] migrate failed"\n\
+\n\
+# 5. Verif Apache\n\
+apache2ctl configtest\n\
+\n\
+# 6. Lancement\n\
+echo "Lancement Apache sur port $APP_PORT..."\n\
+exec apache2-foreground\n\
+' > /usr/local/bin/start.sh
+
 RUN chmod +x /usr/local/bin/start.sh
 
 EXPOSE 80
