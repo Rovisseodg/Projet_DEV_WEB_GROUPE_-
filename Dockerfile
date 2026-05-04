@@ -87,24 +87,10 @@ echo "MPM déclarés (apache2ctl -M | grep mpm):"\n\
 apache2ctl -M 2>/dev/null | grep -i mpm || true\n\
 apache2ctl configtest || { echo "Configuration test failed"; exit 1; }\n\
 \n\
-# Utiliser les variables d'\''environnement de Railway pour PostgreSQL\n\
-if [ -n "$DATABASE_URL" ]; then\n\
-    # Extraire les informations de connexion depuis DATABASE_URL\n\
-    DB_HOST=$(echo $DATABASE_URL | sed -n '\''s|.*://\([^:]*\):\([^@]*\)@\([^:]*\):\([^/]*\)/\(.*\)|\3|p'\'')\n\
-    DB_PORT=$(echo $DATABASE_URL | sed -n '\''s|.*://\([^:]*\):\([^@]*\)@\([^:]*\):\([^/]*\)/\(.*\)|\4|p'\'')\n\
-    DB_DATABASE=$(echo $DATABASE_URL | sed -n '\''s|.*://\([^:]*\):\([^@]*\)@\([^:]*\):\([^/]*\)/\(.*\)|\5|p'\'')\n\
-    DB_USERNAME=$(echo $DATABASE_URL | sed -n '\''s|.*://\([^:]*\):\([^@]*\)@\([^:]*\):\([^/]*\)/\(.*\)|\1|p'\'')\n\
-    DB_PASSWORD=$(echo $DATABASE_URL | sed -n '\''s|.*://\([^:]*\):\([^@]*\)@\([^:]*\):\([^/]*\)/\(.*\)|\2|p'\'')\n\
-fi\n\
-\n\
 # Créer le fichier .env systématiquement\n\
 cat > .env << EOF\n\
+DATABASE_URL=\$DATABASE_URL\n\
 DB_CONNECTION=pgsql\n\
-DB_HOST=${DB_HOST:-127.0.0.1}\n\
-DB_PORT=${DB_PORT:-5432}\n\
-DB_DATABASE=${DB_DATABASE:-laravel}\n\
-DB_USERNAME=${DB_USERNAME:-root}\n\
-DB_PASSWORD=${DB_PASSWORD:-}\n\
 APP_NAME="MaMutuelle"\n\
 APP_ENV=production\n\
 APP_KEY=${APP_KEY:-base64:2Fh6U9w3Z8qTs1rV7yN0mJ6LxQ4pRfB2sC0gHjKlMzQ=}\n\
