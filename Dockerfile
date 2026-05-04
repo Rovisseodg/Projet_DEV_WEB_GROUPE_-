@@ -71,6 +71,10 @@ cd /var/www/html/backend\n\
 \n\
 # Vérifier la configuration Apache avant démarrage\n\
 echo "Vérification configuration Apache..."\n\
+# Forcer un seul MPM au démarrage (évite AH00534 si l'image contient plusieurs mpm_*.load)\n\
+a2dismod -f mpm_event mpm_worker mpm_prefork || true\n\
+rm -f /etc/apache2/mods-enabled/mpm_*.load 2>/dev/null || true\n\
+a2enmod mpm_prefork\n\
 echo "MPM activés (mods-enabled):"\n\
 ls -1 /etc/apache2/mods-enabled/mpm_*.load 2>/dev/null || echo "Aucun fichier mpm_*.load"\n\
 echo "MPM déclarés (apache2ctl -M | grep mpm):"\n\
