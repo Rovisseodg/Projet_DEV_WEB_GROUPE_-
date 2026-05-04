@@ -110,6 +110,7 @@ APP_KEY=base64:2Fh6U9w3Z8qTs1rV7yN0mJ6LxQ4pRfB2sC0gHjKlMzQ=\n\
 APP_DEBUG=true\n\
 LOG_CHANNEL=stderr\n\
 APP_URL=$APP_URL\n\
+SESSION_DRIVER=file\n\
 JWT_SECRET=secure-jwt-secret-for-production-use-only-change-this\n\
 EOF\n\
 fi\n\
