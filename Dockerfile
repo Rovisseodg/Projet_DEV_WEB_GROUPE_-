@@ -54,6 +54,12 @@ CustomLog /proc/self/fd/1 combined\n\
 # Activer mod_rewrite
 RUN a2enmod rewrite
 
+# Debug PHP: afficher les erreurs et logger vers stderr (Railway)
+RUN echo "display_errors=On" > /usr/local/etc/php/conf.d/laravel-railway-debug.ini && \
+    echo "log_errors=On" >> /usr/local/etc/php/conf.d/laravel-railway-debug.ini && \
+    echo "error_log=/proc/self/fd/2" >> /usr/local/etc/php/conf.d/laravel-railway-debug.ini && \
+    echo "error_reporting=E_ALL" >> /usr/local/etc/php/conf.d/laravel-railway-debug.ini
+
 # Configuration MPM - forcer un seul MPM (prefork)
 RUN apt-get update && \
     # Désactiver tous les MPM présents
