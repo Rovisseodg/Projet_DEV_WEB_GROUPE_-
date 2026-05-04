@@ -94,7 +94,7 @@ DB_CONNECTION=pgsql\n\
 APP_NAME="MaMutuelle"\n\
 APP_ENV=production\n\
 APP_KEY=${APP_KEY:-base64:2Fh6U9w3Z8qTs1rV7yN0mJ6LxQ4pRfB2sC0gHjKlMzQ=}\n\
-APP_DEBUG=true\n\
+APP_DEBUG=${APP_DEBUG:-false}\n\
 LOG_CHANNEL=stderr\n\
 APP_URL=$APP_URL\n\
 SESSION_DRIVER=file\n\
