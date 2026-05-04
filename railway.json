@@ -2,10 +2,11 @@
   "build": {
     "builder": "dockerfile"
   },
-  "databases": [
-    {
-      "name": "mamutuelle",
-      "type": "postgresql"
-    }
-  ]
+  "deploy": {
+    "startCommand": "/usr/local/bin/start.sh",
+    "healthcheckPath": "/api",
+    "healthcheckTimeout": 60,
+    "restartPolicyType": "on_failure",
+    "restartPolicyMaxRetries": 3
+  }
 }
