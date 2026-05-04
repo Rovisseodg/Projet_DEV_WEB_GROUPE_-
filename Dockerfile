@@ -107,8 +107,8 @@ php artisan migrate --force || echo "Migration failed, continuing..."\n\
 \n\
 # Configurer Apache pour utiliser le port Railway\n\
 if [ -n "$PORT" ]; then\n\
-    sed -i "s/Listen 80/Listen $PORT/" /etc/apache2/ports.conf\n\
-    sed -i "s/<VirtualHost \\*:80>/<VirtualHost *:$PORT>/" /etc/apache2/sites-available/000-default.conf\n\
+    sed -i "s/Listen 80/Listen 0.0.0.0:\$ $PORT/" /etc/apache2/ports.conf\n\
+    sed -i "s/<VirtualHost \\*:80>/<VirtualHost 0.0.0.0:\$PORT>/" /etc/apache2/sites-available/000-default.conf\n\
 fi\n\
 \n\
 apache2-foreground' > /usr/local/bin/start.sh
