@@ -95,25 +95,25 @@ if [ -n "$DATABASE_URL" ]; then\n\
     DB_DATABASE=$(echo $DATABASE_URL | sed -n '\''s|.*://\([^:]*\):\([^@]*\)@\([^:]*\):\([^/]*\)/\(.*\)|\5|p'\'')\n\
     DB_USERNAME=$(echo $DATABASE_URL | sed -n '\''s|.*://\([^:]*\):\([^@]*\)@\([^:]*\):\([^/]*\)/\(.*\)|\1|p'\'')\n\
     DB_PASSWORD=$(echo $DATABASE_URL | sed -n '\''s|.*://\([^:]*\):\([^@]*\)@\([^:]*\):\([^/]*\)/\(.*\)|\2|p'\'')\n\
-    \n\
-    # Créer le fichier .env avec les bonnes variables\n\
-    cat > .env << EOF\n\
+fi\n\
+\n\
+# Créer le fichier .env systématiquement\n\
+cat > .env << EOF\n\
 DB_CONNECTION=pgsql\n\
-DB_HOST=$DB_HOST\n\
-DB_PORT=$DB_PORT\n\
-DB_DATABASE=$DB_DATABASE\n\
-DB_USERNAME=$DB_USERNAME\n\
-DB_PASSWORD=$DB_PASSWORD\n\
+DB_HOST=${DB_HOST:-127.0.0.1}\n\
+DB_PORT=${DB_PORT:-5432}\n\
+DB_DATABASE=${DB_DATABASE:-laravel}\n\
+DB_USERNAME=${DB_USERNAME:-root}\n\
+DB_PASSWORD=${DB_PASSWORD:-}\n\
 APP_NAME="MaMutuelle"\n\
 APP_ENV=production\n\
-APP_KEY=base64:2Fh6U9w3Z8qTs1rV7yN0mJ6LxQ4pRfB2sC0gHjKlMzQ=\n\
+APP_KEY=${APP_KEY:-base64:2Fh6U9w3Z8qTs1rV7yN0mJ6LxQ4pRfB2sC0gHjKlMzQ=}\n\
 APP_DEBUG=true\n\
 LOG_CHANNEL=stderr\n\
 APP_URL=$APP_URL\n\
 SESSION_DRIVER=file\n\
-JWT_SECRET=secure-jwt-secret-for-production-use-only-change-this\n\
+JWT_SECRET=${JWT_SECRET:-secure-jwt-secret-for-production-use-only-change-this}\n\
 EOF\n\
-fi\n\
 \n\
 php artisan config:cache\n\
 php artisan route:cache\n\
