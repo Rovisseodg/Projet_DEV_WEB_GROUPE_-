@@ -99,9 +99,10 @@ DB_DATABASE=$DB_DATABASE\n\
 DB_USERNAME=$DB_USERNAME\n\
 DB_PASSWORD=$DB_PASSWORD\n\
 APP_NAME="MaMutuelle"\n\
-APP_ENV=production\n\
+APP_ENV=local\n\
 APP_KEY=base64:2Fh6U9w3Z8qTs1rV7yN0mJ6LxQ4pRfB2sC0gHjKlMzQ=\n\
-APP_DEBUG=false\n\
+APP_DEBUG=true\n\
+LOG_CHANNEL=stderr\n\
 APP_URL=$APP_URL\n\
 JWT_SECRET=secure-jwt-secret-for-production-use-only-change-this\n\
 EOF\n\
