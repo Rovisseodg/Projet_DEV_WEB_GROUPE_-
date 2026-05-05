@@ -1,814 +1,917 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MaMutuelle – Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/dashboard.css">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MaMutuelle – Tableau de bord</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="dashboard.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
 <body>
+<div class="app">
 
-<div class="dashboard-layout" id="app">
+  <!-- ========== SIDEBAR ========== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-brand">
+      <div class="sb-logo">MM</div>
+      <div>
+        <div class="sb-name">MaMutuelle</div>
+        <div class="sb-ver">v1.0 · BF</div>
+      </div>
+    </div>
 
-    <!-- ===== SIDEBAR ===== -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-brand">
-            <div class="brand-logo">
-                <span class="brand-icon">M</span>
-            </div>
-            <div class="brand-text">
-                <span class="brand-ma">Ma</span><span class="brand-mutuelle">Mutuelle</span>
-                <span class="brand-version">v2.0</span>
-            </div>
+    <nav class="sb-nav">
+      <div class="nav-group">
+        <div class="nav-group-label">Principal</div>
+        <div class="nav-item active" data-section="overview">
+          <i class="fas fa-grip-horizontal ni"></i>
+          <span class="ni-label">Vue d'ensemble</span>
+        </div>
+        <div class="nav-item" data-section="alertes">
+          <i class="fas fa-bell ni"></i>
+          <span class="ni-label">Alertes</span>
+          <span class="nav-badge" id="badge-alertes">3</span>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-label">Gestion</div>
+
+        <div class="nav-item" data-toggle="sub-adherents">
+          <i class="fas fa-users ni"></i>
+          <span class="ni-label">Adhérents</span>
+          <i class="fas fa-chevron-right arrow"></i>
+        </div>
+        <div class="nav-sub" id="sub-adherents">
+          <div class="nav-sub-item active" data-section="adherents">
+            <i class="fas fa-list"></i> Liste des adhérents
+          </div>
+          <div class="nav-sub-item" data-section="ayants">
+            <i class="fas fa-child"></i> Ayants droit
+          </div>
         </div>
 
-        <!-- Recherche globale dans sidebar -->
-        <div class="sidebar-search">
-            <i class="fas fa-search"></i>
-            <input type="text" id="globalSearch" placeholder="Rechercher…" autocomplete="off">
+        <div class="nav-item" data-toggle="sub-cotisations">
+          <i class="fas fa-coins ni"></i>
+          <span class="ni-label">Cotisations</span>
+          <i class="fas fa-chevron-right arrow"></i>
         </div>
-        <div class="search-results" id="searchResults"></div>
+        <div class="nav-sub" id="sub-cotisations">
+          <div class="nav-sub-item" data-section="cotisations">
+            <i class="fas fa-list"></i> Liste
+          </div>
+          <div class="nav-sub-item" data-section="cotisations-stats">
+            <i class="fas fa-chart-bar"></i> Statistiques
+          </div>
+        </div>
 
-        <nav class="sidebar-nav">
+        <div class="nav-item" data-toggle="sub-prets">
+          <i class="fas fa-hand-holding-usd ni"></i>
+          <span class="ni-label">Prêts</span>
+          <i class="fas fa-chevron-right arrow"></i>
+        </div>
+        <div class="nav-sub" id="sub-prets">
+          <div class="nav-sub-item" data-section="prets">
+            <i class="fas fa-list"></i> Liste
+          </div>
+          <div class="nav-sub-item" data-section="prets-calcul">
+            <i class="fas fa-calculator"></i> Calculateur
+          </div>
+        </div>
 
-            <!-- Vue d'ensemble -->
-            <div class="nav-item active" data-section="dashboard">
-                <i class="fas fa-chart-pie nav-icon"></i>
-                <span class="nav-label">Vue d'ensemble</span>
+        <div class="nav-item" data-section="sinistres">
+          <i class="fas fa-shield-alt ni"></i>
+          <span class="ni-label">Sinistres</span>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-label">Outils</div>
+        <div class="nav-item" data-section="historique">
+          <i class="fas fa-history ni"></i>
+          <span class="ni-label">Historique</span>
+        </div>
+        <div class="nav-item" data-section="export">
+          <i class="fas fa-file-export ni"></i>
+          <span class="ni-label">Exports</span>
+        </div>
+        <div class="nav-item" data-section="profil">
+          <i class="fas fa-user-circle ni"></i>
+          <span class="ni-label">Mon Profil</span>
+        </div>
+      </div>
+    </nav>
+
+    <div class="sb-footer">
+      <div class="sb-user" onclick="showSection('profil')">
+        <div class="sb-avatar">KO</div>
+        <div class="sb-user-info">
+          <div class="sb-user-name">Koné Oumar</div>
+          <div class="sb-user-role">Administrateur</div>
+        </div>
+        <button class="btn-logout" title="Déconnexion" onclick="handleLogout(event)">
+          <i class="fas fa-sign-out-alt"></i>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ========== MAIN ========== -->
+  <div class="main">
+
+    <!-- HEADER -->
+    <header class="hdr">
+      <button class="hdr-toggle" id="hdr-toggle"><i class="fas fa-bars"></i></button>
+      <div class="hdr-bread">
+        <div class="hdr-bread-main" id="hdr-title">Vue d'ensemble</div>
+        <div class="hdr-bread-sub"  id="hdr-sub">Bonjour, Koné Oumar · Bienvenue sur votre tableau de bord</div>
+      </div>
+
+      <div style="position:relative">
+        <div class="hdr-search" id="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Rechercher adhérent, dossier…" id="global-search" autocomplete="off"/>
+        </div>
+        <div class="search-results" id="search-results"></div>
+      </div>
+
+      <div class="hdr-actions">
+        <div class="hdr-date" id="hdr-date"></div>
+        <button class="hdr-btn" onclick="showSection('alertes')" title="Notifications">
+          <i class="fas fa-bell"></i><span class="dot"></span>
+        </button>
+        <button class="hdr-btn" onclick="showSection('export')" title="Exporter">
+          <i class="fas fa-download"></i>
+        </button>
+        <button class="hdr-btn" onclick="showSection('profil')" title="Profil">
+          <i class="fas fa-user-circle"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- CONTENU -->
+    <div class="content-area">
+
+      <!-- ====== OVERVIEW ====== -->
+      <div class="section active" id="section-overview">
+        <div class="stats-grid">
+          <div class="stat-card s-sienna">
+            <div class="stat-label">Adhérents Actifs</div>
+            <div class="stat-value">248</div>
+            <div class="stat-sub">+12 ce mois</div>
+            <i class="fas fa-users stat-icon"></i>
+          </div>
+          <div class="stat-card s-gold">
+            <div class="stat-label">Cotisations (FCFA)</div>
+            <div class="stat-value">1,84M</div>
+            <div class="stat-sub">94% à jour</div>
+            <i class="fas fa-coins stat-icon"></i>
+          </div>
+          <div class="stat-card s-green">
+            <div class="stat-label">Prêts Actifs</div>
+            <div class="stat-value">12</div>
+            <div class="stat-sub">3 800 000 FCFA encours</div>
+            <i class="fas fa-hand-holding-usd stat-icon"></i>
+          </div>
+          <div class="stat-card s-red">
+            <div class="stat-label">Sinistres en Cours</div>
+            <div class="stat-value">3</div>
+            <div class="stat-sub">1 en attente de décision</div>
+            <i class="fas fa-shield-alt stat-icon"></i>
+          </div>
+        </div>
+
+        <div class="charts-row">
+          <div class="chart-card">
+            <div class="chart-card-head">
+              <div class="chart-title">Évolution des cotisations</div>
+              <div class="chart-period">
+                <button class="period-btn active" data-period="6m">6 mois</button>
+                <button class="period-btn" data-period="12m">12 mois</button>
+              </div>
             </div>
-
-            <!-- Alertes -->
-            <div class="nav-item" data-section="alertes">
-                <i class="fas fa-bell nav-icon"></i>
-                <span class="nav-label">Alertes</span>
-                <span class="nav-badge" id="badge-alertes" style="display:none;"></span>
+            <canvas id="chart-cotisations"></canvas>
+          </div>
+          <div class="chart-card">
+            <div class="chart-card-head">
+              <div class="chart-title">Répartition sinistres</div>
             </div>
+            <canvas id="chart-sinistres"></canvas>
+          </div>
+        </div>
 
-            <!-- Adhérents avec sous-menu -->
-            <div class="nav-group">
-                <div class="nav-group-header" data-toggle="adherents-sub">
-                    <div class="nav-group-left">
-                        <i class="fas fa-users nav-icon"></i>
-                        <span class="nav-label">Adhérents</span>
-                    </div>
-                    <i class="fas fa-chevron-down nav-chevron" id="chevron-adherents-sub"></i>
-                </div>
-                <div class="nav-submenu" id="adherents-sub">
-                    <div class="nav-sub-item" data-section="adherents">
-                        <i class="fas fa-list-ul"></i> Liste des adhérents
-                    </div>
-                    <div class="nav-sub-item" data-section="ayants-droit">
-                        <i class="fas fa-people-roof"></i> Ayants droit
-                    </div>
-                </div>
+        <div class="bottom-row">
+          <div class="tcard">
+            <div class="tcard-head">
+              <span class="tcard-title">
+                <i class="fas fa-exclamation-triangle" style="color:var(--gold);margin-right:6px"></i>Cotisations en retard
+              </span>
+              <button class="btn btn-sm btn-ghost" onclick="showSection('alertes')">Voir tout</button>
             </div>
+            <table class="data-table">
+              <thead><tr><th>Adhérent</th><th>Montant</th><th>Retard</th><th></th></tr></thead>
+              <tbody>
+                <tr><td>Traoré Issa</td><td>15 000 FCFA</td><td><span class="badge b-red">12 j</span></td><td><button class="btn btn-xs btn-primary">Régulariser</button></td></tr>
+                <tr><td>Zongo Adama</td><td>15 000 FCFA</td><td><span class="badge b-gold">5 j</span></td><td><button class="btn btn-xs btn-primary">Régulariser</button></td></tr>
+                <tr><td>Sawadogo M.</td><td>20 000 FCFA</td><td><span class="badge b-red">18 j</span></td><td><button class="btn btn-xs btn-primary">Régulariser</button></td></tr>
+              </tbody>
+            </table>
+          </div>
 
-            <!-- Cotisations -->
-            <div class="nav-item" data-section="cotisations">
-                <i class="fas fa-file-invoice-dollar nav-icon"></i>
-                <span class="nav-label">Cotisations</span>
+          <div class="tcard">
+            <div class="tcard-head">
+              <span class="tcard-title">
+                <i class="fas fa-history" style="color:var(--sienna);margin-right:6px"></i>Activité récente
+              </span>
+              <button class="btn btn-sm btn-ghost" onclick="showSection('historique')">Tout voir</button>
             </div>
-
-            <!-- Prêts avec sous-menu -->
-            <div class="nav-group">
-                <div class="nav-group-header" data-toggle="prets-sub">
-                    <div class="nav-group-left">
-                        <i class="fas fa-hand-holding-usd nav-icon"></i>
-                        <span class="nav-label">Prêts</span>
-                    </div>
-                    <i class="fas fa-chevron-down nav-chevron" id="chevron-prets-sub"></i>
-                </div>
-                <div class="nav-submenu" id="prets-sub">
-                    <div class="nav-sub-item" data-section="prets">
-                        <i class="fas fa-list-ul"></i> Liste des prêts
-                    </div>
-                    <div class="nav-sub-item" data-section="remboursements">
-                        <i class="fas fa-calendar-check"></i> Remboursements
-                    </div>
-                </div>
+            <div style="padding:8px 16px">
+              <ul class="activity-list">
+                <li class="activity-item">
+                  <div class="act-dot green"><i class="fas fa-user-plus"></i></div>
+                  <div class="act-body">
+                    <div class="act-text"><strong>Ouédraogo Fatimata</strong> inscrite comme adhérente</div>
+                    <div class="act-time">Il y a 23 min</div>
+                  </div>
+                </li>
+                <li class="activity-item">
+                  <div class="act-dot gold"><i class="fas fa-coins"></i></div>
+                  <div class="act-body">
+                    <div class="act-text">Cotisation de <strong>Konaté Seydou</strong> enregistrée — 15 000 FCFA</div>
+                    <div class="act-time">Il y a 1h</div>
+                  </div>
+                </li>
+                <li class="activity-item">
+                  <div class="act-dot red"><i class="fas fa-shield-alt"></i></div>
+                  <div class="act-body">
+                    <div class="act-text">Sinistre <strong>Hospitalisation</strong> déclaré par Bambara B.</div>
+                    <div class="act-time">Il y a 3h</div>
+                  </div>
+                </li>
+                <li class="activity-item">
+                  <div class="act-dot indigo"><i class="fas fa-hand-holding-usd"></i></div>
+                  <div class="act-body">
+                    <div class="act-text">Prêt de <strong>350 000 FCFA</strong> approuvé pour Compaoré A.</div>
+                    <div class="act-time">Hier, 14h22</div>
+                  </div>
+                </li>
+              </ul>
             </div>
+          </div>
+        </div>
 
-            <!-- Sinistres -->
-            <div class="nav-item" data-section="sinistres">
-                <i class="fas fa-shield-alt nav-icon"></i>
-                <span class="nav-label">Sinistres</span>
+        <div class="tcard" style="margin-top:16px;padding:20px">
+          <div class="tcard-title" style="margin-bottom:16px">Objectifs du mois</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px">
+            <div class="progress-wrap">
+              <div class="progress-head"><span class="progress-label">Collecte cotisations</span><span class="progress-pct">78%</span></div>
+              <div class="progress-bar"><div class="progress-fill pf-sienna" style="width:78%"></div></div>
             </div>
-
-            <!-- Rapports & Export -->
-            <div class="nav-group">
-                <div class="nav-group-header" data-toggle="rapports-sub">
-                    <div class="nav-group-left">
-                        <i class="fas fa-chart-bar nav-icon"></i>
-                        <span class="nav-label">Rapports</span>
-                    </div>
-                    <i class="fas fa-chevron-down nav-chevron" id="chevron-rapports-sub"></i>
-                </div>
-                <div class="nav-submenu" id="rapports-sub">
-                    <div class="nav-sub-item" data-section="graphiques">
-                        <i class="fas fa-chart-line"></i> Graphiques
-                    </div>
-                    <div class="nav-sub-item" data-section="export">
-                        <i class="fas fa-download"></i> Export données
-                    </div>
-                </div>
+            <div class="progress-wrap">
+              <div class="progress-head"><span class="progress-label">Nouveaux adhérents</span><span class="progress-pct">60%</span></div>
+              <div class="progress-bar"><div class="progress-fill pf-green" style="width:60%"></div></div>
             </div>
-
-            <!-- Historique -->
-            <div class="nav-item" data-section="historique">
-                <i class="fas fa-history nav-icon"></i>
-                <span class="nav-label">Historique</span>
+            <div class="progress-wrap">
+              <div class="progress-head"><span class="progress-label">Remboursements prêts</span><span class="progress-pct">92%</span></div>
+              <div class="progress-bar"><div class="progress-fill pf-indigo" style="width:92%"></div></div>
             </div>
+          </div>
+        </div>
+      </div>
 
-        </nav>
+      <!-- ====== ALERTES ====== -->
+      <div class="section" id="section-alertes">
+        <div class="sec-head">
+          <div class="sec-title">Alertes et Notifications</div>
+          <button class="btn btn-ghost btn-sm" onclick="toast('Alertes actualisées','success')">
+            <i class="fas fa-sync-alt"></i> Actualiser
+          </button>
+        </div>
+        <div class="alert-cards">
+          <div class="alert-card danger">
+            <div class="alert-card-label">Cotisations en retard</div>
+            <div class="alert-card-val">3</div>
+            <div class="alert-card-desc">50 000 FCFA non collectés</div>
+          </div>
+          <div class="alert-card warning">
+            <div class="alert-card-label">Prêts arrivant à échéance</div>
+            <div class="alert-card-val">2</div>
+            <div class="alert-card-desc">Échéance dans les 7 prochains jours</div>
+          </div>
+        </div>
+        <div class="tcard" style="margin-bottom:16px">
+          <div class="tcard-head"><span class="tcard-title">Cotisations en retard</span></div>
+          <table class="data-table">
+            <thead><tr><th>Adhérent</th><th>Email</th><th>Montant</th><th>Échéance</th><th>Retard</th><th>Action</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Traoré Issa</strong></td><td>i.traore@bf.com</td><td>15 000 FCFA</td><td>22/04/2026</td><td><span class="badge b-red">12 jours</span></td><td><button class="btn btn-xs btn-primary">Régulariser</button></td></tr>
+              <tr><td><strong>Zongo Adama</strong></td><td>a.zongo@bf.com</td><td>15 000 FCFA</td><td>29/04/2026</td><td><span class="badge b-gold">5 jours</span></td><td><button class="btn btn-xs btn-primary">Régulariser</button></td></tr>
+              <tr><td><strong>Sawadogo Mariam</strong></td><td>m.sawa@bf.com</td><td>20 000 FCFA</td><td>16/04/2026</td><td><span class="badge b-red">18 jours</span></td><td><button class="btn btn-xs btn-primary">Régulariser</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="tcard">
+          <div class="tcard-head"><span class="tcard-title">Prêts arrivant à échéance</span></div>
+          <table class="data-table">
+            <thead><tr><th>Adhérent</th><th>Email</th><th>Montant</th><th>Échéance</th><th>Statut</th><th>Action</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Compaoré Ablassé</strong></td><td>a.comp@bf.com</td><td>350 000 FCFA</td><td>08/05/2026</td><td><span class="badge b-gold">Approuvé</span></td><td><button class="btn btn-xs btn-ghost">Voir</button></td></tr>
+              <tr><td><strong>Ouédraogo Jean</strong></td><td>j.oued@bf.com</td><td>180 000 FCFA</td><td>11/05/2026</td><td><span class="badge b-gold">Approuvé</span></td><td><button class="btn btn-xs btn-ghost">Voir</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-        <!-- Profil dans sidebar footer -->
-        <div class="sidebar-footer">
-            <div class="sidebar-profile" data-section="profil" onclick="showSection('profil')">
-                <div class="profile-avatar" id="sidebarAvatar">?</div>
-                <div class="profile-info">
-                    <div class="profile-name" id="sidebarName">Chargement…</div>
-                    <div class="profile-role">Administrateur</div>
-                </div>
-                <i class="fas fa-cog profile-settings"></i>
+      <!-- ====== ADHÉRENTS ====== -->
+      <div class="section" id="section-adherents">
+        <div class="sec-head">
+          <div class="sec-head-left">
+            <div class="sec-title">Gestion des Adhérents</div>
+            <div class="sec-filters">
+              <button class="filter-btn active">Tous</button>
+              <button class="filter-btn">Actifs</button>
+              <button class="filter-btn">Suspendus</button>
+              <button class="filter-btn">Retraités</button>
             </div>
-            <button class="btn-logout" id="btn-logout">
-                <i class="fas fa-sign-out-alt"></i>
-                <span>Déconnexion</span>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-ghost btn-sm" onclick="showSection('export')"><i class="fas fa-download"></i> Exporter</button>
+            <button class="btn btn-primary btn-sm" onclick="openModal('modal-adherent')"><i class="fas fa-plus"></i> Nouvel adhérent</button>
+          </div>
+        </div>
+        <div class="tcard">
+          <div class="tcard-head">
+            <span class="tcard-title">248 adhérents inscrits</span>
+            <div class="hdr-search" style="width:200px;padding:5px 12px">
+              <i class="fas fa-search"></i>
+              <input type="text" placeholder="Filtrer…" oninput="filterTable('adherentsBody', this.value)"/>
+            </div>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr><th>N°</th><th>Nom complet</th><th>Email</th><th>Téléphone</th><th>Statut</th><th>Ayants droit</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="adherentsBody">
+              <tr>
+                <td><span style="font-family:var(--mono);font-size:.78rem">ADH-001</span></td>
+                <td><strong>Koné Oumar</strong></td><td>o.kone@bf.com</td><td>+226 70 11 22 33</td>
+                <td><span class="badge b-green">Actif</span></td>
+                <td><button class="btn btn-xs btn-ghost" onclick="showSection('ayants')"><i class="fas fa-child"></i> 2</button></td>
+                <td>
+                  <button class="icon-btn" onclick="openModal('modal-adherent')"><i class="fas fa-pen"></i></button>
+                  <button class="icon-btn" style="margin-left:4px" onclick="confirmDelete('cet adhérent')"><i class="fas fa-trash"></i></button>
+                </td>
+              </tr>
+              <tr>
+                <td><span style="font-family:var(--mono);font-size:.78rem">ADH-002</span></td>
+                <td><strong>Ouédraogo Fatimata</strong></td><td>f.oued@bf.com</td><td>+226 76 44 55 66</td>
+                <td><span class="badge b-green">Actif</span></td>
+                <td><button class="btn btn-xs btn-ghost" onclick="showSection('ayants')"><i class="fas fa-child"></i> 3</button></td>
+                <td>
+                  <button class="icon-btn" onclick="openModal('modal-adherent')"><i class="fas fa-pen"></i></button>
+                  <button class="icon-btn" style="margin-left:4px" onclick="confirmDelete('cet adhérent')"><i class="fas fa-trash"></i></button>
+                </td>
+              </tr>
+              <tr>
+                <td><span style="font-family:var(--mono);font-size:.78rem">ADH-003</span></td>
+                <td><strong>Traoré Issa</strong></td><td>i.traore@bf.com</td><td>+226 65 77 88 99</td>
+                <td><span class="badge b-red">Suspendu</span></td>
+                <td><button class="btn btn-xs btn-ghost" onclick="showSection('ayants')"><i class="fas fa-child"></i> 1</button></td>
+                <td>
+                  <button class="icon-btn" onclick="openModal('modal-adherent')"><i class="fas fa-pen"></i></button>
+                  <button class="icon-btn" style="margin-left:4px" onclick="confirmDelete('cet adhérent')"><i class="fas fa-trash"></i></button>
+                </td>
+              </tr>
+              <tr>
+                <td><span style="font-family:var(--mono);font-size:.78rem">ADH-004</span></td>
+                <td><strong>Bambara Brice</strong></td><td>b.bambara@bf.com</td><td>+226 60 33 44 55</td>
+                <td><span class="badge b-gray">Retraité</span></td>
+                <td><button class="btn btn-xs btn-ghost" onclick="showSection('ayants')"><i class="fas fa-child"></i> 0</button></td>
+                <td>
+                  <button class="icon-btn" onclick="openModal('modal-adherent')"><i class="fas fa-pen"></i></button>
+                  <button class="icon-btn" style="margin-left:4px" onclick="confirmDelete('cet adhérent')"><i class="fas fa-trash"></i></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ====== AYANTS DROIT ====== -->
+      <div class="section" id="section-ayants">
+        <div class="sec-head">
+          <div class="sec-title">Gestion des Ayants Droit</div>
+          <button class="btn btn-primary btn-sm" onclick="openModal('modal-ayant')"><i class="fas fa-plus"></i> Ajouter un ayant droit</button>
+        </div>
+        <div class="ayant-grid">
+          <div class="ayant-card">
+            <div class="ayant-card-head">
+              <div class="ayant-avatar">AK</div>
+              <div><div class="ayant-name">Aminata Koné</div><div class="ayant-rel">Épouse · Koné Oumar</div></div>
+            </div>
+            <div class="ayant-meta"><span>Né(e) :</span> 15/03/1988 &nbsp;|&nbsp; <span>Lien :</span> Conjoint(e)</div>
+            <div style="margin-top:10px;display:flex;gap:6px">
+              <button class="btn btn-xs btn-ghost"><i class="fas fa-pen"></i> Modifier</button>
+              <button class="btn btn-xs btn-danger"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>
+          <div class="ayant-card">
+            <div class="ayant-card-head">
+              <div class="ayant-avatar">IK</div>
+              <div><div class="ayant-name">Ibrahim Koné</div><div class="ayant-rel">Fils · Koné Oumar</div></div>
+            </div>
+            <div class="ayant-meta"><span>Né(e) :</span> 02/07/2012 &nbsp;|&nbsp; <span>Lien :</span> Enfant</div>
+            <div style="margin-top:10px;display:flex;gap:6px">
+              <button class="btn btn-xs btn-ghost"><i class="fas fa-pen"></i> Modifier</button>
+              <button class="btn btn-xs btn-danger"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>
+          <div class="ayant-card">
+            <div class="ayant-card-head">
+              <div class="ayant-avatar">SO</div>
+              <div><div class="ayant-name">Salimata Ouédraogo</div><div class="ayant-rel">Fille · Ouédraogo Fatimata</div></div>
+            </div>
+            <div class="ayant-meta"><span>Né(e) :</span> 19/11/2009 &nbsp;|&nbsp; <span>Lien :</span> Enfant</div>
+            <div style="margin-top:10px;display:flex;gap:6px">
+              <button class="btn btn-xs btn-ghost"><i class="fas fa-pen"></i> Modifier</button>
+              <button class="btn btn-xs btn-danger"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>
+          <div class="ayant-card">
+            <div class="ayant-card-head">
+              <div class="ayant-avatar">MO</div>
+              <div><div class="ayant-name">Moumouni Ouédraogo</div><div class="ayant-rel">Père · Ouédraogo Fatimata</div></div>
+            </div>
+            <div class="ayant-meta"><span>Né(e) :</span> 04/01/1955 &nbsp;|&nbsp; <span>Lien :</span> Parent</div>
+            <div style="margin-top:10px;display:flex;gap:6px">
+              <button class="btn btn-xs btn-ghost"><i class="fas fa-pen"></i> Modifier</button>
+              <button class="btn btn-xs btn-danger"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== COTISATIONS ====== -->
+      <div class="section" id="section-cotisations">
+        <div class="sec-head">
+          <div class="sec-head-left">
+            <div class="sec-title">Gestion des Cotisations</div>
+            <div class="sec-filters">
+              <button class="filter-btn active">Toutes</button>
+              <button class="filter-btn">Payées</button>
+              <button class="filter-btn">En attente</button>
+              <button class="filter-btn">En retard</button>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-ghost btn-sm" onclick="showSection('export')"><i class="fas fa-download"></i> Exporter</button>
+            <button class="btn btn-primary btn-sm" onclick="openModal('modal-cotisation')"><i class="fas fa-plus"></i> Nouvelle cotisation</button>
+          </div>
+        </div>
+        <div class="tcard">
+          <table class="data-table">
+            <thead><tr><th>Adhérent</th><th>Montant</th><th>Échéance</th><th>Payé le</th><th>Statut</th><th>Actions</th></tr></thead>
+            <tbody id="cotisationsBody">
+              <tr><td>Koné Oumar</td><td>15 000 FCFA</td><td>01/05/2026</td><td>28/04/2026</td><td><span class="badge b-green">Payée</span></td><td><button class="icon-btn"><i class="fas fa-pen"></i></button></td></tr>
+              <tr><td>Ouédraogo Fatimata</td><td>15 000 FCFA</td><td>01/05/2026</td><td>—</td><td><span class="badge b-gold">En attente</span></td><td><button class="icon-btn"><i class="fas fa-pen"></i></button></td></tr>
+              <tr><td>Traoré Issa</td><td>15 000 FCFA</td><td>22/04/2026</td><td>—</td><td><span class="badge b-red">En retard</span></td><td><button class="icon-btn"><i class="fas fa-pen"></i></button></td></tr>
+              <tr><td>Bambara Brice</td><td>20 000 FCFA</td><td>01/05/2026</td><td>30/04/2026</td><td><span class="badge b-green">Payée</span></td><td><button class="icon-btn"><i class="fas fa-pen"></i></button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ====== COTISATIONS STATS ====== -->
+      <div class="section" id="section-cotisations-stats">
+        <div class="sec-head"><div class="sec-title">Statistiques des Cotisations</div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="chart-card">
+            <div class="chart-title" style="margin-bottom:14px">Mensuel 2026</div>
+            <canvas id="chart-cot-mensuel"></canvas>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title" style="margin-bottom:14px">Taux de recouvrement</div>
+            <canvas id="chart-cot-recouvrement"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== PRÊTS ====== -->
+      <div class="section" id="section-prets">
+        <div class="sec-head">
+          <div class="sec-head-left">
+            <div class="sec-title">Gestion des Prêts</div>
+            <div class="sec-filters">
+              <button class="filter-btn active">Tous</button>
+              <button class="filter-btn">Approuvés</button>
+              <button class="filter-btn">En attente</button>
+              <button class="filter-btn">Remboursés</button>
+            </div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="openModal('modal-pret')"><i class="fas fa-plus"></i> Nouveau prêt</button>
+        </div>
+        <div class="tcard">
+          <table class="data-table">
+            <thead><tr><th>Adhérent</th><th>Montant</th><th>Taux</th><th>Durée</th><th>Mensualité</th><th>Statut</th><th>Actions</th></tr></thead>
+            <tbody id="pretsBody">
+              <tr><td>Compaoré Ablassé</td><td>350 000 FCFA</td><td>5%</td><td>12 mois</td><td>30 104 FCFA</td><td><span class="badge b-green">Approuvé</span></td><td><button class="icon-btn"><i class="fas fa-pen"></i></button></td></tr>
+              <tr><td>Ouédraogo Jean</td><td>180 000 FCFA</td><td>5%</td><td>6 mois</td><td>30 617 FCFA</td><td><span class="badge b-green">Approuvé</span></td><td><button class="icon-btn"><i class="fas fa-pen"></i></button></td></tr>
+              <tr><td>Zongo Aminata</td><td>500 000 FCFA</td><td>4%</td><td>24 mois</td><td>21 709 FCFA</td><td><span class="badge b-gold">En attente</span></td><td><button class="icon-btn"><i class="fas fa-pen"></i></button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ====== CALCULATEUR PRÊT ====== -->
+      <div class="section" id="section-prets-calcul">
+        <div class="sec-head"><div class="sec-title">Calculateur de Prêt</div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <div class="tcard" style="padding:24px">
+            <div class="tcard-title" style="margin-bottom:18px">Paramètres</div>
+            <div class="form-group">
+              <label class="form-label">Montant emprunté (FCFA)</label>
+              <input type="number" class="form-control" id="calc-montant" value="300000" oninput="calculateLoan()"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Taux d'intérêt annuel (%)</label>
+              <input type="number" class="form-control" id="calc-taux" value="5" step="0.5" oninput="calculateLoan()"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Durée (mois)</label>
+              <input type="number" class="form-control" id="calc-duree" value="12" oninput="calculateLoan()"/>
+            </div>
+          </div>
+          <div class="tcard" style="padding:24px">
+            <div class="tcard-title" style="margin-bottom:18px">Résultat</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+              <div class="stat-card s-sienna" style="padding:14px 16px">
+                <div class="stat-label">Mensualité</div>
+                <div class="stat-value" id="res-mensualite" style="font-size:1.4rem">—</div>
+              </div>
+              <div class="stat-card s-gold" style="padding:14px 16px">
+                <div class="stat-label">Total intérêts</div>
+                <div class="stat-value" id="res-interets" style="font-size:1.4rem">—</div>
+              </div>
+              <div class="stat-card s-green" style="padding:14px 16px">
+                <div class="stat-label">Total remboursé</div>
+                <div class="stat-value" id="res-total" style="font-size:1.4rem">—</div>
+              </div>
+              <div class="stat-card s-red" style="padding:14px 16px">
+                <div class="stat-label">Coût du crédit</div>
+                <div class="stat-value" id="res-cout" style="font-size:1.4rem">—</div>
+              </div>
+            </div>
+            <button class="btn btn-primary" style="margin-top:16px;width:100%"
+              onclick="openModal('modal-pret');toast('Remplissage automatique appliqué','success')">
+              <i class="fas fa-file-signature"></i> Créer ce prêt
             </button>
+          </div>
         </div>
-    </aside>
+      </div>
 
-    <!-- ===== CONTENU PRINCIPAL ===== -->
-    <div class="main-content">
-
-        <header class="dashboard-header">
-            <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Menu">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="header-breadcrumb">
-                <span class="header-org">MaMutuelle</span>
-                <i class="fas fa-chevron-right header-sep"></i>
-                <h1 class="page-title" id="page-title">Vue d'ensemble</h1>
+      <!-- ====== SINISTRES ====== -->
+      <div class="section" id="section-sinistres">
+        <div class="sec-head">
+          <div class="sec-head-left">
+            <div class="sec-title">Gestion des Sinistres</div>
+            <div class="sec-filters">
+              <button class="filter-btn active">Tous</button>
+              <button class="filter-btn">Déclarés</button>
+              <button class="filter-btn">En cours</button>
+              <button class="filter-btn">Remboursés</button>
             </div>
-            <div class="header-actions">
-                <button class="header-btn" id="notifBtn" title="Notifications">
-                    <i class="fas fa-bell"></i>
-                    <span class="header-notif-dot" id="notifDot" style="display:none;"></span>
-                </button>
-                <div class="header-user" onclick="showSection('profil')" title="Mon profil">
-                    <div class="header-avatar" id="headerAvatar">?</div>
-                    <span id="header-name">…</span>
-                </div>
-            </div>
-        </header>
-
-        <!-- Panneau notifications rapide -->
-        <div class="notif-panel" id="notifPanel">
-            <div class="notif-panel-header">
-                <span>Notifications</span>
-                <button onclick="document.getElementById('notifPanel').classList.remove('open')"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="notif-list" id="notifList">
-                <div class="notif-empty">Aucune notification</div>
-            </div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="openModal('modal-sinistre')"><i class="fas fa-plus"></i> Nouveau sinistre</button>
         </div>
-
-        <div class="content-area">
-
-            <!-- ===== SECTION : DASHBOARD ===== -->
-            <section id="section-dashboard" class="content-section active">
-                <div class="stats-grid" id="statsContainer">
-                    <div class="stat-card skeleton"></div>
-                    <div class="stat-card skeleton"></div>
-                    <div class="stat-card skeleton"></div>
-                    <div class="stat-card skeleton"></div>
-                </div>
-                <div class="dashboard-charts-row">
-                    <div class="chart-card wide">
-                        <div class="chart-card-header">
-                            <span class="chart-title"><i class="fas fa-chart-line me-2"></i>Évolution des cotisations</span>
-                            <select id="cotisChart-period" class="chart-select" onchange="renderCotisChart()">
-                                <option value="6">6 derniers mois</option>
-                                <option value="12">12 derniers mois</option>
-                            </select>
-                        </div>
-                        <canvas id="cotisChart" height="90"></canvas>
-                    </div>
-                    <div class="chart-card">
-                        <div class="chart-card-header">
-                            <span class="chart-title"><i class="fas fa-chart-doughnut me-2"></i>Statut des prêts</span>
-                        </div>
-                        <canvas id="pretsChart" height="160"></canvas>
-                        <div class="chart-legend" id="pretsLegend"></div>
-                    </div>
-                </div>
-                <div class="dashboard-bottom-row">
-                    <div class="activity-card">
-                        <div class="activity-header">
-                            <span><i class="fas fa-clock me-2"></i>Activités récentes</span>
-                            <button class="btn-link" onclick="showSection('historique')">Voir tout</button>
-                        </div>
-                        <div class="activity-list" id="recentActivities">
-                            <div class="activity-skeleton"></div>
-                            <div class="activity-skeleton"></div>
-                            <div class="activity-skeleton"></div>
-                        </div>
-                    </div>
-                    <div class="quick-stats-card">
-                        <div class="activity-header"><span><i class="fas fa-fire me-2"></i>Chiffres clés</span></div>
-                        <div class="quick-stats-list" id="quickStats"></div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ===== SECTION : ALERTES ===== -->
-            <section id="section-alertes" class="content-section">
-                <div class="section-header">
-                    <h2 class="section-title"><i class="fas fa-bell me-2"></i>Alertes et Notifications</h2>
-                    <button class="btn-action btn-secondary" onclick="loadAlertes()">
-                        <i class="fas fa-sync-alt me-1"></i>Rafraîchir
-                    </button>
-                </div>
-                <div class="table-card mb-4">
-                    <div class="table-card-header danger">
-                        <i class="fas fa-exclamation-triangle me-2"></i>Cotisations en Retard
-                    </div>
-                    <div class="table-responsive">
-                        <table class="data-table">
-                            <thead><tr><th>Adhérent</th><th>Email</th><th>Montant</th><th>Échéance</th><th>Retard</th><th>Actions</th></tr></thead>
-                            <tbody id="alertesCotisationsBody"><tr><td colspan="6" class="loading-row"><i class="fas fa-spinner fa-spin me-2"></i>Chargement…</td></tr></tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="table-card">
-                    <div class="table-card-header warning">
-                        <i class="fas fa-calendar-alt me-2"></i>Prêts Arrivant à Échéance
-                    </div>
-                    <div class="table-responsive">
-                        <table class="data-table">
-                            <thead><tr><th>Adhérent</th><th>Email</th><th>Montant</th><th>Échéance</th><th>Statut</th><th>Actions</th></tr></thead>
-                            <tbody id="alertesPretsBody"><tr><td colspan="6" class="loading-row"><i class="fas fa-spinner fa-spin me-2"></i>Chargement…</td></tr></tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ===== SECTION : ADHÉRENTS ===== -->
-            <section id="section-adherents" class="content-section">
-                <div class="section-header">
-                    <h2 class="section-title"><i class="fas fa-users me-2"></i>Gestion des Adhérents</h2>
-                    <div class="section-actions">
-                        <input type="text" class="table-search" id="searchAdherents" placeholder="Filtrer…" oninput="filterTable('adherentsBody', this.value)">
-                        <button class="btn-action btn-primary" onclick="openAdherentModal()">
-                            <i class="fas fa-plus me-1"></i>Nouvel Adhérent
-                        </button>
-                    </div>
-                </div>
-                <div class="table-card">
-                    <div class="table-responsive">
-                        <table class="data-table">
-                            <thead><tr><th>Numéro</th><th>Nom complet</th><th>Email</th><th>Téléphone</th><th>Ayants droit</th><th>Statut</th><th>Actions</th></tr></thead>
-                            <tbody id="adherentsBody"><tr><td colspan="7" class="loading-row"><i class="fas fa-spinner fa-spin me-2"></i>Chargement…</td></tr></tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ===== SECTION : AYANTS DROIT ===== -->
-            <section id="section-ayants-droit" class="content-section">
-                <div class="section-header">
-                    <h2 class="section-title"><i class="fas fa-people-roof me-2"></i>Gestion des Ayants Droit</h2>
-                    <div class="section-actions">
-                        <input type="text" class="table-search" placeholder="Filtrer…" oninput="filterTable('ayantsBody', this.value)">
-                        <button class="btn-action btn-primary" onclick="openAyantModal()">
-                            <i class="fas fa-plus me-1"></i>Nouvel Ayant Droit
-                        </button>
-                    </div>
-                </div>
-                <div class="table-card">
-                    <div class="table-responsive">
-                        <table class="data-table">
-                            <thead><tr><th>Adhérent</th><th>Nom</th><th>Prénom</th><th>Lien</th><th>Date naissance</th><th>Actions</th></tr></thead>
-                            <tbody id="ayantsBody"><tr><td colspan="6" class="loading-row"><i class="fas fa-spinner fa-spin me-2"></i>Chargement…</td></tr></tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ===== SECTION : COTISATIONS ===== -->
-            <section id="section-cotisations" class="content-section">
-                <div class="section-header">
-                    <h2 class="section-title"><i class="fas fa-file-invoice-dollar me-2"></i>Gestion des Cotisations</h2>
-                    <div class="section-actions">
-                        <select class="table-search" onchange="filterByStatus('cotisationsBody', this.value)">
-                            <option value="">Tous les statuts</option>
-                            <option value="payée">Payées</option>
-                            <option value="en attente">En attente</option>
-                            <option value="en retard">En retard</option>
-                        </select>
-                        <button class="btn-action btn-outline" onclick="exportTablePDF('cotisations')">
-                            <i class="fas fa-file-pdf me-1"></i>PDF
-                        </button>
-                        <button class="btn-action btn-outline" onclick="exportTableExcel('cotisations')">
-                            <i class="fas fa-file-excel me-1"></i>Excel
-                        </button>
-                        <button class="btn-action btn-primary" onclick="openCotisationModal()">
-                            <i class="fas fa-plus me-1"></i>Nouvelle
-                        </button>
-                    </div>
-                </div>
-                <div class="table-card">
-                    <div class="table-responsive">
-                        <table class="data-table" id="cotisations-table">
-                            <thead><tr><th>Adhérent</th><th>Montant (FCFA)</th><th>Date Échéance</th><th>Statut</th><th>Actions</th></tr></thead>
-                            <tbody id="cotisationsBody"><tr><td colspan="5" class="loading-row"><i class="fas fa-spinner fa-spin me-2"></i>Chargement…</td></tr></tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ===== SECTION : PRÊTS ===== -->
-            <section id="section-prets" class="content-section">
-                <div class="section-header">
-                    <h2 class="section-title"><i class="fas fa-hand-holding-usd me-2"></i>Gestion des Prêts</h2>
-                    <div class="section-actions">
-                        <button class="btn-action btn-outline" onclick="exportTablePDF('prets')">
-                            <i class="fas fa-file-pdf me-1"></i>PDF
-                        </button>
-                        <button class="btn-action btn-outline" onclick="exportTableExcel('prets')">
-                            <i class="fas fa-file-excel me-1"></i>Excel
-                        </button>
-                        <button class="btn-action btn-primary" onclick="openPretModal()">
-                            <i class="fas fa-plus me-1"></i>Nouveau Prêt
-                        </button>
-                    </div>
-                </div>
-                <div class="table-card">
-                    <div class="table-responsive">
-                        <table class="data-table" id="prets-table">
-                            <thead><tr><th>Adhérent</th><th>Montant</th><th>Taux</th><th>Durée</th><th>Mensualité</th><th>Statut</th><th>Actions</th></tr></thead>
-                            <tbody id="pretsBody"><tr><td colspan="7" class="loading-row"><i class="fas fa-spinner fa-spin me-2"></i>Chargement…</td></tr></tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ===== SECTION : REMBOURSEMENTS ===== -->
-            <section id="section-remboursements" class="content-section">
-                <div class="section-header">
-                    <h2 class="section-title"><i class="fas fa-calendar-check me-2"></i>Remboursements de Prêts</h2>
-                    <div class="section-actions">
-                        <button class="btn-action btn-primary" onclick="openRemboursementModal()">
-                            <i class="fas fa-plus me-1"></i>Enregistrer un paiement
-                        </button>
-                    </div>
-                </div>
-                <div class="table-card">
-                    <div class="table-responsive">
-                        <table class="data-table">
-                            <thead><tr><th>Adhérent / Prêt</th><th>N° Échéance</th><th>Montant dû</th><th>Montant payé</th><th>Date paiement</th><th>Statut</th><th>Actions</th></tr></thead>
-                            <tbody id="remboursementsBody"><tr><td colspan="7" class="loading-row"><i class="fas fa-spinner fa-spin me-2"></i>Chargement…</td></tr></tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ===== SECTION : SINISTRES ===== -->
-            <section id="section-sinistres" class="content-section">
-                <div class="section-header">
-                    <h2 class="section-title"><i class="fas fa-shield-alt me-2"></i>Gestion des Sinistres</h2>
-                    <div class="section-actions">
-                        <button class="btn-action btn-outline" onclick="exportTablePDF('sinistres')">
-                            <i class="fas fa-file-pdf me-1"></i>PDF
-                        </button>
-                        <button class="btn-action btn-primary" onclick="openSinistreModal()">
-                            <i class="fas fa-plus me-1"></i>Nouveau Sinistre
-                        </button>
-                    </div>
-                </div>
-                <div class="table-card">
-                    <div class="table-responsive">
-                        <table class="data-table" id="sinistres-table">
-                            <thead><tr><th>Adhérent</th><th>Description</th><th>Type</th><th>Date</th><th>Documents</th><th>Statut</th><th>Actions</th></tr></thead>
-                            <tbody id="sinistresBody"><tr><td colspan="7" class="loading-row"><i class="fas fa-spinner fa-spin me-2"></i>Chargement…</td></tr></tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ===== SECTION : GRAPHIQUES ===== -->
-            <section id="section-graphiques" class="content-section">
-                <div class="section-header">
-                    <h2 class="section-title"><i class="fas fa-chart-line me-2"></i>Graphiques & Analyses</h2>
-                </div>
-                <div class="graphs-grid">
-                    <div class="chart-card-full">
-                        <div class="chart-card-header">
-                            <span class="chart-title">Évolution mensuelle des cotisations (FCFA)</span>
-                            <select id="cotisChartBig-period" class="chart-select" onchange="renderCotisChartBig()">
-                                <option value="6">6 mois</option>
-                                <option value="12">12 mois</option>
-                            </select>
-                        </div>
-                        <canvas id="cotisChartBig" height="80"></canvas>
-                    </div>
-                    <div class="chart-card-full">
-                        <div class="chart-card-header">
-                            <span class="chart-title">Évolution des prêts accordés</span>
-                        </div>
-                        <canvas id="pretsChartBig" height="80"></canvas>
-                    </div>
-                    <div class="chart-card-half">
-                        <div class="chart-card-header"><span class="chart-title">Répartition des sinistres par type</span></div>
-                        <canvas id="sinistresTypeChart" height="200"></canvas>
-                    </div>
-                    <div class="chart-card-half">
-                        <div class="chart-card-header"><span class="chart-title">Statut des adhérents</span></div>
-                        <canvas id="adherentsStatusChart" height="200"></canvas>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ===== SECTION : EXPORT ===== -->
-            <section id="section-export" class="content-section">
-                <div class="section-header">
-                    <h2 class="section-title"><i class="fas fa-download me-2"></i>Export des Données</h2>
-                </div>
-                <div class="export-grid">
-                    <div class="export-card" onclick="exportTableExcel('adherents')">
-                        <div class="export-icon excel"><i class="fas fa-file-excel"></i></div>
-                        <div class="export-info">
-                            <div class="export-name">Adhérents — Excel</div>
-                            <div class="export-desc">Liste complète avec ayants droit</div>
-                        </div>
-                        <i class="fas fa-arrow-down export-arrow"></i>
-                    </div>
-                    <div class="export-card" onclick="exportTablePDF('adherents')">
-                        <div class="export-icon pdf"><i class="fas fa-file-pdf"></i></div>
-                        <div class="export-info">
-                            <div class="export-name">Adhérents — PDF</div>
-                            <div class="export-desc">Rapport formaté et imprimable</div>
-                        </div>
-                        <i class="fas fa-arrow-down export-arrow"></i>
-                    </div>
-                    <div class="export-card" onclick="exportTableExcel('cotisations')">
-                        <div class="export-icon excel"><i class="fas fa-file-excel"></i></div>
-                        <div class="export-info">
-                            <div class="export-name">Cotisations — Excel</div>
-                            <div class="export-desc">Historique complet des paiements</div>
-                        </div>
-                        <i class="fas fa-arrow-down export-arrow"></i>
-                    </div>
-                    <div class="export-card" onclick="exportTablePDF('cotisations')">
-                        <div class="export-icon pdf"><i class="fas fa-file-pdf"></i></div>
-                        <div class="export-info">
-                            <div class="export-name">Cotisations — PDF</div>
-                            <div class="export-desc">Rapport mensuel des cotisations</div>
-                        </div>
-                        <i class="fas fa-arrow-down export-arrow"></i>
-                    </div>
-                    <div class="export-card" onclick="exportTableExcel('prets')">
-                        <div class="export-icon excel"><i class="fas fa-file-excel"></i></div>
-                        <div class="export-info">
-                            <div class="export-name">Prêts — Excel</div>
-                            <div class="export-desc">Prêts et échéanciers de remboursement</div>
-                        </div>
-                        <i class="fas fa-arrow-down export-arrow"></i>
-                    </div>
-                    <div class="export-card" onclick="exportTablePDF('sinistres')">
-                        <div class="export-icon pdf"><i class="fas fa-file-pdf"></i></div>
-                        <div class="export-info">
-                            <div class="export-name">Sinistres — PDF</div>
-                            <div class="export-desc">Rapport des sinistres déclarés</div>
-                        </div>
-                        <i class="fas fa-arrow-down export-arrow"></i>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ===== SECTION : HISTORIQUE ===== -->
-            <section id="section-historique" class="content-section">
-                <div class="section-header">
-                    <h2 class="section-title"><i class="fas fa-history me-2"></i>Historique des Activités</h2>
-                    <div class="section-actions">
-                        <select class="table-search" id="historiqueFilter" onchange="filterHistorique(this.value)">
-                            <option value="">Toutes les actions</option>
-                            <option value="creation">Créations</option>
-                            <option value="modification">Modifications</option>
-                            <option value="suppression">Suppressions</option>
-                            <option value="connexion">Connexions</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="historique-timeline" id="historiqueList">
-                    <div class="loading-row" style="text-align:center;padding:2rem"><i class="fas fa-spinner fa-spin me-2"></i>Chargement…</div>
-                </div>
-            </section>
-
-            <!-- ===== SECTION : PROFIL ===== -->
-            <section id="section-profil" class="content-section">
-                <div class="section-header">
-                    <h2 class="section-title"><i class="fas fa-user-circle me-2"></i>Mon Profil & Paramètres</h2>
-                </div>
-                <div class="profil-grid">
-                    <div class="profil-card">
-                        <div class="profil-avatar-big" id="profilAvatar">A</div>
-                        <div class="profil-name" id="profilName">—</div>
-                        <div class="profil-email" id="profilEmail">—</div>
-                        <div class="profil-role-badge">Administrateur</div>
-                        <button class="btn-action btn-primary mt-3" onclick="document.getElementById('avatarInput').click()">
-                            <i class="fas fa-camera me-1"></i>Changer photo
-                        </button>
-                        <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="updateAvatar(this)">
-                    </div>
-                    <div class="profil-settings">
-                        <div class="settings-section">
-                            <h3 class="settings-title">Informations personnelles</h3>
-                            <div class="form-row-2">
-                                <div class="form-group"><label>Prénom</label><input type="text" id="profilPrenom"></div>
-                                <div class="form-group"><label>Nom</label><input type="text" id="profilNom"></div>
-                            </div>
-                            <div class="form-group"><label>Email</label><input type="email" id="profilEmailInput"></div>
-                            <div class="form-group"><label>Téléphone</label><input type="tel" id="profilTel"></div>
-                            <button class="btn-action btn-primary" onclick="saveProfile()">
-                                <i class="fas fa-save me-1"></i>Sauvegarder
-                            </button>
-                        </div>
-                        <div class="settings-section mt-4">
-                            <h3 class="settings-title">Changer le mot de passe</h3>
-                            <div class="form-group"><label>Mot de passe actuel</label><input type="password" id="oldPassword"></div>
-                            <div class="form-group"><label>Nouveau mot de passe</label><input type="password" id="newPassword"></div>
-                            <div class="form-group"><label>Confirmer</label><input type="password" id="confirmPassword"></div>
-                            <button class="btn-action btn-primary" onclick="changePassword()">
-                                <i class="fas fa-lock me-1"></i>Changer le mot de passe
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-        </div><!-- /content-area -->
-    </div><!-- /main-content -->
-</div><!-- /dashboard-layout -->
-
-<!-- ===== TOAST NOTIFICATIONS ===== -->
-<div class="toast-container" id="toastContainer"></div>
-
-<!-- ===== MODAL : ADHÉRENT ===== -->
-<div id="adherentModal" class="modal-overlay">
-    <div class="modal-box">
-        <div class="modal-head">
-            <h2 id="adherentModalTitle">Nouvel Adhérent</h2>
-            <button class="modal-close" onclick="closeModal('adherentModal')">&times;</button>
+        <div class="tcard">
+          <table class="data-table">
+            <thead><tr><th>Adhérent</th><th>Type</th><th>Description</th><th>Date</th><th>Montant</th><th>Statut</th><th>Actions</th></tr></thead>
+            <tbody id="sinistresBody">
+              <tr><td>Bambara Brice</td><td><span class="badge b-indigo">Hospitalisation</span></td><td>Chirurgie appendicite</td><td>28/04/2026</td><td>180 000 FCFA</td><td><span class="badge b-gold">En cours</span></td><td><button class="icon-btn"><i class="fas fa-pen"></i></button></td></tr>
+              <tr><td>Konaté Seydou</td><td><span class="badge b-indigo">Maladie</span></td><td>Paludisme grave</td><td>10/04/2026</td><td>45 000 FCFA</td><td><span class="badge b-green">Remboursé</span></td><td><button class="icon-btn"><i class="fas fa-pen"></i></button></td></tr>
+              <tr><td>Sawadogo Mariam</td><td><span class="badge b-indigo">Accident</span></td><td>Accident de moto</td><td>02/05/2026</td><td>En évaluation</td><td><span class="badge b-gray">Déclaré</span></td><td><button class="icon-btn"><i class="fas fa-pen"></i></button></td></tr>
+            </tbody>
+          </table>
         </div>
-        <form id="adherentForm">
-            <div id="adherentError" class="modal-error"></div>
-            <div class="form-row-2">
-                <div class="form-group"><label>Nom</label><input type="text" id="adherentNom" required></div>
-                <div class="form-group"><label>Prénom</label><input type="text" id="adherentPrenom" required></div>
+      </div>
+
+      <!-- ====== HISTORIQUE ====== -->
+      <div class="section" id="section-historique">
+        <div class="sec-head">
+          <div class="sec-title">Historique des Activités</div>
+          <select class="form-control" style="width:auto;padding:6px 12px;font-size:.82rem">
+            <option>Toutes les actions</option>
+            <option>Inscriptions</option>
+            <option>Cotisations</option>
+            <option>Prêts</option>
+            <option>Sinistres</option>
+          </select>
+        </div>
+        <div class="tcard" style="padding:6px 20px">
+          <ul class="activity-list">
+            <li class="activity-item"><div class="act-dot green"><i class="fas fa-user-plus"></i></div><div class="act-body"><div class="act-text"><strong>Ouédraogo Fatimata</strong> inscrite comme adhérente (ADH-002)</div><div class="act-time">05/05/2026 · 09h17 · par Admin</div></div></li>
+            <li class="activity-item"><div class="act-dot gold"><i class="fas fa-coins"></i></div><div class="act-body"><div class="act-text">Cotisation de <strong>Konaté Seydou</strong> enregistrée — 15 000 FCFA</div><div class="act-time">05/05/2026 · 08h05 · par Admin</div></div></li>
+            <li class="activity-item"><div class="act-dot red"><i class="fas fa-shield-alt"></i></div><div class="act-body"><div class="act-text">Sinistre <strong>Hospitalisation</strong> déclaré pour Bambara Brice</div><div class="act-time">04/05/2026 · 15h30 · par Admin</div></div></li>
+            <li class="activity-item"><div class="act-dot indigo"><i class="fas fa-hand-holding-usd"></i></div><div class="act-body"><div class="act-text">Prêt de <strong>350 000 FCFA</strong> approuvé pour Compaoré Ablassé</div><div class="act-time">04/05/2026 · 14h22 · par Admin</div></div></li>
+            <li class="activity-item"><div class="act-dot green"><i class="fas fa-coins"></i></div><div class="act-body"><div class="act-text">Cotisation <strong>Bambara Brice</strong> marquée payée — 20 000 FCFA</div><div class="act-time">03/05/2026 · 11h44 · par Admin</div></div></li>
+            <li class="activity-item"><div class="act-dot gold"><i class="fas fa-user-edit"></i></div><div class="act-body"><div class="act-text">Profil de <strong>Traoré Issa</strong> mis à jour — statut suspendu</div><div class="act-time">02/05/2026 · 16h00 · par Admin</div></div></li>
+            <li class="activity-item"><div class="act-dot red"><i class="fas fa-shield-alt"></i></div><div class="act-body"><div class="act-text">Sinistre <strong>Accident</strong> déclaré pour Sawadogo Mariam</div><div class="act-time">02/05/2026 · 10h15 · par Admin</div></div></li>
+            <li class="activity-item"><div class="act-dot green"><i class="fas fa-check-circle"></i></div><div class="act-body"><div class="act-text">Remboursement sinistre validé pour <strong>Konaté Seydou</strong> — 45 000 FCFA</div><div class="act-time">30/04/2026 · 09h00 · par Admin</div></div></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ====== EXPORT ====== -->
+      <div class="section" id="section-export">
+        <div class="sec-head"><div class="sec-title">Exportation des Données</div></div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">
+          <div class="tcard" style="padding:22px">
+            <div class="tcard-title" style="margin-bottom:4px">Adhérents</div>
+            <div style="font-size:.78rem;color:var(--gray-4);margin-bottom:14px">248 enregistrements</div>
+            <div class="export-row">
+              <button class="export-btn" onclick="exportData('adherents','xlsx')"><i class="fas fa-file-excel" style="color:#1D6F42"></i> Excel</button>
+              <button class="export-btn" onclick="exportData('adherents','pdf')"><i class="fas fa-file-pdf" style="color:var(--red)"></i> PDF</button>
+              <button class="export-btn" onclick="exportData('adherents','csv')"><i class="fas fa-file-csv" style="color:var(--kente-green)"></i> CSV</button>
             </div>
-            <div class="form-group"><label>Email</label><input type="email" id="adherentEmail" required></div>
-            <div class="form-row-2">
-                <div class="form-group"><label>Téléphone</label><input type="tel" id="adherentTel"></div>
-                <div class="form-group"><label>Numéro Adhérent</label><input type="text" id="adherentNumero" required></div>
+          </div>
+          <div class="tcard" style="padding:22px">
+            <div class="tcard-title" style="margin-bottom:4px">Cotisations</div>
+            <div style="font-size:.78rem;color:var(--gray-4);margin-bottom:14px">Exercice 2026</div>
+            <div class="export-row">
+              <button class="export-btn" onclick="exportData('cotisations','xlsx')"><i class="fas fa-file-excel" style="color:#1D6F42"></i> Excel</button>
+              <button class="export-btn" onclick="exportData('cotisations','pdf')"><i class="fas fa-file-pdf" style="color:var(--red)"></i> PDF</button>
+              <button class="export-btn" onclick="exportData('cotisations','csv')"><i class="fas fa-file-csv" style="color:var(--kente-green)"></i> CSV</button>
             </div>
-            <div class="form-group">
-                <label>Statut</label>
-                <select id="adherentStatut">
-                    <option value="actif">Actif</option>
-                    <option value="suspendu">Suspendu</option>
-                    <option value="retraite">Retraité</option>
-                </select>
+          </div>
+          <div class="tcard" style="padding:22px">
+            <div class="tcard-title" style="margin-bottom:4px">Prêts</div>
+            <div style="font-size:.78rem;color:var(--gray-4);margin-bottom:14px">Encours & historique</div>
+            <div class="export-row">
+              <button class="export-btn" onclick="exportData('prets','xlsx')"><i class="fas fa-file-excel" style="color:#1D6F42"></i> Excel</button>
+              <button class="export-btn" onclick="exportData('prets','pdf')"><i class="fas fa-file-pdf" style="color:var(--red)"></i> PDF</button>
+              <button class="export-btn" onclick="exportData('prets','csv')"><i class="fas fa-file-csv" style="color:var(--kente-green)"></i> CSV</button>
             </div>
-            <div class="modal-actions">
-                <button type="button" class="btn-action btn-secondary" onclick="closeModal('adherentModal')">Annuler</button>
-                <button type="submit" class="btn-action btn-primary">Enregistrer</button>
+          </div>
+          <div class="tcard" style="padding:22px">
+            <div class="tcard-title" style="margin-bottom:4px">Sinistres</div>
+            <div style="font-size:.78rem;color:var(--gray-4);margin-bottom:14px">Déclarations 2026</div>
+            <div class="export-row">
+              <button class="export-btn" onclick="exportData('sinistres','xlsx')"><i class="fas fa-file-excel" style="color:#1D6F42"></i> Excel</button>
+              <button class="export-btn" onclick="exportData('sinistres','pdf')"><i class="fas fa-file-pdf" style="color:var(--red)"></i> PDF</button>
+              <button class="export-btn" onclick="exportData('sinistres','csv')"><i class="fas fa-file-csv" style="color:var(--kente-green)"></i> CSV</button>
             </div>
-        </form>
+          </div>
+          <div class="tcard" style="padding:22px">
+            <div class="tcard-title" style="margin-bottom:4px">Rapport Complet</div>
+            <div style="font-size:.78rem;color:var(--gray-4);margin-bottom:14px">Tous modules — exercice en cours</div>
+            <div class="export-row">
+              <button class="export-btn" onclick="exportData('rapport','pdf')" style="border-color:var(--sienna);color:var(--sienna)">
+                <i class="fas fa-file-pdf" style="color:var(--sienna)"></i> Rapport PDF
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== PROFIL ====== -->
+      <div class="section" id="section-profil">
+        <div class="sec-head"><div class="sec-title">Mon Profil & Paramètres</div></div>
+        <div class="profile-card">
+          <div class="profile-avatar-wrap">
+            <div class="profile-avatar">KO</div>
+            <button class="btn btn-ghost btn-sm" style="margin-top:8px"><i class="fas fa-camera"></i> Changer</button>
+          </div>
+          <div class="profile-info">
+            <div class="profile-name">Koné Oumar</div>
+            <div class="profile-role">Administrateur</div>
+            <div class="profile-meta">
+              <div class="profile-meta-item"><label>Email</label><span>o.kone@bf.com</span></div>
+              <div class="profile-meta-item"><label>Téléphone</label><span>+226 70 11 22 33</span></div>
+              <div class="profile-meta-item"><label>Mutuelle</label><span>Mutuelle SONABEL</span></div>
+              <div class="profile-meta-item"><label>Membre depuis</label><span>Janvier 2024</span></div>
+            </div>
+            <div style="margin-top:16px;display:flex;gap:10px">
+              <button class="btn btn-primary btn-sm" onclick="openModal('modal-profil')"><i class="fas fa-pen"></i> Modifier le profil</button>
+              <button class="btn btn-ghost btn-sm" onclick="openModal('modal-password')"><i class="fas fa-key"></i> Changer le mot de passe</button>
+            </div>
+          </div>
+        </div>
+        <div class="settings-grid">
+          <div class="settings-card">
+            <h3>Notifications</h3>
+            <div class="toggle-row"><span class="toggle-label">Alertes retard de cotisation</span><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
+            <div class="toggle-row"><span class="toggle-label">Prêts arrivant à échéance</span><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
+            <div class="toggle-row"><span class="toggle-label">Nouveaux adhérents</span><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
+            <div class="toggle-row"><span class="toggle-label">Rapport mensuel automatique</span><button class="toggle" onclick="this.classList.toggle('on')"></button></div>
+          </div>
+          <div class="settings-card">
+            <h3>Préférences</h3>
+            <div class="toggle-row"><span class="toggle-label">Sidebar réduite par défaut</span><button class="toggle" onclick="this.classList.toggle('on')"></button></div>
+            <div class="toggle-row"><span class="toggle-label">Afficher les montants en milliers</span><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
+            <div class="toggle-row"><span class="toggle-label">Confirmation avant suppression</span><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content-area -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ============================
+     MODALS
+     ============================ -->
+<div class="overlay" id="modal-adherent">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Nouvel Adhérent</h2>
+      <button class="modal-close" onclick="closeModal('modal-adherent')">&times;</button>
     </div>
+    <div class="modal-err" id="adherent-err"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Nom</label><input class="form-control" placeholder="Traoré"/></div>
+      <div class="form-group"><label class="form-label">Prénom</label><input class="form-control" placeholder="Issa"/></div>
+    </div>
+    <div class="form-group"><label class="form-label">Email</label><input class="form-control" type="email" placeholder="i.traore@bf.com"/></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Téléphone</label><input class="form-control" placeholder="+226 70 …"/></div>
+      <div class="form-group"><label class="form-label">N° Adhérent</label><input class="form-control" placeholder="ADH-005"/></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Statut</label>
+      <select class="form-control"><option>Actif</option><option>Suspendu</option><option>Retraité</option></select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-adherent')">Annuler</button>
+      <button class="btn btn-primary" onclick="closeModal('modal-adherent');toast('Adhérent enregistré','success')"><i class="fas fa-save"></i> Enregistrer</button>
+    </div>
+  </div>
 </div>
 
-<!-- ===== MODAL : AYANT DROIT ===== -->
-<div id="ayantModal" class="modal-overlay">
-    <div class="modal-box">
-        <div class="modal-head">
-            <h2 id="ayantModalTitle">Nouvel Ayant Droit</h2>
-            <button class="modal-close" onclick="closeModal('ayantModal')">&times;</button>
-        </div>
-        <form id="ayantForm">
-            <div id="ayantError" class="modal-error"></div>
-            <div class="form-group">
-                <label>Adhérent principal</label>
-                <select id="ayantAdherent" required><option value="">-- Sélectionner --</option></select>
-            </div>
-            <div class="form-row-2">
-                <div class="form-group"><label>Nom</label><input type="text" id="ayantNom" required></div>
-                <div class="form-group"><label>Prénom</label><input type="text" id="ayantPrenom" required></div>
-            </div>
-            <div class="form-row-2">
-                <div class="form-group">
-                    <label>Lien de parenté</label>
-                    <select id="ayantLien">
-                        <option value="conjoint">Conjoint(e)</option>
-                        <option value="enfant">Enfant</option>
-                        <option value="parent">Parent</option>
-                        <option value="autre">Autre</option>
-                    </select>
-                </div>
-                <div class="form-group"><label>Date de naissance</label><input type="date" id="ayantDateNaissance"></div>
-            </div>
-            <div class="modal-actions">
-                <button type="button" class="btn-action btn-secondary" onclick="closeModal('ayantModal')">Annuler</button>
-                <button type="submit" class="btn-action btn-primary">Enregistrer</button>
-            </div>
-        </form>
+<div class="overlay" id="modal-ayant">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Ajouter un Ayant Droit</h2>
+      <button class="modal-close" onclick="closeModal('modal-ayant')">&times;</button>
     </div>
+    <div class="form-group">
+      <label class="form-label">Adhérent principal</label>
+      <select class="form-control"><option>Koné Oumar</option><option>Ouédraogo Fatimata</option><option>Bambara Brice</option></select>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Nom</label><input class="form-control" placeholder="Koné"/></div>
+      <div class="form-group"><label class="form-label">Prénom</label><input class="form-control" placeholder="Aminata"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Lien de parenté</label>
+        <select class="form-control"><option>Conjoint(e)</option><option>Enfant</option><option>Parent</option><option>Autre</option></select>
+      </div>
+      <div class="form-group"><label class="form-label">Date de naissance</label><input class="form-control" type="date"/></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-ayant')">Annuler</button>
+      <button class="btn btn-primary" onclick="closeModal('modal-ayant');toast('Ayant droit ajouté','success')"><i class="fas fa-save"></i> Enregistrer</button>
+    </div>
+  </div>
 </div>
 
-<!-- ===== MODAL : COTISATION ===== -->
-<div id="cotisationModal" class="modal-overlay">
-    <div class="modal-box">
-        <div class="modal-head">
-            <h2 id="cotisationModalTitle">Nouvelle Cotisation</h2>
-            <button class="modal-close" onclick="closeModal('cotisationModal')">&times;</button>
-        </div>
-        <form id="cotisationForm">
-            <div id="cotisationError" class="modal-error"></div>
-            <div class="form-group">
-                <label>Adhérent</label>
-                <select id="cotisationAdherent" required><option value="">-- Sélectionner --</option></select>
-            </div>
-            <div class="form-group"><label>Montant (FCFA)</label><input type="number" id="cotisationMontant" step="0.01" required></div>
-            <div class="form-group"><label>Date Échéance</label><input type="date" id="cotisationEcheance" required></div>
-            <div class="form-group">
-                <label>Statut</label>
-                <select id="cotisationStatut">
-                    <option value="en attente">En attente</option>
-                    <option value="payée">Payée</option>
-                    <option value="en retard">En retard</option>
-                </select>
-            </div>
-            <div class="modal-actions">
-                <button type="button" class="btn-action btn-secondary" onclick="closeModal('cotisationModal')">Annuler</button>
-                <button type="submit" class="btn-action btn-primary">Enregistrer</button>
-            </div>
-        </form>
+<div class="overlay" id="modal-cotisation">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Nouvelle Cotisation</h2>
+      <button class="modal-close" onclick="closeModal('modal-cotisation')">&times;</button>
     </div>
+    <div class="form-group">
+      <label class="form-label">Adhérent</label>
+      <select class="form-control"><option>-- Sélectionner --</option><option>Koné Oumar</option><option>Ouédraogo Fatimata</option><option>Traoré Issa</option></select>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Montant (FCFA)</label><input class="form-control" type="number" placeholder="15000"/></div>
+      <div class="form-group"><label class="form-label">Date d'échéance</label><input class="form-control" type="date"/></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Statut</label>
+      <select class="form-control"><option>En attente</option><option>Payée</option><option>En retard</option></select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-cotisation')">Annuler</button>
+      <button class="btn btn-primary" onclick="closeModal('modal-cotisation');toast('Cotisation enregistrée','success')"><i class="fas fa-save"></i> Enregistrer</button>
+    </div>
+  </div>
 </div>
 
-<!-- ===== MODAL : PRÊT ===== -->
-<div id="pretModal" class="modal-overlay">
-    <div class="modal-box">
-        <div class="modal-head">
-            <h2 id="pretModalTitle">Nouveau Prêt</h2>
-            <button class="modal-close" onclick="closeModal('pretModal')">&times;</button>
-        </div>
-        <form id="pretForm">
-            <div id="pretError" class="modal-error"></div>
-            <div class="form-group">
-                <label>Adhérent</label>
-                <select id="pretAdherent" required><option value="">-- Sélectionner --</option></select>
-            </div>
-            <div class="form-row-2">
-                <div class="form-group"><label>Montant (FCFA)</label><input type="number" id="pretMontant" step="0.01" required></div>
-                <div class="form-group"><label>Taux Intérêt (%)</label><input type="number" id="pretTaux" step="0.1" min="0" value="5"></div>
-            </div>
-            <div class="form-row-2">
-                <div class="form-group"><label>Durée (mois)</label><input type="number" id="pretDuree" required></div>
-                <div class="form-group"><label>Date Début</label><input type="date" id="pretDate" required></div>
-            </div>
-            <div class="form-group pret-calc" id="pretCalc" style="display:none;">
-                <div class="pret-mensualite-preview">
-                    Mensualité estimée : <strong id="pretMensualite">—</strong> FCFA
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Statut</label>
-                <select id="pretStatut">
-                    <option value="en attente">En attente</option>
-                    <option value="approuvé">Approuvé</option>
-                    <option value="remboursé">Remboursé</option>
-                    <option value="rejeté">Rejeté</option>
-                </select>
-            </div>
-            <div class="modal-actions">
-                <button type="button" class="btn-action btn-secondary" onclick="closeModal('pretModal')">Annuler</button>
-                <button type="submit" class="btn-action btn-primary">Enregistrer</button>
-            </div>
-        </form>
+<div class="overlay" id="modal-pret">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Nouveau Prêt</h2>
+      <button class="modal-close" onclick="closeModal('modal-pret')">&times;</button>
     </div>
+    <div class="form-group">
+      <label class="form-label">Adhérent</label>
+      <select class="form-control"><option>-- Sélectionner --</option><option>Koné Oumar</option><option>Ouédraogo Fatimata</option></select>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Montant (FCFA)</label><input class="form-control" type="number" placeholder="300000"/></div>
+      <div class="form-group"><label class="form-label">Taux d'intérêt (%)</label><input class="form-control" type="number" placeholder="5" step="0.5"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Durée (mois)</label><input class="form-control" type="number" placeholder="12"/></div>
+      <div class="form-group"><label class="form-label">Date de début</label><input class="form-control" type="date"/></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Statut</label>
+      <select class="form-control"><option>En attente</option><option>Approuvé</option><option>Remboursé</option><option>Rejeté</option></select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-pret')">Annuler</button>
+      <button class="btn btn-primary" onclick="closeModal('modal-pret');toast('Prêt enregistré','success')"><i class="fas fa-save"></i> Enregistrer</button>
+    </div>
+  </div>
 </div>
 
-<!-- ===== MODAL : REMBOURSEMENT ===== -->
-<div id="remboursementModal" class="modal-overlay">
-    <div class="modal-box">
-        <div class="modal-head">
-            <h2>Enregistrer un Remboursement</h2>
-            <button class="modal-close" onclick="closeModal('remboursementModal')">&times;</button>
-        </div>
-        <form id="remboursementForm">
-            <div id="remboursementError" class="modal-error"></div>
-            <div class="form-group">
-                <label>Prêt</label>
-                <select id="remboursementPret" required><option value="">-- Sélectionner le prêt --</option></select>
-            </div>
-            <div class="form-row-2">
-                <div class="form-group"><label>N° Échéance</label><input type="number" id="remboursementNumero" min="1" required></div>
-                <div class="form-group"><label>Date de paiement</label><input type="date" id="remboursementDate" required></div>
-            </div>
-            <div class="form-row-2">
-                <div class="form-group"><label>Montant dû (FCFA)</label><input type="number" id="remboursementDu" step="0.01" required></div>
-                <div class="form-group"><label>Montant payé (FCFA)</label><input type="number" id="remboursementPaye" step="0.01" required></div>
-            </div>
-            <div class="form-group">
-                <label>Statut</label>
-                <select id="remboursementStatut">
-                    <option value="payé">Payé</option>
-                    <option value="partiel">Paiement partiel</option>
-                    <option value="en retard">En retard</option>
-                </select>
-            </div>
-            <div class="modal-actions">
-                <button type="button" class="btn-action btn-secondary" onclick="closeModal('remboursementModal')">Annuler</button>
-                <button type="submit" class="btn-action btn-primary">Enregistrer</button>
-            </div>
-        </form>
+<div class="overlay" id="modal-sinistre">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Nouveau Sinistre</h2>
+      <button class="modal-close" onclick="closeModal('modal-sinistre')">&times;</button>
     </div>
+    <div class="form-group">
+      <label class="form-label">Adhérent</label>
+      <select class="form-control"><option>-- Sélectionner --</option><option>Koné Oumar</option><option>Bambara Brice</option></select>
+    </div>
+    <div class="form-group"><label class="form-label">Description</label><textarea class="form-control" placeholder="Décrivez le sinistre…"></textarea></div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Type</label>
+        <select class="form-control"><option>Maladie</option><option>Accident</option><option>Décès</option><option>Hospitalisation</option><option>Autre</option></select>
+      </div>
+      <div class="form-group"><label class="form-label">Date du sinistre</label><input class="form-control" type="date"/></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Statut</label>
+      <select class="form-control"><option>Déclaré</option><option>En cours</option><option>Approuvé</option><option>Rejeté</option><option>Remboursé</option></select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-sinistre')">Annuler</button>
+      <button class="btn btn-primary" onclick="closeModal('modal-sinistre');toast('Sinistre enregistré','success')"><i class="fas fa-save"></i> Enregistrer</button>
+    </div>
+  </div>
 </div>
 
-<!-- ===== MODAL : SINISTRE ===== -->
-<div id="sinistreModal" class="modal-overlay">
-    <div class="modal-box">
-        <div class="modal-head">
-            <h2 id="sinistreModalTitle">Nouveau Sinistre</h2>
-            <button class="modal-close" onclick="closeModal('sinistreModal')">&times;</button>
-        </div>
-        <form id="sinistreForm">
-            <div id="sinistreError" class="modal-error"></div>
-            <div class="form-group">
-                <label>Adhérent</label>
-                <select id="sinistreAdherent" required><option value="">-- Sélectionner --</option></select>
-            </div>
-            <div class="form-group"><label>Description</label><textarea id="sinistreDescription" required></textarea></div>
-            <div class="form-row-2">
-                <div class="form-group">
-                    <label>Type</label>
-                    <select id="sinistreType" required>
-                        <option value="maladie">Maladie</option>
-                        <option value="accident">Accident</option>
-                        <option value="décès">Décès</option>
-                        <option value="hospitalisation">Hospitalisation</option>
-                        <option value="autre">Autre</option>
-                    </select>
-                </div>
-                <div class="form-group"><label>Date Sinistre</label><input type="date" id="sinistreDate" required></div>
-            </div>
-            <div class="form-group">
-                <label>Pièce jointe (justificatif)</label>
-                <input type="file" id="sinistreDoc" accept=".pdf,.jpg,.jpeg,.png">
-                <small class="form-hint">PDF, JPG ou PNG — max 5 Mo</small>
-            </div>
-            <div class="form-group">
-                <label>Statut</label>
-                <select id="sinistreStatut">
-                    <option value="déclaré">Déclaré</option>
-                    <option value="en cours">En cours</option>
-                    <option value="approuvé">Approuvé</option>
-                    <option value="rejeté">Rejeté</option>
-                    <option value="remboursé">Remboursé</option>
-                </select>
-            </div>
-            <div class="modal-actions">
-                <button type="button" class="btn-action btn-secondary" onclick="closeModal('sinistreModal')">Annuler</button>
-                <button type="submit" class="btn-action btn-primary">Enregistrer</button>
-            </div>
-        </form>
+<div class="overlay" id="modal-profil">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Modifier le Profil</h2>
+      <button class="modal-close" onclick="closeModal('modal-profil')">&times;</button>
     </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Nom</label><input class="form-control" value="Koné"/></div>
+      <div class="form-group"><label class="form-label">Prénom</label><input class="form-control" value="Oumar"/></div>
+    </div>
+    <div class="form-group"><label class="form-label">Email</label><input class="form-control" type="email" value="o.kone@bf.com"/></div>
+    <div class="form-group"><label class="form-label">Téléphone</label><input class="form-control" value="+226 70 11 22 33"/></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-profil')">Annuler</button>
+      <button class="btn btn-primary" onclick="closeModal('modal-profil');toast('Profil mis à jour','success')"><i class="fas fa-save"></i> Sauvegarder</button>
+    </div>
+  </div>
 </div>
 
-<!-- ===== MODAL : CONFIRMATION SUPPRESSION ===== -->
-<div id="deleteModal" class="modal-overlay">
-    <div class="modal-box modal-box-sm">
-        <div class="modal-head">
-            <h2>Confirmer la suppression</h2>
-            <button class="modal-close" onclick="closeModal('deleteModal')">&times;</button>
-        </div>
-        <p class="delete-confirm-text">Cette action est irréversible. Voulez-vous continuer ?</p>
-        <div class="modal-actions">
-            <button type="button" class="btn-action btn-secondary" onclick="closeModal('deleteModal')">Annuler</button>
-            <button type="button" class="btn-action btn-danger" id="deleteConfirmBtn">Supprimer</button>
-        </div>
+<div class="overlay" id="modal-password">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Changer le Mot de Passe</h2>
+      <button class="modal-close" onclick="closeModal('modal-password')">&times;</button>
     </div>
+    <div class="form-group"><label class="form-label">Mot de passe actuel</label><input class="form-control" type="password"/></div>
+    <div class="form-group"><label class="form-label">Nouveau mot de passe</label><input class="form-control" type="password"/></div>
+    <div class="form-group"><label class="form-label">Confirmer</label><input class="form-control" type="password"/></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-password')">Annuler</button>
+      <button class="btn btn-primary" onclick="closeModal('modal-password');toast('Mot de passe modifié','success')"><i class="fas fa-key"></i> Changer</button>
+    </div>
+  </div>
 </div>
 
-<!-- SCRIPTS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="js/config.js"></script>
-<script src="js/api.js"></script>
-<script src="js/dashboard.js"></script>
+<div class="overlay" id="modal-confirm">
+  <div class="modal" style="max-width:380px;text-align:center">
+    <div style="font-size:2.5rem;margin-bottom:10px">⚠️</div>
+    <h2 style="margin-bottom:8px">Confirmer la suppression</h2>
+    <p style="color:var(--gray-4);font-size:.875rem;margin-bottom:20px" id="confirm-msg">Êtes-vous sûr de vouloir supprimer cet élément ?</p>
+    <div style="display:flex;gap:10px;justify-content:center">
+      <button class="btn btn-ghost" onclick="closeModal('modal-confirm')">Annuler</button>
+      <button class="btn btn-danger" onclick="closeModal('modal-confirm');toast('Élément supprimé','warning')"><i class="fas fa-trash"></i> Supprimer</button>
+    </div>
+  </div>
+</div>
 
+<!-- Toast container -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<!-- Script principal (après le DOM) -->
+<script src="dashboard.js"></script>
 </body>
 </html>
