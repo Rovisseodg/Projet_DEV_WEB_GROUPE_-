@@ -1,356 +1,1031 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="MaMutuelle – Tableau de bord de gestion">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MaMutuelle – Dashboard</title>
+    <meta name="description" content="Tableau de bord MaMutuelle – Gestion de mutuelle au Burkina Faso" />
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- CSS global -->
-    <link rel="stylesheet" href="css/style.css">
-    <!-- CSS spécifique au dashboard -->
-    <link rel="stylesheet" href="css/dashboard.css">
+    <!-- Icônes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <!-- jsPDF + AutoTable pour export PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+    <!-- SheetJS pour export Excel -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="dashboard.css" />
 </head>
 <body>
 
-    <div class="dashboard-layout">
+<!-- Overlay mobile sidebar -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-        <!-- ===== SIDEBAR ===== -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-brand">
-                <span class="brand-ma">Ma</span><span class="brand-mutuelle">Mutuelle</span>
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ============================================================
+     LAYOUT
+     ============================================================ -->
+<div class="dash-layout">
+
+    <!-- ========== SIDEBAR ========== -->
+    <aside class="sidebar" id="sidebar">
+
+        <!-- Brand -->
+        <div class="sidebar-brand">
+            <div class="brand-icon"><i class="fas fa-shield-halved"></i></div>
+            <div class="brand-text">
+                <div class="brand-name">Ma<span>Mutuelle</span></div>
+                <div class="brand-version">v2.0 · BF</div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="sidebar-nav" role="navigation">
+
+            <!-- Tableau de bord -->
+            <div class="nav-group">
+                <div class="nav-group-label">Principal</div>
+                <div class="nav-item active" data-section="dashboard" role="button" tabindex="0">
+                    <i class="fas fa-chart-pie nav-icon"></i>
+                    <span class="nav-item-label">Vue d'ensemble</span>
+                </div>
+                <div class="nav-item" data-section="alertes" role="button" tabindex="0">
+                    <i class="fas fa-bell nav-icon"></i>
+                    <span class="nav-item-label">Alertes</span>
+                    <span class="nav-badge" id="badgeAlertes">0</span>
+                </div>
+                <div class="nav-item" data-section="activite" role="button" tabindex="0">
+                    <i class="fas fa-clock-rotate-left nav-icon"></i>
+                    <span class="nav-item-label">Activité récente</span>
+                </div>
             </div>
 
-            <nav class="sidebar-nav">
-                <div class="nav-item active" data-section="dashboard">
-                    <i class="fas fa-chart-pie"></i>
+            <hr class="nav-divider" />
+
+            <!-- Gestion -->
+            <div class="nav-group">
+                <div class="nav-group-label">Gestion</div>
+
+                <!-- Adhérents avec sous-menu -->
+                <div class="nav-submenu-toggle" data-submenu="adherentsMenu" role="button" tabindex="0">
+                    <i class="fas fa-users nav-icon"></i>
+                    <span class="nav-item-label">Adhérents</span>
+                    <i class="fas fa-chevron-right submenu-chevron"></i>
+                </div>
+                <div class="nav-submenu" id="adherentsMenu">
+                    <div class="nav-sub-item" data-section="adherents" role="button" tabindex="0">
+                        <i class="fas fa-list"></i> Liste des adhérents
+                    </div>
+                    <div class="nav-sub-item" data-section="ayantsDroit" role="button" tabindex="0">
+                        <i class="fas fa-people-group"></i> Ayants droit
+                    </div>
+                </div>
+
+                <!-- Cotisations avec sous-menu -->
+                <div class="nav-submenu-toggle" data-submenu="cotisationsMenu" role="button" tabindex="0">
+                    <i class="fas fa-coins nav-icon"></i>
+                    <span class="nav-item-label">Cotisations</span>
+                    <i class="fas fa-chevron-right submenu-chevron"></i>
+                </div>
+                <div class="nav-submenu" id="cotisationsMenu">
+                    <div class="nav-sub-item" data-section="cotisations" role="button" tabindex="0">
+                        <i class="fas fa-list"></i> Toutes les cotisations
+                    </div>
+                    <div class="nav-sub-item" data-section="historiqueCotisations" role="button" tabindex="0">
+                        <i class="fas fa-history"></i> Historique
+                    </div>
+                </div>
+
+                <!-- Prêts -->
+                <div class="nav-submenu-toggle" data-submenu="pretsMenu" role="button" tabindex="0">
+                    <i class="fas fa-hand-holding-dollar nav-icon"></i>
+                    <span class="nav-item-label">Prêts</span>
+                    <i class="fas fa-chevron-right submenu-chevron"></i>
+                </div>
+                <div class="nav-submenu" id="pretsMenu">
+                    <div class="nav-sub-item" data-section="prets" role="button" tabindex="0">
+                        <i class="fas fa-list"></i> Tous les prêts
+                    </div>
+                    <div class="nav-sub-item" data-section="historiquePrets" role="button" tabindex="0">
+                        <i class="fas fa-history"></i> Historique
+                    </div>
+                </div>
+
+                <!-- Sinistres -->
+                <div class="nav-item" data-section="sinistres" role="button" tabindex="0">
+                    <i class="fas fa-triangle-exclamation nav-icon"></i>
+                    <span class="nav-item-label">Sinistres</span>
+                </div>
+            </div>
+
+            <hr class="nav-divider" />
+
+            <!-- Compte -->
+            <div class="nav-group">
+                <div class="nav-group-label">Compte</div>
+                <div class="nav-item" data-section="profil" role="button" tabindex="0">
+                    <i class="fas fa-circle-user nav-icon"></i>
+                    <span class="nav-item-label">Mon profil</span>
+                </div>
+                <div class="nav-item" data-section="parametres" role="button" tabindex="0">
+                    <i class="fas fa-gear nav-icon"></i>
+                    <span class="nav-item-label">Paramètres</span>
+                </div>
+            </div>
+
+        </nav>
+
+        <!-- Footer sidebar -->
+        <div class="sidebar-footer">
+            <div class="user-mini" id="userMiniBtn">
+                <div class="user-avatar-sm" id="userAvatarSmall">AD</div>
+                <div class="user-info-sm">
+                    <div class="user-name-sm" id="sidebarUserName">Utilisateur</div>
+                    <div class="user-role-sm" id="sidebarUserRole">Rôle</div>
+                </div>
+                <i class="fas fa-chevron-up user-mini-chevron"></i>
+            </div>
+            <button class="btn-logout" id="btnLogout">
+                <i class="fas fa-arrow-right-from-bracket"></i>
+                <span>Déconnexion</span>
+            </button>
+        </div>
+
+    </aside>
+    <!-- /SIDEBAR -->
+
+    <!-- ========== MAIN ========== -->
+    <div class="main-content">
+
+        <!-- Header -->
+        <header class="dash-header">
+            <button class="btn-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <h1 class="page-title" id="pageTitle">Vue d'ensemble</h1>
+
+            <!-- Recherche globale -->
+            <div class="search-wrapper">
+                <div class="global-search" id="globalSearchBox">
+                    <i class="fas fa-magnifying-glass"></i>
+                    <input type="text" id="globalSearchInput" placeholder="Rechercher adhérent, cotisation…" autocomplete="off" />
+                </div>
+                <div class="search-results" id="searchResults"></div>
+            </div>
+
+            <div class="header-actions">
+                <button class="header-btn" id="headerNotifBtn" title="Alertes">
+                    <i class="fas fa-bell"></i>
+                    <span class="notif-dot" id="notifDot" style="display:none;"></span>
+                </button>
+                <div class="header-avatar" id="headerAvatar" title="Mon profil">AD</div>
+            </div>
+        </header>
+
+        <!-- Zone de contenu -->
+        <main class="content-area" id="contentArea">
+
+            <!-- ================================================
+                 SECTION : VUE D'ENSEMBLE
+                 ================================================ -->
+            <section class="content-section active" id="section-dashboard">
+                <div class="breadcrumb">
+                    <i class="fas fa-house"></i>
+                    <i class="fas fa-chevron-right"></i>
                     <span>Vue d'ensemble</span>
                 </div>
-                <div class="nav-item" data-section="alertes">
-                    <i class="fas fa-bell"></i>
-                    <span>Alertes</span>
-                    <span class="nav-badge" id="badge-alertes" style="display:none;"></span>
-                </div>
-                <div class="nav-item" data-section="adherents">
-                    <i class="fas fa-users"></i>
-                    <span>Adhérents</span>
-                </div>
-                <div class="nav-item" data-section="cotisations">
-                    <i class="fas fa-file-invoice-dollar"></i>
-                    <span>Cotisations</span>
-                </div>
-                <div class="nav-item" data-section="prets">
-                    <i class="fas fa-hand-holding-usd"></i>
-                    <span>Prêts</span>
-                </div>
-                <div class="nav-item" data-section="sinistres">
-                    <i class="fas fa-shield-alt"></i>
-                    <span>Sinistres</span>
-                </div>
-            </nav>
 
-            <div class="sidebar-footer">
-                <button class="btn-logout" id="btn-logout">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Déconnexion</span>
-                </button>
+                <!-- Stats -->
+                <div class="stats-grid" id="statsContainer">
+                    <div class="stat-card card-or skeleton"></div>
+                    <div class="stat-card card-green skeleton"></div>
+                    <div class="stat-card card-orange skeleton"></div>
+                    <div class="stat-card card-red skeleton"></div>
+                </div>
+
+                <!-- Graphiques -->
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <div class="chart-head">
+                            <h3><i class="fas fa-chart-line" style="color:var(--or);margin-right:.4rem;"></i>Évolution des cotisations</h3>
+                            <div style="display:flex;align-items:center;gap:.75rem;">
+                                <div class="chart-legend">
+                                    <span><span class="legend-dot" style="background:var(--or);"></span>Cotisations</span>
+                                    <span><span class="legend-dot" style="background:var(--savane);"></span>Remboursements</span>
+                                </div>
+                                <select class="period-select" id="chartPeriod">
+                                    <option value="6">6 mois</option>
+                                    <option value="12">12 mois</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="chartCotisations" height="120"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-head">
+                            <h3><i class="fas fa-chart-donut" style="color:var(--or);margin-right:.4rem;"></i>Répartition prêts</h3>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="chartPrets" height="160"></canvas>
+                            <div class="donut-labels" id="donutLabels"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activités récentes (résumé) -->
+                <div class="section-header" style="margin-bottom:.75rem;">
+                    <h2 class="section-title">Activité récente</h2>
+                    <button class="btn btn-ghost btn-sm" onclick="showSection('activite')">Voir tout <i class="fas fa-arrow-right"></i></button>
+                </div>
+                <div class="table-card" id="activityPreview">
+                    <div class="activity-list" id="activityPreviewList">
+                        <div class="activity-item">
+                            <div class="activity-icon" style="background:var(--or-light);color:var(--or);"><i class="fas fa-spinner fa-spin"></i></div>
+                            <div class="activity-text"><div class="act-desc">Chargement…</div></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================================================
+                 SECTION : ALERTES
+                 ================================================ -->
+            <section class="content-section" id="section-alertes">
+                <div class="breadcrumb"><i class="fas fa-house"></i><i class="fas fa-chevron-right"></i><span>Alertes</span></div>
+                <div class="section-header">
+                    <h2 class="section-title">Alertes et Notifications</h2>
+                    <button class="btn btn-secondary btn-sm" onclick="loadAlertes()"><i class="fas fa-rotate"></i> Rafraîchir</button>
+                </div>
+
+                <div class="alerts-grid">
+                    <div class="alert-card">
+                        <div class="alert-card-head danger"><i class="fas fa-triangle-exclamation"></i> Cotisations en retard</div>
+                        <div class="table-card" style="border-radius:0;box-shadow:none;border:none;">
+                            <table class="data-table">
+                                <thead><tr><th>Adhérent</th><th>Montant</th><th>Échéance</th><th>Retard</th><th></th></tr></thead>
+                                <tbody id="alertsCotBody"><tr><td colspan="5" class="loading-row">Chargement…</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="alert-card">
+                        <div class="alert-card-head warning"><i class="fas fa-clock"></i> Prêts à échéance</div>
+                        <div class="table-card" style="border-radius:0;box-shadow:none;border:none;">
+                            <table class="data-table">
+                                <thead><tr><th>Adhérent</th><th>Montant</th><th>Échéance</th><th>Statut</th><th></th></tr></thead>
+                                <tbody id="alertsPretsBody"><tr><td colspan="5" class="loading-row">Chargement…</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================================================
+                 SECTION : ACTIVITÉ RÉCENTE
+                 ================================================ -->
+            <section class="content-section" id="section-activite">
+                <div class="breadcrumb"><i class="fas fa-house"></i><i class="fas fa-chevron-right"></i><span>Activité récente</span></div>
+                <div class="section-header">
+                    <h2 class="section-title">Historique des activités</h2>
+                    <button class="btn btn-secondary btn-sm" id="btnClearActivity"><i class="fas fa-trash-can"></i> Effacer</button>
+                </div>
+                <div class="table-card">
+                    <div class="activity-list" id="activityFullList"></div>
+                </div>
+            </section>
+
+            <!-- ================================================
+                 SECTION : ADHÉRENTS
+                 ================================================ -->
+            <section class="content-section" id="section-adherents">
+                <div class="breadcrumb"><i class="fas fa-house"></i><i class="fas fa-chevron-right"></i><i class="fas fa-users"></i><i class="fas fa-chevron-right"></i><span>Adhérents</span></div>
+                <div class="section-header">
+                    <h2 class="section-title">Gestion des Adhérents</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="exportTablePDF('adherentsTable','adherents')"><i class="fas fa-file-pdf"></i> PDF</button>
+                        <button class="btn btn-secondary btn-sm" onclick="exportTableExcel('adherentsTable','Adhérents')"><i class="fas fa-file-excel"></i> Excel</button>
+                        <button class="btn btn-primary" onclick="openAdherentModal()"><i class="fas fa-user-plus"></i> Nouvel adhérent</button>
+                    </div>
+                </div>
+                <div class="table-card">
+                    <div class="table-card-head">
+                        <div class="table-card-title"><i class="fas fa-users"></i> Liste des adhérents</div>
+                        <div class="table-toolbar">
+                            <div class="table-search">
+                                <i class="fas fa-magnifying-glass"></i>
+                                <input type="text" placeholder="Rechercher…" id="searchAdherents" oninput="filterTable('adherentsBody', this.value)" />
+                            </div>
+                            <select class="table-filter" id="filterStatutAdherent" onchange="filterTable('adherentsBody', document.getElementById('searchAdherents').value)">
+                                <option value="">Tous statuts</option>
+                                <option value="actif">Actif</option>
+                                <option value="suspendu">Suspendu</option>
+                                <option value="retraité">Retraité</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table class="data-table" id="adherentsTable">
+                            <thead>
+                                <tr>
+                                    <th class="sortable" data-col="0">N° <i class="fas fa-sort sort-icon"></i></th>
+                                    <th class="sortable" data-col="1">Nom <i class="fas fa-sort sort-icon"></i></th>
+                                    <th>Email</th>
+                                    <th>Téléphone</th>
+                                    <th>Ayants droit</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adherentsBody">
+                                <tr class="empty-row"><td colspan="7">Chargement…</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="table-footer">
+                        <span id="adherentsCount">—</span>
+                        <div class="pagination" id="adherentsPagination"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================================================
+                 SECTION : AYANTS DROIT
+                 ================================================ -->
+            <section class="content-section" id="section-ayantsDroit">
+                <div class="breadcrumb"><i class="fas fa-house"></i><i class="fas fa-chevron-right"></i><i class="fas fa-users"></i><i class="fas fa-chevron-right"></i><span>Ayants droit</span></div>
+                <div class="section-header">
+                    <h2 class="section-title">Gestion des Ayants Droit</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="exportTablePDF('ayantsDroitTable','ayants-droit')"><i class="fas fa-file-pdf"></i> PDF</button>
+                        <button class="btn btn-secondary btn-sm" onclick="exportTableExcel('ayantsDroitTable','AyantsDroit')"><i class="fas fa-file-excel"></i> Excel</button>
+                        <button class="btn btn-primary" onclick="openAyantDroitModal()"><i class="fas fa-user-plus"></i> Ajouter ayant droit</button>
+                    </div>
+                </div>
+                <div class="table-card">
+                    <div class="table-card-head">
+                        <div class="table-card-title"><i class="fas fa-people-group"></i> Tous les ayants droit</div>
+                        <div class="table-toolbar">
+                            <div class="table-search">
+                                <i class="fas fa-magnifying-glass"></i>
+                                <input type="text" placeholder="Rechercher…" oninput="filterTable('ayantsDroitBody', this.value)" />
+                            </div>
+                        </div>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table class="data-table" id="ayantsDroitTable">
+                            <thead>
+                                <tr>
+                                    <th>Nom</th>
+                                    <th>Prénom</th>
+                                    <th>Relation</th>
+                                    <th>Date naissance</th>
+                                    <th>Adhérent principal</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ayantsDroitBody">
+                                <tr class="empty-row"><td colspan="6">Chargement…</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="table-footer"><span id="ayantsDroitCount">—</span></div>
+                </div>
+            </section>
+
+            <!-- ================================================
+                 SECTION : COTISATIONS
+                 ================================================ -->
+            <section class="content-section" id="section-cotisations">
+                <div class="breadcrumb"><i class="fas fa-house"></i><i class="fas fa-chevron-right"></i><i class="fas fa-coins"></i><i class="fas fa-chevron-right"></i><span>Cotisations</span></div>
+                <div class="section-header">
+                    <h2 class="section-title">Gestion des Cotisations</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="exportTablePDF('cotisationsTable','cotisations')"><i class="fas fa-file-pdf"></i> PDF</button>
+                        <button class="btn btn-secondary btn-sm" onclick="exportTableExcel('cotisationsTable','Cotisations')"><i class="fas fa-file-excel"></i> Excel</button>
+                        <button class="btn btn-primary" onclick="openCotisationModal()"><i class="fas fa-plus"></i> Nouvelle cotisation</button>
+                    </div>
+                </div>
+                <div class="table-card">
+                    <div class="table-card-head">
+                        <div class="table-card-title"><i class="fas fa-coins"></i> Toutes les cotisations</div>
+                        <div class="table-toolbar">
+                            <div class="table-search">
+                                <i class="fas fa-magnifying-glass"></i>
+                                <input type="text" placeholder="Rechercher…" oninput="filterTable('cotisationsBody', this.value)" />
+                            </div>
+                            <select class="table-filter" onchange="filterTable('cotisationsBody', '')">
+                                <option value="">Tous statuts</option>
+                                <option value="payée">Payée</option>
+                                <option value="en attente">En attente</option>
+                                <option value="en retard">En retard</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table class="data-table" id="cotisationsTable">
+                            <thead>
+                                <tr>
+                                    <th>Adhérent</th>
+                                    <th>Montant (FCFA)</th>
+                                    <th>Échéance</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cotisationsBody">
+                                <tr class="empty-row"><td colspan="5">Chargement…</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="table-footer">
+                        <span id="cotisationsCount">—</span>
+                        <div class="pagination" id="cotisationsPagination"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================================================
+                 SECTION : HISTORIQUE COTISATIONS
+                 ================================================ -->
+            <section class="content-section" id="section-historiqueCotisations">
+                <div class="breadcrumb"><i class="fas fa-house"></i><i class="fas fa-chevron-right"></i><i class="fas fa-coins"></i><i class="fas fa-chevron-right"></i><span>Historique cotisations</span></div>
+                <div class="section-header">
+                    <h2 class="section-title">Historique des Cotisations</h2>
+                    <button class="btn btn-secondary btn-sm" onclick="exportTablePDF('histCotTable','historique-cotisations')"><i class="fas fa-file-pdf"></i> PDF</button>
+                </div>
+                <div class="table-card">
+                    <div class="table-card-head">
+                        <div class="table-card-title"><i class="fas fa-history"></i> Toutes les opérations</div>
+                        <div class="table-toolbar">
+                            <input type="month" class="table-filter" id="histCotMois" onchange="filterHistCot()" />
+                            <select class="table-filter" id="histCotStatut" onchange="filterHistCot()">
+                                <option value="">Tous</option>
+                                <option value="payée">Payée</option>
+                                <option value="en retard">En retard</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table class="data-table" id="histCotTable">
+                            <thead>
+                                <tr><th>Adhérent</th><th>Montant</th><th>Échéance</th><th>Statut</th><th>Date enreg.</th></tr>
+                            </thead>
+                            <tbody id="histCotBody">
+                                <tr class="empty-row"><td colspan="5">Chargement…</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================================================
+                 SECTION : PRÊTS
+                 ================================================ -->
+            <section class="content-section" id="section-prets">
+                <div class="breadcrumb"><i class="fas fa-house"></i><i class="fas fa-chevron-right"></i><i class="fas fa-hand-holding-dollar"></i><i class="fas fa-chevron-right"></i><span>Prêts</span></div>
+                <div class="section-header">
+                    <h2 class="section-title">Gestion des Prêts</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="exportTablePDF('pretsTable','prets')"><i class="fas fa-file-pdf"></i> PDF</button>
+                        <button class="btn btn-secondary btn-sm" onclick="exportTableExcel('pretsTable','Prets')"><i class="fas fa-file-excel"></i> Excel</button>
+                        <button class="btn btn-primary" onclick="openPretModal()"><i class="fas fa-plus"></i> Nouveau prêt</button>
+                    </div>
+                </div>
+                <div class="table-card">
+                    <div class="table-card-head">
+                        <div class="table-card-title"><i class="fas fa-hand-holding-dollar"></i> Tous les prêts</div>
+                        <div class="table-toolbar">
+                            <div class="table-search">
+                                <i class="fas fa-magnifying-glass"></i>
+                                <input type="text" placeholder="Rechercher…" oninput="filterTable('pretsBody', this.value)" />
+                            </div>
+                            <select class="table-filter" onchange="filterTable('pretsBody','')">
+                                <option value="">Tous statuts</option>
+                                <option value="approuvé">Approuvé</option>
+                                <option value="en attente">En attente</option>
+                                <option value="remboursé">Remboursé</option>
+                                <option value="rejeté">Rejeté</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table class="data-table" id="pretsTable">
+                            <thead>
+                                <tr>
+                                    <th>Adhérent</th>
+                                    <th>Montant (FCFA)</th>
+                                    <th>Taux</th>
+                                    <th>Durée</th>
+                                    <th>Début</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pretsBody">
+                                <tr class="empty-row"><td colspan="7">Chargement…</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="table-footer">
+                        <span id="pretsCount">—</span>
+                        <div class="pagination" id="pretsPagination"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================================================
+                 SECTION : HISTORIQUE PRÊTS
+                 ================================================ -->
+            <section class="content-section" id="section-historiquePrets">
+                <div class="breadcrumb"><i class="fas fa-house"></i><i class="fas fa-chevron-right"></i><span>Historique prêts</span></div>
+                <div class="section-header">
+                    <h2 class="section-title">Historique des Remboursements</h2>
+                    <button class="btn btn-secondary btn-sm" onclick="exportTableExcel('histPretTable','Historique-Prets')"><i class="fas fa-file-excel"></i> Excel</button>
+                </div>
+                <div class="table-card">
+                    <table class="data-table" id="histPretTable">
+                        <thead><tr><th>Adhérent</th><th>Montant</th><th>Taux</th><th>Durée</th><th>Statut</th><th>Date début</th></tr></thead>
+                        <tbody id="histPretBody"><tr class="empty-row"><td colspan="6">Chargement…</td></tr></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ================================================
+                 SECTION : SINISTRES
+                 ================================================ -->
+            <section class="content-section" id="section-sinistres">
+                <div class="breadcrumb"><i class="fas fa-house"></i><i class="fas fa-chevron-right"></i><span>Sinistres</span></div>
+                <div class="section-header">
+                    <h2 class="section-title">Gestion des Sinistres</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="exportTablePDF('sinistresTable','sinistres')"><i class="fas fa-file-pdf"></i> PDF</button>
+                        <button class="btn btn-secondary btn-sm" onclick="exportTableExcel('sinistresTable','Sinistres')"><i class="fas fa-file-excel"></i> Excel</button>
+                        <button class="btn btn-primary" onclick="openSinistreModal()"><i class="fas fa-plus"></i> Nouveau sinistre</button>
+                    </div>
+                </div>
+                <div class="table-card">
+                    <div class="table-card-head">
+                        <div class="table-card-title"><i class="fas fa-triangle-exclamation"></i> Tous les sinistres</div>
+                        <div class="table-toolbar">
+                            <div class="table-search">
+                                <i class="fas fa-magnifying-glass"></i>
+                                <input type="text" placeholder="Rechercher…" oninput="filterTable('sinistresBody', this.value)" />
+                            </div>
+                            <select class="table-filter">
+                                <option value="">Tous types</option>
+                                <option value="maladie">Maladie</option>
+                                <option value="accident">Accident</option>
+                                <option value="décès">Décès</option>
+                                <option value="hospitalisation">Hospitalisation</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table class="data-table" id="sinistresTable">
+                            <thead>
+                                <tr>
+                                    <th>Adhérent</th>
+                                    <th>Description</th>
+                                    <th>Type</th>
+                                    <th>Date</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sinistresBody">
+                                <tr class="empty-row"><td colspan="6">Chargement…</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================================================
+                 SECTION : PROFIL
+                 ================================================ -->
+            <section class="content-section" id="section-profil">
+                <div class="breadcrumb"><i class="fas fa-house"></i><i class="fas fa-chevron-right"></i><span>Mon profil</span></div>
+
+                <div class="profile-header">
+                    <div class="profile-avatar-wrap">
+                        <div class="profile-avatar" id="profileAvatar">AD</div>
+                    </div>
+                    <div class="profile-info">
+                        <div class="profile-name" id="profileName">Nom Prénom</div>
+                        <span class="badge badge-green profile-role" id="profileRole">Administrateur</span>
+                        <div class="profile-meta" id="profileMeta"><i class="fas fa-envelope" style="margin-right:.35rem;"></i><span id="profileEmail">—</span></div>
+                    </div>
+                    <div style="margin-left:auto;z-index:1;">
+                        <button class="btn btn-primary btn-sm" onclick="document.getElementById('profileTabInfo').click()"><i class="fas fa-pen"></i> Modifier le profil</button>
+                    </div>
+                </div>
+
+                <div class="profile-tabs">
+                    <div class="profile-tab active" id="profileTabInfo" data-ptab="tabInfo">Informations</div>
+                    <div class="profile-tab" data-ptab="tabSecurity">Sécurité</div>
+                    <div class="profile-tab" data-ptab="tabActivity">Activité</div>
+                </div>
+
+                <!-- Tab : Infos -->
+                <div class="profile-tab-content active" id="tabInfo">
+                    <div class="settings-card">
+                        <h3>Informations personnelles</h3>
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label>Nom complet</label>
+                                <input type="text" id="editName" placeholder="Votre nom" />
+                            </div>
+                            <div class="form-group">
+                                <label>Adresse e-mail</label>
+                                <input type="email" id="editEmail" placeholder="votre@email.com" />
+                            </div>
+                            <div class="form-group">
+                                <label>Téléphone</label>
+                                <input type="tel" id="editPhone" placeholder="+226 XX XX XX XX" />
+                            </div>
+                            <div class="form-group">
+                                <label>Organisation</label>
+                                <input type="text" id="editOrg" placeholder="Nom de la mutuelle" />
+                            </div>
+                        </div>
+                        <div class="modal-actions" style="margin-top:.75rem;padding-top:.75rem;">
+                            <button class="btn btn-primary" onclick="saveProfile()"><i class="fas fa-floppy-disk"></i> Enregistrer</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab : Sécurité -->
+                <div class="profile-tab-content" id="tabSecurity">
+                    <div class="settings-card">
+                        <h3>Changer le mot de passe</h3>
+                        <div class="form-group">
+                            <label>Mot de passe actuel <span class="required">*</span></label>
+                            <input type="password" id="pwdCurrent" placeholder="••••••••" />
+                        </div>
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label>Nouveau mot de passe <span class="required">*</span></label>
+                                <input type="password" id="pwdNew" placeholder="••••••••" />
+                            </div>
+                            <div class="form-group">
+                                <label>Confirmer <span class="required">*</span></label>
+                                <input type="password" id="pwdConfirm" placeholder="••••••••" />
+                            </div>
+                        </div>
+                        <button class="btn btn-primary btn-sm" onclick="changePassword()"><i class="fas fa-lock"></i> Mettre à jour</button>
+                    </div>
+                </div>
+
+                <!-- Tab : Activité -->
+                <div class="profile-tab-content" id="tabActivity">
+                    <div class="settings-card">
+                        <h3>Mes dernières actions</h3>
+                        <div class="activity-list" id="profileActivityList"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================================================
+                 SECTION : PARAMÈTRES
+                 ================================================ -->
+            <section class="content-section" id="section-parametres">
+                <div class="breadcrumb"><i class="fas fa-house"></i><i class="fas fa-chevron-right"></i><span>Paramètres</span></div>
+                <div class="section-header">
+                    <h2 class="section-title">Paramètres du compte</h2>
+                </div>
+                <div class="settings-card">
+                    <h3>Préférences d'affichage</h3>
+                    <div class="form-group">
+                        <label>Éléments par page</label>
+                        <select id="settingPerPage" onchange="saveSettings()">
+                            <option value="10">10</option>
+                            <option value="25" selected>25</option>
+                            <option value="50">50</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Devise d'affichage</label>
+                        <select id="settingDevise" onchange="saveSettings()">
+                            <option value="FCFA" selected>FCFA (XOF)</option>
+                            <option value="EUR">EUR</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="settings-card">
+                    <h3>Notifications</h3>
+                    <div style="display:flex;flex-direction:column;gap:.75rem;">
+                        <label style="display:flex;align-items:center;gap:.75rem;cursor:pointer;font-size:.875rem;">
+                            <input type="checkbox" id="notifCotisations" checked onchange="saveSettings()" style="width:16px;height:16px;accent-color:var(--or);" />
+                            Alertes cotisations en retard
+                        </label>
+                        <label style="display:flex;align-items:center;gap:.75rem;cursor:pointer;font-size:.875rem;">
+                            <input type="checkbox" id="notifPrets" checked onchange="saveSettings()" style="width:16px;height:16px;accent-color:var(--or);" />
+                            Alertes prêts à échéance
+                        </label>
+                        <label style="display:flex;align-items:center;gap:.75rem;cursor:pointer;font-size:.875rem;">
+                            <input type="checkbox" id="notifSinistres" onchange="saveSettings()" style="width:16px;height:16px;accent-color:var(--or);" />
+                            Nouvelles déclarations sinistres
+                        </label>
+                    </div>
+                </div>
+                <div class="settings-card">
+                    <h3 style="color:var(--kola);">Zone dangereuse</h3>
+                    <p style="font-size:.875rem;color:var(--gris-60);margin-bottom:1rem;">Supprimer définitivement votre compte et toutes les données associées.</p>
+                    <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Supprimer le compte</button>
+                </div>
+            </section>
+
+        </main>
+    </div>
+    <!-- /MAIN -->
+
+</div>
+<!-- /LAYOUT -->
+
+<!-- ============================================================
+     MODALS
+     ============================================================ -->
+
+<!-- Modal Adhérent -->
+<div class="modal-overlay" id="adherentModal">
+    <div class="modal-box modal-wide">
+        <div class="modal-head">
+            <div class="modal-head-left">
+                <div class="modal-head-icon" style="background:var(--or-light);color:var(--or);"><i class="fas fa-user-plus"></i></div>
+                <div>
+                    <h2 id="adherentModalTitle">Nouvel Adhérent</h2>
+                    <p>Remplissez les informations de l'adhérent</p>
+                </div>
             </div>
-        </aside>
-
-        <!-- ===== CONTENU PRINCIPAL ===== -->
-        <div class="main-content">
-
-            <header class="dashboard-header">
-                <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Menu">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <h1 class="page-title" id="page-title">Vue d'ensemble</h1>
-                <div class="header-user">
-                    <i class="fas fa-user-circle"></i>
-                    <span id="user-name">…</span>
-                </div>
-            </header>
-
-            <div class="content-area">
-
-                <!-- SECTION : DASHBOARD -->
-                <section id="section-dashboard" class="content-section active">
-                    <div class="stats-grid" id="statsContainer">
-                        <div class="stat-card skeleton"></div>
-                        <div class="stat-card skeleton"></div>
-                        <div class="stat-card skeleton"></div>
-                        <div class="stat-card skeleton"></div>
-                    </div>
-                </section>
-
-                <!-- SECTION : ALERTES -->
-                <section id="section-alertes" class="content-section">
-                    <div class="section-header">
-                        <h2 class="section-title"><i class="fas fa-bell me-2"></i>Alertes et Notifications</h2>
-                        <button class="btn-action btn-secondary" onclick="loadAlertes()">
-                            <i class="fas fa-sync-alt me-1"></i>Rafraîchir
-                        </button>
-                    </div>
-                    <div class="table-card mb-4">
-                        <div class="table-card-header danger">
-                            <i class="fas fa-exclamation-triangle me-2"></i>Cotisations en Retard
-                        </div>
-                        <div class="table-responsive">
-                            <table class="data-table">
-                                <thead><tr><th>Adhérent</th><th>Email</th><th>Montant</th><th>Date Échéance</th><th>Jours de Retard</th><th>Actions</th></tr></thead>
-                                <tbody id="alertesCotisationsBody"><tr><td colspan="6" class="loading-row">Chargement…</td></tr></tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="table-card">
-                        <div class="table-card-header warning">
-                            <i class="fas fa-calendar-alt me-2"></i>Prêts Arrivant à Échéance
-                        </div>
-                        <div class="table-responsive">
-                            <table class="data-table">
-                                <thead><tr><th>Adhérent</th><th>Email</th><th>Montant</th><th>Date Échéance</th><th>Statut</th><th>Actions</th></tr></thead>
-                                <tbody id="alertesPretsBody"><tr><td colspan="6" class="loading-row">Chargement…</td></tr></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- SECTION : ADHÉRENTS -->
-                <section id="section-adherents" class="content-section">
-                    <div class="section-header">
-                        <h2 class="section-title"><i class="fas fa-users me-2"></i>Gestion des Adhérents</h2>
-                        <button class="btn-action btn-primary" onclick="openAdherentModal()">
-                            <i class="fas fa-plus me-1"></i>Nouvel Adhérent
-                        </button>
-                    </div>
-                    <div class="table-card">
-                        <div class="table-responsive">
-                            <table class="data-table">
-                                <thead><tr><th>Numéro</th><th>Nom</th><th>Email</th><th>Téléphone</th><th>Statut</th><th>Actions</th></tr></thead>
-                                <tbody id="adherentsBody"><tr><td colspan="6" class="loading-row">Chargement…</td></tr></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- SECTION : COTISATIONS -->
-                <section id="section-cotisations" class="content-section">
-                    <div class="section-header">
-                        <h2 class="section-title"><i class="fas fa-file-invoice-dollar me-2"></i>Gestion des Cotisations</h2>
-                        <button class="btn-action btn-primary" onclick="openCotisationModal()">
-                            <i class="fas fa-plus me-1"></i>Nouvelle Cotisation
-                        </button>
-                    </div>
-                    <div class="table-card">
-                        <div class="table-responsive">
-                            <table class="data-table">
-                                <thead><tr><th>Adhérent</th><th>Montant</th><th>Date Échéance</th><th>Statut</th><th>Actions</th></tr></thead>
-                                <tbody id="cotisationsBody"><tr><td colspan="5" class="loading-row">Chargement…</td></tr></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- SECTION : PRÊTS -->
-                <section id="section-prets" class="content-section">
-                    <div class="section-header">
-                        <h2 class="section-title"><i class="fas fa-hand-holding-usd me-2"></i>Gestion des Prêts</h2>
-                        <button class="btn-action btn-primary" onclick="openPretModal()">
-                            <i class="fas fa-plus me-1"></i>Nouveau Prêt
-                        </button>
-                    </div>
-                    <div class="table-card">
-                        <div class="table-responsive">
-                            <table class="data-table">
-                                <thead><tr><th>Adhérent</th><th>Montant</th><th>Taux</th><th>Durée (mois)</th><th>Statut</th><th>Actions</th></tr></thead>
-                                <tbody id="pretsBody"><tr><td colspan="6" class="loading-row">Chargement…</td></tr></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- SECTION : SINISTRES -->
-                <section id="section-sinistres" class="content-section">
-                    <div class="section-header">
-                        <h2 class="section-title"><i class="fas fa-shield-alt me-2"></i>Gestion des Sinistres</h2>
-                        <button class="btn-action btn-primary" onclick="openSinistreModal()">
-                            <i class="fas fa-plus me-1"></i>Nouveau Sinistre
-                        </button>
-                    </div>
-                    <div class="table-card">
-                        <div class="table-responsive">
-                            <table class="data-table">
-                                <thead><tr><th>Adhérent</th><th>Description</th><th>Type</th><th>Date</th><th>Statut</th><th>Actions</th></tr></thead>
-                                <tbody id="sinistresBody"><tr><td colspan="6" class="loading-row">Chargement…</td></tr></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
-
-            </div><!-- /content-area -->
-        </div><!-- /main-content -->
-    </div><!-- /dashboard-layout -->
-
-    <!-- MODAL : ADHÉRENT -->
-    <div id="adherentModal" class="modal-overlay">
-        <div class="modal-box">
-            <div class="modal-head">
-                <h2 id="adherentModalTitle">Nouvel Adhérent</h2>
-                <button class="modal-close" onclick="closeModal('adherentModal')">&times;</button>
-            </div>
-            <form id="adherentForm">
-                <div id="adherentError" class="modal-error"></div>
-                <div class="form-row-2">
-                    <div class="form-group"><label for="adherentNom">Nom</label><input type="text" id="adherentNom" required></div>
-                    <div class="form-group"><label for="adherentPrenom">Prénom</label><input type="text" id="adherentPrenom" required></div>
-                </div>
-                <div class="form-group"><label for="adherentEmail">Email</label><input type="email" id="adherentEmail" required></div>
-                <div class="form-row-2">
-                    <div class="form-group"><label for="adherentTel">Téléphone</label><input type="tel" id="adherentTel"></div>
-                    <div class="form-group"><label for="adherentNumero">Numéro Adhérent</label><input type="text" id="adherentNumero" required></div>
+            <button class="modal-close" onclick="closeModal('adherentModal')">&times;</button>
+        </div>
+        <div class="modal-error" id="adherentError"></div>
+        <form id="adherentForm" novalidate>
+            <div class="form-section-title">Informations personnelles</div>
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label>Nom <span class="required">*</span></label>
+                    <input type="text" id="adherentNom" required placeholder="Nom de famille" />
                 </div>
                 <div class="form-group">
-                    <label for="adherentStatut">Statut</label>
+                    <label>Prénom <span class="required">*</span></label>
+                    <input type="text" id="adherentPrenom" required placeholder="Prénom" />
+                </div>
+                <div class="form-group">
+                    <label>Email <span class="required">*</span></label>
+                    <input type="email" id="adherentEmail" required placeholder="email@exemple.com" />
+                </div>
+                <div class="form-group">
+                    <label>Téléphone</label>
+                    <input type="tel" id="adherentTel" placeholder="+226 XX XX XX XX" />
+                </div>
+                <div class="form-group">
+                    <label>Numéro adhérent <span class="required">*</span></label>
+                    <input type="text" id="adherentNumero" required placeholder="Ex: ADH-2026-001" />
+                </div>
+                <div class="form-group">
+                    <label>Statut</label>
                     <select id="adherentStatut">
                         <option value="actif">Actif</option>
                         <option value="suspendu">Suspendu</option>
-                        <option value="retraite">Retraité</option>
+                        <option value="retraité">Retraité</option>
                     </select>
                 </div>
-                <div class="modal-actions">
-                    <button type="button" class="btn-action btn-secondary" onclick="closeModal('adherentModal')">Annuler</button>
-                    <button type="submit" class="btn-action btn-primary">Enregistrer</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL : COTISATION -->
-    <div id="cotisationModal" class="modal-overlay">
-        <div class="modal-box">
-            <div class="modal-head">
-                <h2 id="cotisationModalTitle">Nouvelle Cotisation</h2>
-                <button class="modal-close" onclick="closeModal('cotisationModal')">&times;</button>
             </div>
-            <form id="cotisationForm">
-                <div id="cotisationError" class="modal-error"></div>
-                <div class="form-group">
-                    <label for="cotisationAdherent">Adhérent</label>
-                    <select id="cotisationAdherent" required><option value="">-- Sélectionner --</option></select>
-                </div>
-                <div class="form-group"><label for="cotisationMontant">Montant (FCFA)</label><input type="number" id="cotisationMontant" step="0.01" required></div>
-                <div class="form-group"><label for="cotisationEcheance">Date Échéance</label><input type="date" id="cotisationEcheance" required></div>
-                <div class="form-group">
-                    <label for="cotisationStatut">Statut</label>
-                    <select id="cotisationStatut">
-                        <option value="en attente">En attente</option>
-                        <option value="payée">Payée</option>
-                        <option value="en retard">En retard</option>
-                    </select>
-                </div>
-                <div class="modal-actions">
-                    <button type="button" class="btn-action btn-secondary" onclick="closeModal('cotisationModal')">Annuler</button>
-                    <button type="submit" class="btn-action btn-primary">Enregistrer</button>
-                </div>
-            </form>
-        </div>
-    </div>
 
-    <!-- MODAL : PRÊT -->
-    <div id="pretModal" class="modal-overlay">
-        <div class="modal-box">
-            <div class="modal-head">
-                <h2 id="pretModalTitle">Nouveau Prêt</h2>
-                <button class="modal-close" onclick="closeModal('pretModal')">&times;</button>
+            <div class="form-section-title">Ayants droit</div>
+            <div class="ayant-droit-list" id="adherentAyantsDroitList"></div>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="addAyantDroitInline()">
+                <i class="fas fa-plus"></i> Ajouter un ayant droit
+            </button>
+
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('adherentModal')">Annuler</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-floppy-disk"></i> Enregistrer</button>
             </div>
-            <form id="pretForm">
-                <div id="pretError" class="modal-error"></div>
-                <div class="form-group">
-                    <label for="pretAdherent">Adhérent</label>
-                    <select id="pretAdherent" required><option value="">-- Sélectionner --</option></select>
-                </div>
-                <div class="form-row-2">
-                    <div class="form-group"><label for="pretMontant">Montant (FCFA)</label><input type="number" id="pretMontant" step="0.01" required></div>
-                    <div class="form-group"><label for="pretTaux">Taux Intérêt (%)</label><input type="number" id="pretTaux" step="0.1" min="0"></div>
-                </div>
-                <div class="form-row-2">
-                    <div class="form-group"><label for="pretDuree">Durée (mois)</label><input type="number" id="pretDuree" required></div>
-                    <div class="form-group"><label for="pretDate">Date Début</label><input type="date" id="pretDate" required></div>
-                </div>
-                <div class="form-group">
-                    <label for="pretStatut">Statut</label>
-                    <select id="pretStatut">
-                        <option value="en attente">En attente</option>
-                        <option value="approuvé">Approuvé</option>
-                        <option value="remboursé">Remboursé</option>
-                        <option value="rejeté">Rejeté</option>
-                    </select>
-                </div>
-                <div class="modal-actions">
-                    <button type="button" class="btn-action btn-secondary" onclick="closeModal('pretModal')">Annuler</button>
-                    <button type="submit" class="btn-action btn-primary">Enregistrer</button>
-                </div>
-            </form>
-        </div>
+        </form>
     </div>
+</div>
 
-    <!-- MODAL : SINISTRE -->
-    <div id="sinistreModal" class="modal-overlay">
-        <div class="modal-box">
-            <div class="modal-head">
-                <h2 id="sinistreModalTitle">Nouveau Sinistre</h2>
-                <button class="modal-close" onclick="closeModal('sinistreModal')">&times;</button>
+<!-- Modal Ayant Droit (standalone) -->
+<div class="modal-overlay" id="ayantDroitModal">
+    <div class="modal-box">
+        <div class="modal-head">
+            <div class="modal-head-left">
+                <div class="modal-head-icon" style="background:var(--savane-light);color:var(--savane);"><i class="fas fa-people-group"></i></div>
+                <div>
+                    <h2 id="ayantDroitModalTitle">Ajouter un ayant droit</h2>
+                    <p>Lié à un adhérent existant</p>
+                </div>
             </div>
-            <form id="sinistreForm">
-                <div id="sinistreError" class="modal-error"></div>
+            <button class="modal-close" onclick="closeModal('ayantDroitModal')">&times;</button>
+        </div>
+        <div class="modal-error" id="ayantDroitError"></div>
+        <form id="ayantDroitForm" novalidate>
+            <div class="form-group">
+                <label>Adhérent principal <span class="required">*</span></label>
+                <select id="ayantDroitAdherent" required>
+                    <option value="">-- Sélectionner --</option>
+                </select>
+            </div>
+            <div class="form-grid-2">
                 <div class="form-group">
-                    <label for="sinistreAdherent">Adhérent</label>
-                    <select id="sinistreAdherent" required><option value="">-- Sélectionner --</option></select>
-                </div>
-                <div class="form-group"><label for="sinistreDescription">Description</label><textarea id="sinistreDescription" required></textarea></div>
-                <div class="form-row-2">
-                    <div class="form-group">
-                        <label for="sinistreType">Type</label>
-                        <select id="sinistreType" required>
-                            <option value="maladie">Maladie</option>
-                            <option value="accident">Accident</option>
-                            <option value="décès">Décès</option>
-                            <option value="hospitalisation">Hospitalisation</option>
-                            <option value="autre">Autre</option>
-                        </select>
-                    </div>
-                    <div class="form-group"><label for="sinistreDate">Date Sinistre</label><input type="date" id="sinistreDate" required></div>
+                    <label>Nom <span class="required">*</span></label>
+                    <input type="text" id="ayantDroitNom" required placeholder="Nom" />
                 </div>
                 <div class="form-group">
-                    <label for="sinistreStatut">Statut</label>
-                    <select id="sinistreStatut">
-                        <option value="déclaré">Déclaré</option>
-                        <option value="en cours">En cours</option>
-                        <option value="approuvé">Approuvé</option>
-                        <option value="rejeté">Rejeté</option>
-                        <option value="remboursé">Remboursé</option>
+                    <label>Prénom <span class="required">*</span></label>
+                    <input type="text" id="ayantDroitPrenom" required placeholder="Prénom" />
+                </div>
+                <div class="form-group">
+                    <label>Relation <span class="required">*</span></label>
+                    <select id="ayantDroitRelation" required>
+                        <option value="">-- Choisir --</option>
+                        <option value="Conjoint(e)">Conjoint(e)</option>
+                        <option value="Enfant">Enfant</option>
+                        <option value="Père">Père</option>
+                        <option value="Mère">Mère</option>
+                        <option value="Frère/Sœur">Frère/Sœur</option>
+                        <option value="Autre">Autre</option>
                     </select>
                 </div>
-                <div class="modal-actions">
-                    <button type="button" class="btn-action btn-secondary" onclick="closeModal('sinistreModal')">Annuler</button>
-                    <button type="submit" class="btn-action btn-primary">Enregistrer</button>
+                <div class="form-group">
+                    <label>Date de naissance</label>
+                    <input type="date" id="ayantDroitDOB" />
                 </div>
-            </form>
-        </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('ayantDroitModal')">Annuler</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-floppy-disk"></i> Enregistrer</button>
+            </div>
+        </form>
     </div>
+</div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Configuration -->
-    <script src="js/config.js"></script>
-    <!-- JS global (apiCall, isAuthenticated, TOKEN_KEY…) -->
-    <script src="js/api.js"></script>
-    <!-- JS spécifique au dashboard -->
-    <script src="js/dashboard.js"></script>
+<!-- Modal Cotisation -->
+<div class="modal-overlay" id="cotisationModal">
+    <div class="modal-box">
+        <div class="modal-head">
+            <div class="modal-head-left">
+                <div class="modal-head-icon" style="background:var(--savane-light);color:var(--savane);"><i class="fas fa-coins"></i></div>
+                <div><h2 id="cotisationModalTitle">Nouvelle Cotisation</h2></div>
+            </div>
+            <button class="modal-close" onclick="closeModal('cotisationModal')">&times;</button>
+        </div>
+        <div class="modal-error" id="cotisationError"></div>
+        <form id="cotisationForm" novalidate>
+            <div class="form-group">
+                <label>Adhérent <span class="required">*</span></label>
+                <select id="cotisationAdherent" required><option value="">-- Sélectionner --</option></select>
+            </div>
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label>Montant (FCFA) <span class="required">*</span></label>
+                    <input type="number" id="cotisationMontant" required min="0" placeholder="Ex: 5000" />
+                </div>
+                <div class="form-group">
+                    <label>Date d'échéance <span class="required">*</span></label>
+                    <input type="date" id="cotisationEcheance" required />
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Statut</label>
+                <select id="cotisationStatut">
+                    <option value="en attente">En attente</option>
+                    <option value="payée">Payée</option>
+                    <option value="en retard">En retard</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('cotisationModal')">Annuler</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-floppy-disk"></i> Enregistrer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Prêt -->
+<div class="modal-overlay" id="pretModal">
+    <div class="modal-box">
+        <div class="modal-head">
+            <div class="modal-head-left">
+                <div class="modal-head-icon" style="background:var(--ciel-light);color:var(--ciel);"><i class="fas fa-hand-holding-dollar"></i></div>
+                <div><h2 id="pretModalTitle">Nouveau Prêt</h2></div>
+            </div>
+            <button class="modal-close" onclick="closeModal('pretModal')">&times;</button>
+        </div>
+        <div class="modal-error" id="pretError"></div>
+        <form id="pretForm" novalidate>
+            <div class="form-group">
+                <label>Adhérent <span class="required">*</span></label>
+                <select id="pretAdherent" required><option value="">-- Sélectionner --</option></select>
+            </div>
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label>Montant (FCFA) <span class="required">*</span></label>
+                    <input type="number" id="pretMontant" required min="0" placeholder="Ex: 500000" />
+                </div>
+                <div class="form-group">
+                    <label>Taux d'intérêt (%)</label>
+                    <input type="number" id="pretTaux" min="0" max="100" step="0.1" placeholder="Ex: 5" />
+                </div>
+                <div class="form-group">
+                    <label>Durée (mois) <span class="required">*</span></label>
+                    <input type="number" id="pretDuree" required min="1" placeholder="Ex: 12" />
+                </div>
+                <div class="form-group">
+                    <label>Date de début</label>
+                    <input type="date" id="pretDate" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Statut</label>
+                <select id="pretStatut">
+                    <option value="en attente">En attente</option>
+                    <option value="approuvé">Approuvé</option>
+                    <option value="remboursé">Remboursé</option>
+                    <option value="rejeté">Rejeté</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('pretModal')">Annuler</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-floppy-disk"></i> Enregistrer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Sinistre -->
+<div class="modal-overlay" id="sinistreModal">
+    <div class="modal-box">
+        <div class="modal-head">
+            <div class="modal-head-left">
+                <div class="modal-head-icon" style="background:var(--kola-light);color:var(--kola);"><i class="fas fa-triangle-exclamation"></i></div>
+                <div><h2 id="sinistreModalTitle">Nouveau Sinistre</h2></div>
+            </div>
+            <button class="modal-close" onclick="closeModal('sinistreModal')">&times;</button>
+        </div>
+        <div class="modal-error" id="sinistreError"></div>
+        <form id="sinistreForm" novalidate>
+            <div class="form-group">
+                <label>Adhérent <span class="required">*</span></label>
+                <select id="sinistreAdherent" required><option value="">-- Sélectionner --</option></select>
+            </div>
+            <div class="form-group">
+                <label>Description <span class="required">*</span></label>
+                <textarea id="sinistreDescription" required placeholder="Décrivez le sinistre…"></textarea>
+            </div>
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label>Type <span class="required">*</span></label>
+                    <select id="sinistreType" required>
+                        <option value="">-- Choisir --</option>
+                        <option value="maladie">Maladie</option>
+                        <option value="accident">Accident</option>
+                        <option value="décès">Décès</option>
+                        <option value="hospitalisation">Hospitalisation</option>
+                        <option value="autre">Autre</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Date du sinistre <span class="required">*</span></label>
+                    <input type="date" id="sinistreDate" required />
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Statut</label>
+                <select id="sinistreStatut">
+                    <option value="déclaré">Déclaré</option>
+                    <option value="en cours">En cours</option>
+                    <option value="approuvé">Approuvé</option>
+                    <option value="rejeté">Rejeté</option>
+                    <option value="remboursé">Remboursé</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('sinistreModal')">Annuler</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-floppy-disk"></i> Enregistrer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="api.js"></script>
+<script src="dashboard.js"></script>
 
 </body>
 </html>
