@@ -8,7 +8,7 @@
 
     if (hostname === 'localhost' || hostname === '127.0.0.1') {
         // Environnement de développement
-        window.API_URL = 'http://localhost:8000/api';
+        window.API_URL = window.location.origin + "/api";
     } else {
         // Environnement de production (Railway)
         window.API_URL = window.location.origin + '/api';
