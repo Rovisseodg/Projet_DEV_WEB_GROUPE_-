@@ -27,7 +27,7 @@ class AlerteController extends Controller
                 'cotisations.date_echeance',
                 'cotisations.statut',
                 DB::raw("'cotisation' as type"),
-                DB::raw("EXTRACT(DAY FROM (CURRENT_DATE - cotisations.date_echeance::date)::interval)::INTEGER as jours_retard")
+                DB::raw("(CURRENT_DATE - cotisations.date_echeance::date)::INTEGER as jours_retard")
             ])
             ->get();
 
