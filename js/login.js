@@ -138,18 +138,22 @@ document.getElementById('login-form').addEventListener('submit', async function 
                 }
             }, 800);
         }
-    } catch (error) {
-        console.error('Login error:', error);
+        } catch (error) {
+    console.error('Login error:', error);
 
-        // Distinguer les erreurs réseau des erreurs serveur
-        if (!navigator.onLine) {
-            showAlert('Pas de connexion Internet. Vérifiez votre réseau.');
-        } else if (error.message && error.message.includes('401')) {
-            showAlert('Identifiants incorrects. Vérifiez votre e-mail et mot de passe.');
-        } else {
-            showAlert('Impossible de contacter le serveur. Veuillez réessayer.');
-        }
-    } 
+    if (!navigator.onLine) {
+        showAlert('Pas de connexion Internet. Vérifiez votre réseau.');
+    } else if (error.status === 401 || error.message?.includes('401') || error.message?.toLowerCase().includes('invalide')) {
+        showAlert('Identifiants incorrects. Vérifiez votre e-mail et mot de passe.');
+    } else if (error.status === 422) {
+        showAlert('Données invalides. Vérifiez les champs.');
+    } else if (error.status === 500) {
+        showAlert('Erreur serveur. Réessayez dans quelques instants.');
+    } else {
+        showAlert(`Erreur : ${error.message || 'inconnue'}`);
+    }
+}
+
     finally {
         setLoading(false);
     }
