@@ -31,6 +31,14 @@ class AuthController extends Controller
             'role' => 'adherent', // Forcer le rôle adhérent pour l'inscription publique
         ]);
 
+        // Lier le user_id à l'adhérent existant
+        $adherent = \App\Models\Adherent::where('email', $request->email)
+                                 ->whereNull('user_id')
+                                 ->first();
+if ($adherent) {
+    $adherent->update(['user_id' => $user->id]);
+}
+
         $token = JWTAuth::fromUser($user);
 
         return response()->json([

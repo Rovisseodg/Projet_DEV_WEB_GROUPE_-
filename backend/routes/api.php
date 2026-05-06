@@ -7,53 +7,108 @@ use App\Http\Controllers\CotisationController;
 use App\Http\Controllers\PretController;
 use App\Http\Controllers\SinistreController;
 use App\Http\Controllers\AlerteController;
+use App\Http\Controllers\AdherentDashboardController;
 
+/* ====================================================================
+ * ROUTE PUBLIQUE — Santé de l'API
+ * ==================================================================== */
 Route::get('/', function () {
     return response()->json([
         'message' => 'MaMutuelle API',
         'version' => '1.0',
-        'status' => 'running'
+        'status'  => 'running'
     ]);
 });
 
-// Auth Routes (sans middleware)
+/* ====================================================================
+ * AUTHENTIFICATION — Routes publiques
+ * ==================================================================== */
 Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/refresh', [AuthController::class, 'refresh']);
+Route::post('/login',    [AuthController::class, 'login']);
+Route::post('/refresh',  [AuthController::class, 'refresh']);
 
-// Protected Routes (avec JWT middleware)
+/* ====================================================================
+ * ROUTES PROTÉGÉES (JWT requis)
+ * ==================================================================== */
 Route::middleware('auth:api')->group(function () {
+
+    // ── Auth ──────────────────────────────────────────────────────────
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/me', [AuthController::class, 'me']);
+    Route::get('/me',      [AuthController::class, 'me']);
 
-    // Routes réservées aux admins et agents
+    /* ==================================================================
+     * TABLEAU DE BORD ADHÉRENT — réservé au rôle "adherent"
+     * Middleware CheckAdherent : vérifie role === 'adherent'
+     *                            + existence du profil adherent lié
+     * ================================================================== */
+    Route::middleware('App\Http\Middleware\CheckAdherent')->group(function () {
+
+        // Vue d'ensemble personnalisée (stats, alertes, prochaines échéances)
+        Route::get('/mon-tableau-de-bord', [AdherentDashboardController::class, 'overview']);
+
+        // Profil
+        Route::get('/mon-profil',  [AdherentDashboardController::class, 'profil']);
+        Route::put('/mon-profil',  [AdherentDashboardController::class, 'updateProfil']);
+
+        // Mot de passe
+        Route::put('/mon-mot-de-passe', [AdherentDashboardController::class, 'updatePassword']);
+
+        // Cotisations (lecture seule — l'admin crée, l'adhérent consulte)
+        Route::get('/mes-cotisations', [AdherentDashboardController::class, 'cotisations']);
+
+        // Prêts
+        Route::get('/mes-prets',                          [AdherentDashboardController::class, 'prets']);
+        Route::post('/mes-prets',                         [AdherentDashboardController::class, 'demanderPret']);
+        Route::get('/mes-prets/{id}/amortissement',       [AdherentDashboardController::class, 'amortissement']);
+
+        // Sinistres
+        Route::get('/mes-sinistres',   [AdherentDashboardController::class, 'sinistres']);
+        Route::post('/mes-sinistres',  [AdherentDashboardController::class, 'declarerSinistre']);
+
+        // Ayants droit
+        Route::get('/mes-ayants-droit',         [AdherentDashboardController::class, 'ayantsDroit']);
+        Route::post('/mes-ayants-droit',        [AdherentDashboardController::class, 'ajouterAyantDroit']);
+        Route::put('/mes-ayants-droit/{id}',    [AdherentDashboardController::class, 'modifierAyantDroit']);
+        Route::delete('/mes-ayants-droit/{id}', [AdherentDashboardController::class, 'supprimerAyantDroit']);
+    });
+
+    /* ==================================================================
+     * TABLEAU DE BORD ADMIN / AGENT
+     * Middleware CheckAdminOrAgent
+     * ================================================================== */
     Route::middleware('App\Http\Middleware\CheckAdminOrAgent')->group(function () {
-        Route::apiResource('adherents', AdherentController::class);
+
+        // CRUD complet adhérents
+        Route::apiResource('adherents',   AdherentController::class);
+
+        // CRUD complet cotisations
         Route::apiResource('cotisations', CotisationController::class);
-        Route::apiResource('prets', PretController::class);
-        Route::apiResource('sinistres', SinistreController::class);
-    });
 
-    // Routes réservées aux admins uniquement
-    Route::middleware('App\Http\Middleware\CheckRole:admin')->group(function () {
-        Route::post('/register-admin', [AuthController::class, 'registerAdmin']);
-    });
+        // CRUD complet prêts
+        Route::apiResource('prets',       PretController::class);
 
-    // Alertes Routes (accessibles aux admins et agents)
-    Route::middleware('App\Http\Middleware\CheckAdminOrAgent')->group(function () {
-        Route::get('/alertes', [AlerteController::class, 'index']);
+        // CRUD complet sinistres
+        Route::apiResource('sinistres',   SinistreController::class);
+
+        // Alertes
+        Route::get('/alertes',            [AlerteController::class, 'index']);
         Route::get('/alertes/statistics', [AlerteController::class, 'statistics']);
-    });
 
-    // Stats (accessibles aux admins et agents)
-    Route::middleware('App\Http\Middleware\CheckAdminOrAgent')->group(function () {
+        // Statistiques globales
         Route::get('/stats', function () {
             return response()->json([
-                'adherents_total' => \App\Models\Adherent::count(),
+                'adherents_total'    => \App\Models\Adherent::count(),
                 'cotisations_payees' => \App\Models\Cotisation::where('statut', 'payée')->count(),
-                'prets_actifs' => \App\Models\Pret::where('statut', 'approuvé')->count(),
+                'prets_actifs'       => \App\Models\Pret::where('statut', 'approuvé')->count(),
                 'sinistres_en_cours' => \App\Models\Sinistre::where('statut', 'en cours')->count(),
             ]);
         });
+    });
+
+    /* ==================================================================
+     * ADMIN UNIQUEMENT
+     * ================================================================== */
+    Route::middleware('App\Http\Middleware\CheckRole:admin')->group(function () {
+        Route::post('/register-admin', [AuthController::class, 'registerAdmin']);
     });
 });
