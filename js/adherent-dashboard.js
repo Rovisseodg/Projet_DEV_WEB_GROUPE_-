@@ -53,8 +53,12 @@ async function loadUserProfile() {
         const data = await apiGet('/adherent/me');
 
         // Vérifier que c'est bien un adhérent (pas un admin)
-        if (data.role === 'admin') {
+        if (data.role == 'admin') {
             window.location.href = 'dashboard.html';
+            return;
+        }
+        else if (data.role == 'adherent') {
+            window.location.href = 'adherent-dashboard.html';
             return;
         }
 
