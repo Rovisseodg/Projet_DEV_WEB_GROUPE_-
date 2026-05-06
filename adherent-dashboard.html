@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MaMutuelle – Mon Espace</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/adherent-dashboard.css">
+</head>
+<body>
+
+<!-- ========== LAYOUT PRINCIPAL ========== -->
+<div class="ad-layout" id="adApp">
+
+    <!-- ========== SIDEBAR ========== -->
+    <aside class="ad-sidebar" id="adSidebar">
+
+        <!-- Logo / Brand -->
+        <div class="ad-brand">
+            <div class="ad-brand-logo">
+                <span>M</span>
+                <div class="ad-brand-glow"></div>
+            </div>
+            <div class="ad-brand-text">
+                <span class="ad-brand-name">MaMutuelle</span>
+                <span class="ad-brand-tag">Espace Adhérent</span>
+            </div>
+        </div>
+
+        <!-- Carte membre dans sidebar -->
+        <div class="ad-member-card" id="adSidebarCard">
+            <div class="ad-member-card-bg"></div>
+            <div class="ad-member-avatar" id="adSidebarAvatar">?</div>
+            <div class="ad-member-info">
+                <div class="ad-member-name" id="adSidebarName">Chargement…</div>
+                <div class="ad-member-num" id="adSidebarNum">N° —</div>
+            </div>
+            <div class="ad-member-status" id="adSidebarStatus">
+                <span class="ad-status-dot"></span>
+                <span id="adSidebarStatusText">Actif</span>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="ad-nav">
+
+            <div class="ad-nav-item active" data-section="accueil">
+                <div class="ad-nav-icon"><i class="fas fa-home"></i></div>
+                <span class="ad-nav-label">Mon tableau de bord</span>
+            </div>
+
+            <div class="ad-nav-item" data-section="cotisations">
+                <div class="ad-nav-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+                <span class="ad-nav-label">Mes Cotisations</span>
+                <span class="ad-nav-badge" id="badgeCotis" style="display:none"></span>
+            </div>
+
+            <div class="ad-nav-item" data-section="prets">
+                <div class="ad-nav-icon"><i class="fas fa-hand-holding-dollar"></i></div>
+                <span class="ad-nav-label">Mes Prêts</span>
+            </div>
+
+            <div class="ad-nav-item" data-section="sinistres">
+                <div class="ad-nav-icon"><i class="fas fa-shield-halved"></i></div>
+                <span class="ad-nav-label">Mes Sinistres</span>
+            </div>
+
+            <div class="ad-nav-item" data-section="ayants">
+                <div class="ad-nav-icon"><i class="fas fa-people-roof"></i></div>
+                <span class="ad-nav-label">Ayants Droit</span>
+            </div>
+
+            <div class="ad-nav-item" data-section="notifications">
+                <div class="ad-nav-icon"><i class="fas fa-bell"></i></div>
+                <span class="ad-nav-label">Notifications</span>
+                <span class="ad-nav-badge" id="badgeNotif" style="display:none"></span>
+            </div>
+
+            <div class="ad-nav-item" data-section="documents">
+                <div class="ad-nav-icon"><i class="fas fa-folder-open"></i></div>
+                <span class="ad-nav-label">Mes Documents</span>
+            </div>
+
+            <div class="ad-nav-item" data-section="profil">
+                <div class="ad-nav-icon"><i class="fas fa-user-circle"></i></div>
+                <span class="ad-nav-label">Mon Profil</span>
+            </div>
+
+        </nav>
+
+        <!-- Sidebar footer -->
+        <div class="ad-sidebar-footer">
+            <button class="ad-logout-btn" id="adLogoutBtn">
+                <i class="fas fa-right-from-bracket"></i>
+                <span>Déconnexion</span>
+            </button>
+        </div>
+
+    </aside>
+
+    <!-- ========== CONTENU PRINCIPAL ========== -->
+    <div class="ad-main">
+
+        <!-- Header -->
+        <header class="ad-header">
+            <button class="ad-menu-toggle" id="adMenuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <div class="ad-header-left">
+                <h1 class="ad-page-title" id="adPageTitle">Mon tableau de bord</h1>
+                <div class="ad-breadcrumb">
+                    <span>MaMutuelle</span>
+                    <i class="fas fa-chevron-right"></i>
+                    <span id="adBreadcrumb">Accueil</span>
+                </div>
+            </div>
+
+            <div class="ad-header-right">
+                <!-- Alerte cotisation retard -->
+                <div class="ad-header-alert" id="adHeaderAlert" style="display:none">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span id="adHeaderAlertText"></span>
+                </div>
+
+                <!-- Notifications -->
+                <button class="ad-header-icon-btn" id="adNotifBtn">
+                    <i class="fas fa-bell"></i>
+                    <span class="ad-header-dot" id="adNotifDot" style="display:none"></span>
+                </button>
+
+                <!-- Avatar header -->
+                <div class="ad-header-user" id="adHeaderUser" onclick="showSection('profil')">
+                    <div class="ad-header-avatar" id="adHeaderAvatar">?</div>
+                    <span id="adHeaderName">…</span>
+                    <i class="fas fa-chevron-down" style="font-size:10px;opacity:.5"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- Panneau notifications rapide -->
+        <div class="ad-notif-panel" id="adNotifPanel">
+            <div class="ad-notif-panel-head">
+                <span>Notifications</span>
+                <button onclick="toggleNotifPanel()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="ad-notif-list" id="adNotifPanelList">
+                <div class="ad-notif-empty">Aucune notification</div>
+            </div>
+            <div class="ad-notif-panel-footer">
+                <button onclick="markAllRead()">Tout marquer comme lu</button>
+            </div>
+        </div>
+
+        <!-- Zone de contenu -->
+        <div class="ad-content">
+
+            <!-- ========================================
+                 SECTION 1 : TABLEAU DE BORD (ACCUEIL)
+                 ======================================== -->
+            <section id="section-accueil" class="ad-section active">
+
+                <!-- Bannière de bienvenue -->
+                <div class="ad-welcome-banner" id="adWelcomeBanner">
+                    <div class="ad-welcome-pattern"></div>
+                    <div class="ad-welcome-text">
+                        <div class="ad-welcome-greeting" id="adGreeting">Bonjour 👋</div>
+                        <div class="ad-welcome-name" id="adWelcomeName">—</div>
+                        <div class="ad-welcome-meta">
+                            Adhérent depuis <strong id="adWelcomeSince">—</strong> &nbsp;·&nbsp; N° <strong id="adWelcomeNum">—</strong>
+                        </div>
+                    </div>
+                    <div class="ad-welcome-card-art">
+                        <i class="fas fa-seedling"></i>
+                    </div>
+                </div>
+
+                <!-- Alerte retard visible -->
+                <div class="ad-alert-banner" id="adRetardBanner" style="display:none">
+                    <i class="fas fa-triangle-exclamation"></i>
+                    <div>
+                        <strong>Cotisation en retard</strong>
+                        <span id="adRetardText"> — Merci de régulariser votre situation.</span>
+                    </div>
+                    <button onclick="showSection('cotisations')" class="ad-alert-cta">Voir mes cotisations</button>
+                </div>
+
+                <!-- 4 tuiles résumé -->
+                <div class="ad-kpi-grid">
+                    <div class="ad-kpi-card" id="kpiCotisTotal">
+                        <div class="ad-kpi-icon cotis"><i class="fas fa-coins"></i></div>
+                        <div class="ad-kpi-body">
+                            <div class="ad-kpi-label">Total cotisé</div>
+                            <div class="ad-kpi-value" id="kpiCotisTotalVal">— FCFA</div>
+                            <div class="ad-kpi-sub" id="kpiCotisTotalSub">depuis l'adhésion</div>
+                        </div>
+                    </div>
+                    <div class="ad-kpi-card clickable" id="kpiProchaineCotis" onclick="showSection('cotisations')">
+                        <div class="ad-kpi-icon next"><i class="fas fa-calendar-clock"></i></div>
+                        <div class="ad-kpi-body">
+                            <div class="ad-kpi-label">Prochaine cotisation</div>
+                            <div class="ad-kpi-value" id="kpiProchaineCotisVal">—</div>
+                            <div class="ad-kpi-sub" id="kpiProchaineCotisSub">—</div>
+                        </div>
+                    </div>
+                    <div class="ad-kpi-card clickable" id="kpiPret" onclick="showSection('prets')">
+                        <div class="ad-kpi-icon pret"><i class="fas fa-hand-holding-dollar"></i></div>
+                        <div class="ad-kpi-body">
+                            <div class="ad-kpi-label">Prêt en cours</div>
+                            <div class="ad-kpi-value" id="kpiPretVal">—</div>
+                            <div class="ad-kpi-sub" id="kpiPretSub">—</div>
+                        </div>
+                    </div>
+                    <div class="ad-kpi-card clickable" id="kpiSinistres" onclick="showSection('sinistres')">
+                        <div class="ad-kpi-icon sinistre"><i class="fas fa-shield-halved"></i></div>
+                        <div class="ad-kpi-body">
+                            <div class="ad-kpi-label">Sinistres déclarés</div>
+                            <div class="ad-kpi-value" id="kpiSinistresVal">—</div>
+                            <div class="ad-kpi-sub" id="kpiSinistresSub">—</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Graphique cotisations + activités récentes -->
+                <div class="ad-dash-row">
+                    <div class="ad-chart-card">
+                        <div class="ad-chart-head">
+                            <span class="ad-chart-title"><i class="fas fa-chart-line me-2"></i>Mes cotisations (6 mois)</span>
+                            <select class="ad-chart-select" id="accueilChartPeriod" onchange="renderAccueilChart()">
+                                <option value="6">6 mois</option>
+                                <option value="12">12 mois</option>
+                            </select>
+                        </div>
+                        <canvas id="accueilChart" height="120"></canvas>
+                    </div>
+                    <div class="ad-timeline-card">
+                        <div class="ad-chart-head">
+                            <span class="ad-chart-title"><i class="fas fa-clock-rotate-left me-2"></i>Activités récentes</span>
+                            <button class="ad-link-btn" onclick="showSection('notifications')">Tout voir</button>
+                        </div>
+                        <div class="ad-mini-timeline" id="accueilTimeline">
+                            <div class="ad-tl-skeleton"></div>
+                            <div class="ad-tl-skeleton"></div>
+                            <div class="ad-tl-skeleton"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prochaines échéances -->
+                <div class="ad-echeances-card">
+                    <div class="ad-chart-head">
+                        <span class="ad-chart-title"><i class="fas fa-calendar-days me-2"></i>Prochaines échéances</span>
+                    </div>
+                    <div class="ad-echeances-list" id="adEcheancesList">
+                        <div class="ad-loading"><i class="fas fa-spinner fa-spin"></i> Chargement…</div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- ========================================
+                 SECTION 2 : MES COTISATIONS
+                 ======================================== -->
+            <section id="section-cotisations" class="ad-section">
+
+                <div class="ad-section-head">
+                    <h2 class="ad-section-title"><i class="fas fa-file-invoice-dollar"></i> Mes Cotisations</h2>
+                    <div class="ad-section-actions">
+                        <select class="ad-filter-select" id="cotisFilter" onchange="filterCotisations()">
+                            <option value="">Tous les statuts</option>
+                            <option value="payée">Payées</option>
+                            <option value="en attente">En attente</option>
+                            <option value="en retard">En retard</option>
+                        </select>
+                        <button class="ad-btn ad-btn-outline" onclick="exportCotisPDF()">
+                            <i class="fas fa-file-pdf"></i> Relevé PDF
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Résumé cotisations -->
+                <div class="ad-cotis-summary" id="adCotisSummary">
+                    <div class="ad-sum-block">
+                        <div class="ad-sum-label">Total payé</div>
+                        <div class="ad-sum-val green" id="cotisTotalPaye">—</div>
+                    </div>
+                    <div class="ad-sum-sep"></div>
+                    <div class="ad-sum-block">
+                        <div class="ad-sum-label">En attente</div>
+                        <div class="ad-sum-val orange" id="cotisTotalAttente">—</div>
+                    </div>
+                    <div class="ad-sum-sep"></div>
+                    <div class="ad-sum-block">
+                        <div class="ad-sum-label">En retard</div>
+                        <div class="ad-sum-val red" id="cotisTotalRetard">—</div>
+                    </div>
+                    <div class="ad-sum-sep"></div>
+                    <div class="ad-sum-block">
+                        <div class="ad-sum-label">Nombre total</div>
+                        <div class="ad-sum-val" id="cotisTotal">—</div>
+                    </div>
+                </div>
+
+                <!-- Liste des cotisations -->
+                <div class="ad-table-card">
+                    <div class="ad-table-wrap">
+                        <table class="ad-table" id="cotisTable">
+                            <thead>
+                                <tr>
+                                    <th>Période</th>
+                                    <th>Montant (FCFA)</th>
+                                    <th>Date échéance</th>
+                                    <th>Date paiement</th>
+                                    <th>Statut</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cotisBody">
+                                <tr><td colspan="6" class="ad-loading-row"><i class="fas fa-spinner fa-spin"></i> Chargement…</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Graphique cotisations -->
+                <div class="ad-chart-card mt-4">
+                    <div class="ad-chart-head">
+                        <span class="ad-chart-title"><i class="fas fa-chart-bar me-2"></i>Historique des paiements</span>
+                    </div>
+                    <canvas id="cotisHistoChart" height="100"></canvas>
+                </div>
+
+            </section>
+
+            <!-- ========================================
+                 SECTION 3 : MES PRÊTS
+                 ======================================== -->
+            <section id="section-prets" class="ad-section">
+
+                <div class="ad-section-head">
+                    <h2 class="ad-section-title"><i class="fas fa-hand-holding-dollar"></i> Mes Prêts</h2>
+                    <div class="ad-section-actions">
+                        <button class="ad-btn ad-btn-primary" id="btnDemanderPret" onclick="openDemanderPretModal()">
+                            <i class="fas fa-plus"></i> Demander un prêt
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Prêt actif en cours -->
+                <div id="pretActifCard" style="display:none">
+                    <div class="ad-pret-actif">
+                        <div class="ad-pret-actif-head">
+                            <div>
+                                <div class="ad-pret-actif-label">Prêt en cours</div>
+                                <div class="ad-pret-actif-montant" id="pretActifMontant">—</div>
+                            </div>
+                            <div class="ad-pret-actif-meta">
+                                <div class="ad-pret-meta-item">
+                                    <span class="ad-meta-label">Taux</span>
+                                    <span class="ad-meta-val" id="pretActifTaux">—</span>
+                                </div>
+                                <div class="ad-pret-meta-item">
+                                    <span class="ad-meta-label">Mensualité</span>
+                                    <span class="ad-meta-val" id="pretActifMensualite">—</span>
+                                </div>
+                                <div class="ad-pret-meta-item">
+                                    <span class="ad-meta-label">Durée</span>
+                                    <span class="ad-meta-val" id="pretActifDuree">—</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Barre de progression remboursement -->
+                        <div class="ad-pret-progress-wrap">
+                            <div class="ad-pret-progress-labels">
+                                <span>Remboursé : <strong id="pretProgressPaye">—</strong></span>
+                                <span>Restant : <strong id="pretProgressRestant">—</strong></span>
+                            </div>
+                            <div class="ad-pret-progress-bar">
+                                <div class="ad-pret-progress-fill" id="pretProgressFill" style="width:0%"></div>
+                            </div>
+                            <div class="ad-pret-progress-pct">
+                                <span id="pretProgressPct">0%</span> remboursé
+                            </div>
+                        </div>
+                        <!-- Tableau d'amortissement -->
+                        <button class="ad-btn ad-btn-outline mt-3" onclick="toggleAmortissement()">
+                            <i class="fas fa-table-list"></i> <span id="amortToggleText">Voir le tableau d'amortissement</span>
+                        </button>
+                        <div id="amortissementWrap" style="display:none; margin-top:1rem">
+                            <div class="ad-table-wrap">
+                                <table class="ad-table">
+                                    <thead>
+                                        <tr><th>N°</th><th>Date</th><th>Mensualité</th><th>Capital</th><th>Intérêts</th><th>Restant</th><th>Statut</th></tr>
+                                    </thead>
+                                    <tbody id="amortBody">
+                                        <tr><td colspan="7" class="ad-loading-row"><i class="fas fa-spinner fa-spin"></i></td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button class="ad-btn ad-btn-outline mt-2" onclick="exportAmortPDF()">
+                                <i class="fas fa-file-pdf"></i> Télécharger le tableau
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Historique des prêts -->
+                <div class="ad-table-card" id="pretHistoriqueCard">
+                    <div class="ad-table-card-title">Historique de mes prêts</div>
+                    <div class="ad-table-wrap">
+                        <table class="ad-table">
+                            <thead>
+                                <tr><th>Date</th><th>Montant</th><th>Durée</th><th>Mensualité</th><th>Statut</th><th>Actions</th></tr>
+                            </thead>
+                            <tbody id="pretsBody">
+                                <tr><td colspan="6" class="ad-loading-row"><i class="fas fa-spinner fa-spin"></i> Chargement…</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- ========================================
+                 SECTION 4 : MES SINISTRES
+                 ======================================== -->
+            <section id="section-sinistres" class="ad-section">
+
+                <div class="ad-section-head">
+                    <h2 class="ad-section-title"><i class="fas fa-shield-halved"></i> Mes Sinistres</h2>
+                    <div class="ad-section-actions">
+                        <button class="ad-btn ad-btn-primary" onclick="openSinistreModal()">
+                            <i class="fas fa-plus"></i> Déclarer un sinistre
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Liste des sinistres en cartes -->
+                <div class="ad-sinistres-list" id="sinistresList">
+                    <div class="ad-loading"><i class="fas fa-spinner fa-spin"></i> Chargement…</div>
+                </div>
+
+            </section>
+
+            <!-- ========================================
+                 SECTION 5 : AYANTS DROIT
+                 ======================================== -->
+            <section id="section-ayants" class="ad-section">
+
+                <div class="ad-section-head">
+                    <h2 class="ad-section-title"><i class="fas fa-people-roof"></i> Mes Ayants Droit</h2>
+                    <div class="ad-section-actions">
+                        <button class="ad-btn ad-btn-primary" onclick="openAyantModal()">
+                            <i class="fas fa-plus"></i> Ajouter
+                        </button>
+                    </div>
+                </div>
+
+                <div class="ad-ayants-grid" id="ayantsGrid">
+                    <div class="ad-loading"><i class="fas fa-spinner fa-spin"></i> Chargement…</div>
+                </div>
+
+            </section>
+
+            <!-- ========================================
+                 SECTION 6 : NOTIFICATIONS
+                 ======================================== -->
+            <section id="section-notifications" class="ad-section">
+
+                <div class="ad-section-head">
+                    <h2 class="ad-section-title"><i class="fas fa-bell"></i> Mes Notifications</h2>
+                    <div class="ad-section-actions">
+                        <button class="ad-btn ad-btn-outline" onclick="markAllRead()">
+                            <i class="fas fa-check-double"></i> Tout marquer lu
+                        </button>
+                    </div>
+                </div>
+
+                <div class="ad-notif-full-list" id="notifFullList">
+                    <div class="ad-loading"><i class="fas fa-spinner fa-spin"></i> Chargement…</div>
+                </div>
+
+            </section>
+
+            <!-- ========================================
+                 SECTION 7 : MES DOCUMENTS
+                 ======================================== -->
+            <section id="section-documents" class="ad-section">
+
+                <div class="ad-section-head">
+                    <h2 class="ad-section-title"><i class="fas fa-folder-open"></i> Mes Documents</h2>
+                </div>
+
+                <div class="ad-doc-grid">
+                    <div class="ad-doc-card" onclick="downloadAttestation()">
+                        <div class="ad-doc-icon"><i class="fas fa-id-card"></i></div>
+                        <div class="ad-doc-info">
+                            <div class="ad-doc-name">Attestation d'adhésion</div>
+                            <div class="ad-doc-desc">Document officiel certifiant votre adhésion</div>
+                        </div>
+                        <button class="ad-doc-btn"><i class="fas fa-download"></i> Télécharger</button>
+                    </div>
+                    <div class="ad-doc-card" onclick="downloadReleve()">
+                        <div class="ad-doc-icon releve"><i class="fas fa-receipt"></i></div>
+                        <div class="ad-doc-info">
+                            <div class="ad-doc-name">Relevé de cotisations</div>
+                            <div class="ad-doc-desc">Historique complet de vos paiements</div>
+                        </div>
+                        <button class="ad-doc-btn"><i class="fas fa-download"></i> Télécharger</button>
+                    </div>
+                    <div class="ad-doc-card" id="docAmortCard" style="display:none" onclick="exportAmortPDF()">
+                        <div class="ad-doc-icon amort"><i class="fas fa-table-list"></i></div>
+                        <div class="ad-doc-info">
+                            <div class="ad-doc-name">Tableau d'amortissement</div>
+                            <div class="ad-doc-desc">Échéancier de remboursement de votre prêt</div>
+                        </div>
+                        <button class="ad-doc-btn"><i class="fas fa-download"></i> Télécharger</button>
+                    </div>
+                </div>
+
+                <!-- Documents joints aux sinistres -->
+                <div class="ad-table-card mt-4">
+                    <div class="ad-table-card-title">Justificatifs déposés</div>
+                    <div class="ad-table-wrap">
+                        <table class="ad-table">
+                            <thead>
+                                <tr><th>Sinistre</th><th>Fichier</th><th>Date dépôt</th><th>Action</th></tr>
+                            </thead>
+                            <tbody id="docsBody">
+                                <tr><td colspan="4" class="ad-loading-row"><i class="fas fa-spinner fa-spin"></i> Chargement…</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- ========================================
+                 SECTION 8 : MON PROFIL
+                 ======================================== -->
+            <section id="section-profil" class="ad-section">
+
+                <div class="ad-section-head">
+                    <h2 class="ad-section-title"><i class="fas fa-user-circle"></i> Mon Profil</h2>
+                </div>
+
+                <div class="ad-profil-layout">
+
+                    <!-- Carte identité -->
+                    <div class="ad-profil-idcard">
+                        <div class="ad-profil-idcard-bg"></div>
+                        <div class="ad-profil-avatar-wrap">
+                            <div class="ad-profil-avatar" id="profilAvatarBig">A</div>
+                            <button class="ad-profil-avatar-edit" onclick="document.getElementById('profilAvatarInput').click()">
+                                <i class="fas fa-camera"></i>
+                            </button>
+                            <input type="file" id="profilAvatarInput" accept="image/*" style="display:none" onchange="updateAvatar(this)">
+                        </div>
+                        <div class="ad-profil-idname" id="profilIdName">—</div>
+                        <div class="ad-profil-idnum" id="profilIdNum">N° —</div>
+                        <div class="ad-profil-idsince">Adhérent depuis <span id="profilIdSince">—</span></div>
+                        <div class="ad-profil-idbadge" id="profilIdBadge">Actif</div>
+                    </div>
+
+                    <!-- Formulaires paramètres -->
+                    <div class="ad-profil-forms">
+
+                        <div class="ad-settings-block">
+                            <h3 class="ad-settings-title">Informations personnelles</h3>
+                            <div id="profilSuccessMsg" class="ad-success-msg" style="display:none"></div>
+                            <div id="profilErrorMsg" class="ad-error-msg" style="display:none"></div>
+                            <div class="ad-form-row">
+                                <div class="ad-form-group">
+                                    <label>Prénom</label>
+                                    <input type="text" id="profilPrenom" placeholder="Votre prénom">
+                                </div>
+                                <div class="ad-form-group">
+                                    <label>Nom</label>
+                                    <input type="text" id="profilNom" placeholder="Votre nom">
+                                </div>
+                            </div>
+                            <div class="ad-form-group">
+                                <label>Email</label>
+                                <input type="email" id="profilEmail" placeholder="votre@email.com">
+                            </div>
+                            <div class="ad-form-row">
+                                <div class="ad-form-group">
+                                    <label>Téléphone</label>
+                                    <input type="tel" id="profilTel" placeholder="+226 …">
+                                </div>
+                                <div class="ad-form-group">
+                                    <label>Date de naissance</label>
+                                    <input type="date" id="profilDob">
+                                </div>
+                            </div>
+                            <div class="ad-form-group">
+                                <label>Adresse</label>
+                                <input type="text" id="profilAdresse" placeholder="Ouagadougou, Burkina Faso">
+                            </div>
+                            <button class="ad-btn ad-btn-primary" onclick="saveProfile()">
+                                <i class="fas fa-floppy-disk"></i> Sauvegarder
+                            </button>
+                        </div>
+
+                        <div class="ad-settings-block">
+                            <h3 class="ad-settings-title">Changer le mot de passe</h3>
+                            <div id="pwSuccessMsg" class="ad-success-msg" style="display:none"></div>
+                            <div id="pwErrorMsg" class="ad-error-msg" style="display:none"></div>
+                            <div class="ad-form-group">
+                                <label>Mot de passe actuel</label>
+                                <div class="ad-input-icon-right">
+                                    <input type="password" id="oldPw" placeholder="••••••••">
+                                    <i class="fas fa-eye toggle-pw" onclick="togglePw('oldPw',this)"></i>
+                                </div>
+                            </div>
+                            <div class="ad-form-group">
+                                <label>Nouveau mot de passe</label>
+                                <div class="ad-input-icon-right">
+                                    <input type="password" id="newPw" placeholder="••••••••">
+                                    <i class="fas fa-eye toggle-pw" onclick="togglePw('newPw',this)"></i>
+                                </div>
+                            </div>
+                            <div class="ad-form-group">
+                                <label>Confirmer</label>
+                                <div class="ad-input-icon-right">
+                                    <input type="password" id="confirmPw" placeholder="••••••••">
+                                    <i class="fas fa-eye toggle-pw" onclick="togglePw('confirmPw',this)"></i>
+                                </div>
+                            </div>
+                            <button class="ad-btn ad-btn-primary" onclick="changePassword()">
+                                <i class="fas fa-lock"></i> Changer
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+
+            </section>
+
+        </div><!-- /ad-content -->
+    </div><!-- /ad-main -->
+</div><!-- /ad-layout -->
+
+<!-- ========== TOASTS ========== -->
+<div class="ad-toast-container" id="adToastContainer"></div>
+
+<!-- ========== MODAL : DEMANDE DE PRÊT ========== -->
+<div class="ad-modal-overlay" id="modalDemanderPret">
+    <div class="ad-modal">
+        <div class="ad-modal-head">
+            <h3>Demande de Prêt</h3>
+            <button class="ad-modal-close" onclick="closeModal('modalDemanderPret')">&times;</button>
+        </div>
+        <div class="ad-modal-body">
+            <div class="ad-modal-error" id="pretModalError" style="display:none"></div>
+            <div class="ad-form-group">
+                <label>Montant souhaité (FCFA)</label>
+                <input type="number" id="pretModalMontant" placeholder="ex : 500000" oninput="calcMensualite()">
+            </div>
+            <div class="ad-form-row">
+                <div class="ad-form-group">
+                    <label>Durée (mois)</label>
+                    <input type="number" id="pretModalDuree" placeholder="ex : 12" min="1" max="60" oninput="calcMensualite()">
+                </div>
+                <div class="ad-form-group">
+                    <label>Taux (%)</label>
+                    <input type="number" id="pretModalTaux" value="5" step="0.1" oninput="calcMensualite()">
+                </div>
+            </div>
+            <!-- Simulation en temps réel -->
+            <div class="ad-pret-sim" id="pretSim" style="display:none">
+                <div class="ad-pret-sim-row">
+                    <span>Mensualité estimée</span>
+                    <strong id="simMensualite">—</strong>
+                </div>
+                <div class="ad-pret-sim-row">
+                    <span>Total à rembourser</span>
+                    <strong id="simTotal">—</strong>
+                </div>
+                <div class="ad-pret-sim-row">
+                    <span>Coût total des intérêts</span>
+                    <strong id="simInterets">—</strong>
+                </div>
+            </div>
+            <div class="ad-form-group">
+                <label>Motif de la demande</label>
+                <textarea id="pretModalMotif" placeholder="Précisez l'objet de votre demande…" rows="3"></textarea>
+            </div>
+        </div>
+        <div class="ad-modal-foot">
+            <button class="ad-btn ad-btn-outline" onclick="closeModal('modalDemanderPret')">Annuler</button>
+            <button class="ad-btn ad-btn-primary" onclick="submitPretDemande()">
+                <i class="fas fa-paper-plane"></i> Soumettre la demande
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ========== MODAL : DÉCLARER SINISTRE ========== -->
+<div class="ad-modal-overlay" id="modalSinistre">
+    <div class="ad-modal">
+        <div class="ad-modal-head">
+            <h3>Déclarer un Sinistre</h3>
+            <button class="ad-modal-close" onclick="closeModal('modalSinistre')">&times;</button>
+        </div>
+        <div class="ad-modal-body">
+            <div class="ad-modal-error" id="sinistreModalError" style="display:none"></div>
+            <div class="ad-form-group">
+                <label>Type de sinistre</label>
+                <select id="sinistreType">
+                    <option value="maladie">Maladie</option>
+                    <option value="accident">Accident</option>
+                    <option value="deces">Décès</option>
+                    <option value="hospitalisation">Hospitalisation</option>
+                    <option value="autre">Autre</option>
+                </select>
+            </div>
+            <div class="ad-form-group">
+                <label>Date du sinistre</label>
+                <input type="date" id="sinistreDate">
+            </div>
+            <div class="ad-form-group">
+                <label>Description</label>
+                <textarea id="sinistreDesc" placeholder="Décrivez le sinistre en détail…" rows="4"></textarea>
+            </div>
+            <div class="ad-form-group">
+                <label>Pièce justificative <small>(PDF, JPG, PNG — max 5 Mo)</small></label>
+                <div class="ad-file-drop" id="sinistreFileZone" onclick="document.getElementById('sinistreFile').click()">
+                    <i class="fas fa-cloud-arrow-up"></i>
+                    <span id="sinistreFileLabel">Cliquez ou glissez un fichier ici</span>
+                </div>
+                <input type="file" id="sinistreFile" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="updateFileLabel(this)">
+            </div>
+        </div>
+        <div class="ad-modal-foot">
+            <button class="ad-btn ad-btn-outline" onclick="closeModal('modalSinistre')">Annuler</button>
+            <button class="ad-btn ad-btn-primary" onclick="submitSinistre()">
+                <i class="fas fa-shield-halved"></i> Déclarer
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ========== MODAL : AYANT DROIT ========== -->
+<div class="ad-modal-overlay" id="modalAyant">
+    <div class="ad-modal">
+        <div class="ad-modal-head">
+            <h3 id="ayantModalTitle">Nouvel Ayant Droit</h3>
+            <button class="ad-modal-close" onclick="closeModal('modalAyant')">&times;</button>
+        </div>
+        <div class="ad-modal-body">
+            <div class="ad-modal-error" id="ayantModalError" style="display:none"></div>
+            <div class="ad-form-row">
+                <div class="ad-form-group">
+                    <label>Prénom</label>
+                    <input type="text" id="ayantPrenom" placeholder="Prénom">
+                </div>
+                <div class="ad-form-group">
+                    <label>Nom</label>
+                    <input type="text" id="ayantNom" placeholder="Nom">
+                </div>
+            </div>
+            <div class="ad-form-row">
+                <div class="ad-form-group">
+                    <label>Lien de parenté</label>
+                    <select id="ayantLien">
+                        <option value="conjoint">Conjoint(e)</option>
+                        <option value="enfant">Enfant</option>
+                        <option value="parent">Parent</option>
+                        <option value="frere_soeur">Frère / Sœur</option>
+                        <option value="autre">Autre</option>
+                    </select>
+                </div>
+                <div class="ad-form-group">
+                    <label>Date de naissance</label>
+                    <input type="date" id="ayantDob">
+                </div>
+            </div>
+            <input type="hidden" id="ayantEditId">
+        </div>
+        <div class="ad-modal-foot">
+            <button class="ad-btn ad-btn-outline" onclick="closeModal('modalAyant')">Annuler</button>
+            <button class="ad-btn ad-btn-primary" onclick="submitAyant()">
+                <i class="fas fa-floppy-disk"></i> Enregistrer
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ========== MODAL : PAYER COTISATION ========== -->
+<div class="ad-modal-overlay" id="modalPayer">
+    <div class="ad-modal ad-modal-sm">
+        <div class="ad-modal-head">
+            <h3>Confirmer le paiement</h3>
+            <button class="ad-modal-close" onclick="closeModal('modalPayer')">&times;</button>
+        </div>
+        <div class="ad-modal-body">
+            <div class="ad-payer-info">
+                <div class="ad-payer-row">
+                    <span>Montant</span>
+                    <strong id="payerMontant">—</strong>
+                </div>
+                <div class="ad-payer-row">
+                    <span>Échéance</span>
+                    <strong id="payerEcheance">—</strong>
+                </div>
+            </div>
+            <div class="ad-form-group mt-3">
+                <label>Mode de paiement</label>
+                <select id="payerMode">
+                    <option value="especes">Espèces</option>
+                    <option value="mobile_money">Mobile Money</option>
+                    <option value="virement">Virement bancaire</option>
+                </select>
+            </div>
+        </div>
+        <div class="ad-modal-foot">
+            <button class="ad-btn ad-btn-outline" onclick="closeModal('modalPayer')">Annuler</button>
+            <button class="ad-btn ad-btn-primary" onclick="confirmPaiement()">
+                <i class="fas fa-check"></i> Confirmer le paiement
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ========== MODAL : DÉTAIL SINISTRE ========== -->
+<div class="ad-modal-overlay" id="modalSinistreDetail">
+    <div class="ad-modal">
+        <div class="ad-modal-head">
+            <h3>Détail du sinistre</h3>
+            <button class="ad-modal-close" onclick="closeModal('modalSinistreDetail')">&times;</button>
+        </div>
+        <div class="ad-modal-body" id="sinistreDetailBody">
+            <div class="ad-loading"><i class="fas fa-spinner fa-spin"></i></div>
+        </div>
+        <div class="ad-modal-foot">
+            <button class="ad-btn ad-btn-outline" onclick="closeModal('modalSinistreDetail')">Fermer</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="js/script.js"></script>
+<script src="js/adherent-dashboard.js"></script>
+</body>
+</html>
