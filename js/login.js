@@ -7,7 +7,17 @@
 // REDIRECTION SI DÉJÀ CONNECTÉ
 // ============================================
 if (isAuthenticated()) {
-    window.location.href = 'dashboard.html';
+    try {
+        const user = JSON.parse(
+            localStorage.getItem('mamutuelle_user') ||
+            sessionStorage.getItem('mamutuelle_user')
+        );
+        window.location.href = user?.role === 'adherent'
+            ? 'adherent-dashboard.html'
+            : 'dashboard.html';
+    } catch (_) {
+        window.location.href = 'dashboard.html';
+    }
 }
 
 // ============================================
@@ -120,7 +130,12 @@ document.getElementById('login-form').addEventListener('submit', async function 
 
             showAlert('Connexion réussie ! Redirection…', 'success');
             setTimeout(() => {
-                window.location.href = 'dashboard.html';
+                 const role = data.user?.role;
+                if (role === 'adherent') {
+                    window.location.href = 'adherent-dashboard.html';
+                } else {
+                    window.location.href = 'dashboard.html';
+                }
             }, 800);
         }
     } catch (error) {
