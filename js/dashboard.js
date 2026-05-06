@@ -1,70 +1,119 @@
-
 /* ============================================================
    DASHBOARD.JS – MaMutuelle
-   Dépendances : Chart.js (CDN), api.js (apiCall, isAuthenticated, logout)
+   Dépendances : api.js (apiCall, isAuthenticated, logout, getToken)
+   Chart.js chargé via CDN dans dashboard.html
    ============================================================ */
 
 /* ==============================
-   MOCK DATA — remplacer par apiCall()
+   GUARD — Redirection si non connecté
    ============================== */
-const MOCK = {
-  cotisations6m:  [840000, 920000, 1050000, 980000, 1200000, 1840000],
-  cotisations12m: [540000, 620000, 700000, 780000, 840000, 920000, 1050000, 980000, 1100000, 1200000, 1550000, 1840000],
-  sinistres:      { Maladie: 45, Accident: 25, Hospitalisation: 20, Décès: 10 },
-  cotMensuel:     [1200000, 980000, 1450000, 1100000, 1840000, 0, 0, 0, 0, 0, 0, 0],
-  recouvrement:   { Payées: 78, EnAttente: 16, EnRetard: 6 },
-};
+if (!isAuthenticated()) {
+  window.location.href = 'login.html';
+}
 
 /* ==============================
-   NAVIGATION — titres et sous-titres
+   UTILISATEUR CONNECTÉ
+   ============================== */
+function getCurrentUser() {
+  try {
+    return JSON.parse(
+      localStorage.getItem('mamutuelle_user') ||
+      sessionStorage.getItem('mamutuelle_user')
+    );
+  } catch { return null; }
+}
+
+function injectUserInfo() {
+  const user = getCurrentUser();
+  if (!user) return;
+
+  const name     = user.name || 'Utilisateur';
+  const initials = name.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2);
+  const role     = user.role || 'agent';
+  const roleStr  = role.charAt(0).toUpperCase() + role.slice(1);
+
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  const setQ = (sel, val) => { const el = document.querySelector(sel); if (el) el.textContent = val; };
+
+  set('sb-user-name', name);
+  setQ('.sb-avatar',       initials);
+  setQ('.sb-user-role',    roleStr);
+  set('hdr-sub', `Bonjour, ${name} · Bienvenue sur votre tableau de bord`);
+  setQ('.profile-avatar',  initials);
+  setQ('.profile-name',    name);
+  setQ('.profile-role',    roleStr);
+
+  // Pré-remplir modal profil
+  const inputs = document.querySelectorAll('#modal-profil input');
+  const parts  = name.split(' ');
+  if (inputs[0]) inputs[0].value = parts[0] || '';
+  if (inputs[1]) inputs[1].value = parts.slice(1).join(' ') || '';
+  if (inputs[2]) inputs[2].value = user.email     || '';
+  if (inputs[3]) inputs[3].value = user.telephone || '';
+}
+
+/* ==============================
+   TITRES DES SECTIONS
    ============================== */
 const TITLES = {
-  overview:          "Vue d'ensemble",
-  adherents:         'Adhérents',
-  ayants:            'Ayants Droit',
-  cotisations:       'Cotisations',
+  overview:            "Vue d'ensemble",
+  adherents:           'Adhérents',
+  ayants:              'Ayants Droit',
+  cotisations:         'Cotisations',
   'cotisations-stats': 'Statistiques Cotisations',
-  prets:             'Prêts',
-  'prets-calcul':    'Calculateur de Prêt',
-  sinistres:         'Sinistres',
-  alertes:           'Alertes',
-  historique:        'Historique',
-  export:            'Exportation',
-  profil:            'Mon Profil',
+  prets:               'Prêts',
+  'prets-calcul':      'Calculateur de Prêt',
+  sinistres:           'Sinistres',
+  alertes:             'Alertes',
+  historique:          'Historique',
+  export:              'Exportation',
+  profil:              'Mon Profil',
 };
 
 const SUBS = {
-  overview:          'Tableau de bord principal',
-  adherents:         'Gestion des membres de la mutuelle',
-  ayants:            'Personnes couvertes par les adhérents',
-  cotisations:       'Suivi des paiements et cotisations',
+  overview:            'Tableau de bord principal',
+  adherents:           'Gestion des membres de la mutuelle',
+  ayants:              'Personnes couvertes par les adhérents',
+  cotisations:         'Suivi des paiements et cotisations',
   'cotisations-stats': 'Analyse statistique des cotisations',
-  prets:             'Demandes et suivi des prêts',
-  'prets-calcul':    'Simulateur de remboursement',
-  sinistres:         'Déclarations et remboursements',
-  alertes:           'Retards et échéances proches',
-  historique:        'Journal de toutes les actions',
-  export:            'Téléchargement des données',
-  profil:            'Informations personnelles et paramètres',
+  prets:               'Demandes et suivi des prêts',
+  'prets-calcul':      'Simulateur de remboursement',
+  sinistres:           'Déclarations et remboursements',
+  alertes:             'Retards et échéances proches',
+  historique:          'Journal de toutes les actions',
+  export:              'Téléchargement des données',
+  profil:              'Informations personnelles et paramètres',
 };
 
 /* ==============================
-   AFFICHER UNE SECTION
+   NAVIGATION
    ============================== */
+const SECTION_LOADERS = {
+  overview:            loadOverview,
+  adherents:           loadAdherents,
+  cotisations:         loadCotisations,
+  'cotisations-stats': loadCotisationsStats,
+  prets:               loadPrets,
+  'prets-calcul':      calculateLoan,
+  sinistres:           loadSinistres,
+  alertes:             loadAlertes,
+};
+
 function showSection(name) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   const sec = document.getElementById('section-' + name);
   if (sec) sec.classList.add('active');
 
-  document.getElementById('hdr-title').textContent = TITLES[name] || name;
-  document.getElementById('hdr-sub').textContent   = SUBS[name]   || '';
+  const titleEl = document.getElementById('hdr-title');
+  const subEl   = document.getElementById('hdr-sub');
+  if (titleEl) titleEl.textContent = TITLES[name] || name;
+  if (subEl)   subEl.textContent   = SUBS[name]   || '';
 
   // Highlight nav
   document.querySelectorAll('.nav-item, .nav-sub-item').forEach(el => el.classList.remove('active'));
   const ni = document.querySelector(`[data-section="${name}"]`);
   if (ni) {
     ni.classList.add('active');
-    // Ouvrir le sous-menu parent si nécessaire
     const parentSub = ni.closest('.nav-sub');
     if (parentSub) {
       parentSub.classList.add('open');
@@ -73,9 +122,8 @@ function showSection(name) {
     }
   }
 
-  // Chargement paresseux des graphiques
-  if (name === 'cotisations-stats') initCotStatsCharts();
-  if (name === 'prets-calcul')      calculateLoan();
+  // Charger les données de la section
+  if (SECTION_LOADERS[name]) SECTION_LOADERS[name]();
 }
 
 /* ==============================
@@ -87,24 +135,23 @@ function initSubmenus() {
       const sub    = document.getElementById(el.dataset.toggle);
       if (!sub) return;
       const isOpen = sub.classList.contains('open');
-      // Fermer tous
-      document.querySelectorAll('.nav-sub').forEach(s  => s.classList.remove('open'));
-      document.querySelectorAll('.nav-item').forEach(i  => i.classList.remove('open'));
+      document.querySelectorAll('.nav-sub').forEach(s => s.classList.remove('open'));
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('open'));
       if (!isOpen) { sub.classList.add('open'); el.classList.add('open'); }
     });
   });
 
-  // Items de navigation simples
   document.querySelectorAll('[data-section]').forEach(el => {
     el.addEventListener('click', () => showSection(el.dataset.section));
   });
 }
 
 /* ==============================
-   SIDEBAR TOGGLE (réduire/ouvrir)
+   SIDEBAR TOGGLE
    ============================== */
 function initSidebarToggle() {
-  document.getElementById('hdr-toggle').addEventListener('click', () => {
+  const btn = document.getElementById('hdr-toggle');
+  if (btn) btn.addEventListener('click', () => {
     const sb = document.getElementById('sidebar');
     if (window.innerWidth <= 768) sb.classList.toggle('open');
     else sb.classList.toggle('collapsed');
@@ -112,12 +159,13 @@ function initSidebarToggle() {
 }
 
 /* ==============================
-   DATE DANS LE HEADER
+   DATE HEADER
    ============================== */
 function updateDate() {
-  const opts = { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' };
   const el = document.getElementById('hdr-date');
-  if (el) el.textContent = new Date().toLocaleDateString('fr-FR', opts);
+  if (el) el.textContent = new Date().toLocaleDateString('fr-FR', {
+    weekday: 'short', day: '2-digit', month: 'short', year: 'numeric'
+  });
 }
 
 /* ==============================
@@ -132,28 +180,43 @@ function initModals() {
   });
 }
 
-function confirmDelete(label) {
-  document.getElementById('confirm-msg').textContent =
-    `Êtes-vous sûr de vouloir supprimer ${label} ? Cette action est irréversible.`;
+/* Confirm delete avec callback réel */
+function confirmDelete(label, callback) {
+  const msgEl = document.getElementById('confirm-msg');
+  if (msgEl) msgEl.textContent = `Êtes-vous sûr de vouloir supprimer ${label} ? Cette action est irréversible.`;
+  window._deleteCallback = callback || null;
   openModal('modal-confirm');
+}
+
+function initConfirmDelete() {
+  const btn = document.querySelector('#modal-confirm .btn-danger');
+  if (!btn) return;
+  btn.onclick = async () => {
+    closeModal('modal-confirm');
+    if (typeof window._deleteCallback === 'function') {
+      await window._deleteCallback();
+      window._deleteCallback = null;
+    }
+  };
 }
 
 /* ==============================
    DÉCONNEXION
    ============================== */
-function handleLogout(e) {
+async function handleLogout(e) {
   e.stopPropagation();
-  if (confirm('Voulez-vous vraiment vous déconnecter ?')) {
-    toast('Déconnexion…', 'warning');
-    setTimeout(() => { window.location.href = 'login.html'; }, 1500);
-  }
+  if (!confirm('Voulez-vous vraiment vous déconnecter ?')) return;
+  try { await apiCall('/logout', { method: 'POST' }); } catch (_) {}
+  logout();
+  toast('Déconnexion réussie', 'warning');
+  setTimeout(() => { window.location.href = 'login.html'; }, 1200);
 }
 
 /* ==============================
    TOASTS
    ============================== */
 function toast(msg, type = 'success') {
-  const wrap = document.getElementById('toast-wrap');
+  const wrap  = document.getElementById('toast-wrap');
   if (!wrap) return;
   const icons = { success: 'check-circle', warning: 'exclamation-triangle', error: 'times-circle' };
   const el    = document.createElement('div');
@@ -161,39 +224,107 @@ function toast(msg, type = 'success') {
   el.innerHTML = `<i class="fas fa-${icons[type] || 'info-circle'}"></i> ${msg}
     <button class="toast-close" onclick="this.parentElement.remove()">&times;</button>`;
   wrap.appendChild(el);
-  setTimeout(() => el.remove(), 3800);
+  setTimeout(() => el.remove(), 4000);
 }
 
 /* ==============================
-   FILTRAGE DE TABLEAU
+   UTILITAIRES
+   ============================== */
+function fmtFCFA(n) {
+  if (n === null || n === undefined || n === '') return '—';
+  const num = Number(n);
+  if (isNaN(num)) return '—';
+  return num.toLocaleString('fr-FR') + ' FCFA';
+}
+
+function fmtDate(str) {
+  if (!str) return '—';
+  return new Date(str).toLocaleDateString('fr-FR');
+}
+
+function badgeStatut(statut) {
+  if (!statut) return '<span class="badge b-gray">—</span>';
+  const map = {
+    'actif': 'b-green', 'payée': 'b-green', 'payé': 'b-green',
+    'remboursé': 'b-green', 'approuvé': 'b-green',
+    'en attente': 'b-gold', 'en cours': 'b-gold', 'déclaré': 'b-gold',
+    'suspendu': 'b-red', 'en retard': 'b-red', 'rejeté': 'b-red',
+    'retraité': 'b-gray',
+  };
+  const cls = map[statut.toLowerCase()] || 'b-gray';
+  return `<span class="badge ${cls}">${statut}</span>`;
+}
+
+function showTableLoading(id, cols) {
+  const el = document.getElementById(id);
+  if (el) el.innerHTML = `<tr><td colspan="${cols}" class="loading-row">
+    <i class="fas fa-spinner fa-spin"></i> Chargement…</td></tr>`;
+}
+
+function showTableEmpty(id, cols, msg = 'Aucune donnée') {
+  const el = document.getElementById(id);
+  if (el) el.innerHTML = `<tr><td colspan="${cols}" class="loading-row">${msg}</td></tr>`;
+}
+
+function showTableError(id, cols, msg) {
+  const el = document.getElementById(id);
+  if (el) el.innerHTML = `<tr><td colspan="${cols}" class="loading-row" style="color:var(--red)">
+    <i class="fas fa-exclamation-circle"></i> ${msg}</td></tr>`;
+}
+
+/* ==============================
+   FILTRAGE LOCAL
    ============================== */
 function filterTable(tbodyId, q) {
-  const tbody = document.getElementById(tbodyId);
-  if (!tbody) return;
-  tbody.querySelectorAll('tr').forEach(r => {
+  document.getElementById(tbodyId)?.querySelectorAll('tr').forEach(r => {
     r.style.display = r.textContent.toLowerCase().includes(q.toLowerCase()) ? '' : 'none';
+  });
+}
+
+function initFilterButtons() {
+  document.querySelectorAll('.sec-filters').forEach(group => {
+    group.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', function () {
+        group.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
   });
 }
 
 /* ==============================
    RECHERCHE GLOBALE
    ============================== */
-const SEARCH_DATA = [
-  { type: 'adh',  name: 'Koné Oumar',            detail: 'ADH-001 · Actif' },
-  { type: 'adh',  name: 'Ouédraogo Fatimata',     detail: 'ADH-002 · Actif' },
-  { type: 'adh',  name: 'Traoré Issa',            detail: 'ADH-003 · Suspendu' },
-  { type: 'adh',  name: 'Bambara Brice',          detail: 'ADH-004 · Retraité' },
-  { type: 'cot',  name: 'Cotisation Koné Oumar',  detail: '15 000 FCFA · Payée' },
-  { type: 'cot',  name: 'Cotisation Traoré Issa', detail: '15 000 FCFA · En retard' },
-  { type: 'pret', name: 'Prêt Compaoré Ablassé',  detail: '350 000 FCFA · Approuvé' },
-  { type: 'pret', name: 'Prêt Zongo Aminata',     detail: '500 000 FCFA · En attente' },
-  { type: 'sin',  name: 'Sinistre Bambara Brice', detail: 'Hospitalisation · En cours' },
-  { type: 'sin',  name: 'Sinistre Sawadogo Mariam', detail: 'Accident · Déclaré' },
-];
+let _searchCache = [];
 
+async function buildSearchCache() {
+  try {
+    const results = await Promise.allSettled([
+      apiCall('/adherents'),
+      apiCall('/cotisations'),
+      apiCall('/prets'),
+      apiCall('/sinistres'),
+    ]);
 
-const SECTION_MAP = { adh: 'adherents', cot: 'cotisations', pret: 'prets', sin: 'sinistres' };
-const TYPE_LABEL  = { adh: 'Adhérent', cot: 'Cotisation', pret: 'Prêt', sin: 'Sinistre' };
+    const [adh, cot, pret, sin] = results;
+    _searchCache = [];
+
+    (adh.value?.data || adh.value || []).forEach(a =>
+      _searchCache.push({ type: 'adh', name: `${a.nom} ${a.prenom || ''}`.trim(), detail: `${a.numero || ''} · ${a.statut || ''}`, section: 'adherents' })
+    );
+    (cot.value?.data || cot.value || []).forEach(c =>
+      _searchCache.push({ type: 'cot', name: `Cotisation ${c.adherent?.nom || ''}`, detail: `${fmtFCFA(c.montant)} · ${c.statut || ''}`, section: 'cotisations' })
+    );
+    (pret.value?.data || pret.value || []).forEach(p =>
+      _searchCache.push({ type: 'pret', name: `Prêt ${p.adherent?.nom || ''}`, detail: `${fmtFCFA(p.montant)} · ${p.statut || ''}`, section: 'prets' })
+    );
+    (sin.value?.data || sin.value || []).forEach(s =>
+      _searchCache.push({ type: 'sin', name: `Sinistre ${s.adherent?.nom || ''}`, detail: `${s.type || ''} · ${s.statut || ''}`, section: 'sinistres' })
+    );
+  } catch (_) {}
+}
+
+const TYPE_LABEL = { adh: 'Adhérent', cot: 'Cotisation', pret: 'Prêt', sin: 'Sinistre' };
 
 function initSearch() {
   const input   = document.getElementById('global-search');
@@ -204,13 +335,14 @@ function initSearch() {
     const q = this.value.trim().toLowerCase();
     if (!q) { results.classList.remove('open'); return; }
 
-    const found = SEARCH_DATA.filter(d =>
-      d.name.toLowerCase().includes(q) || d.detail.toLowerCase().includes(q)
-    );
+    const found = _searchCache
+      .filter(d => d.name.toLowerCase().includes(q) || d.detail.toLowerCase().includes(q))
+      .slice(0, 8);
 
     results.innerHTML = found.length
       ? found.map(d => `
-          <div class="sr-item" onclick="showSection('${SECTION_MAP[d.type]}');
+          <div class="sr-item" onclick="
+            showSection('${d.section}');
             document.getElementById('search-results').classList.remove('open');
             document.getElementById('global-search').value=''">
             <span class="sr-tag ${d.type}">${TYPE_LABEL[d.type]}</span>
@@ -229,82 +361,137 @@ function initSearch() {
 }
 
 /* ==============================
-   FILTRES PAR STATUT (boutons)
+   OVERVIEW — Stats + Graphiques
    ============================== */
-function initFilterButtons() {
-  document.querySelectorAll('.sec-filters').forEach(group => {
-    group.querySelectorAll('.filter-btn').forEach(btn => {
-      btn.addEventListener('click', function () {
-        group.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
-      });
-    });
-  });
+async function loadOverview() {
+  // ── Stats cards ──
+  try {
+    const stats = await apiCall('/stats');
+    const v = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val ?? '—'; };
+    v('st-adherents',  stats.adherents_total);
+    v('st-prets',      stats.prets_actifs);
+    v('st-sinistres',  stats.sinistres_en_cours);
+    // La route /stats ne retourne pas le montant total des cotisations,
+    // on affiche le nombre de payées à la place
+    v('st-cotisations', stats.cotisations_payees);
+  } catch (err) {
+    console.warn('Stats:', err.message);
+  }
+
+  // ── Alertes rapides ──
+  try {
+    const alertes = await apiCall('/alertes');
+    const list    = alertes?.data || alertes || [];
+    const retards = list.filter(a => a.type?.includes('retard') || a.type?.includes('cotisation'));
+
+    const badge = document.getElementById('badge-alertes');
+    if (badge) badge.textContent = list.length;
+
+    renderQuickRetard(retards.slice(0, 4));
+  } catch (_) {}
+
+  // ── Graphiques ──
+  await loadCotisationsChart('6m');
+  await loadSinistreChart();
+}
+
+/* ── Tableau retards mini (overview) ── */
+function renderQuickRetard(list) {
+  const tbody = document.getElementById('quick-retard');
+  if (!tbody) return;
+  tbody.innerHTML = list.length
+    ? list.map(a => `
+        <tr>
+          <td>${a.adherent?.nom || a.nom || '—'}</td>
+          <td>${fmtFCFA(a.montant)}</td>
+          <td>${badgeStatut('en retard')}</td>
+          <td><button class="btn btn-xs btn-primary" onclick="openModal('modal-cotisation')">Régulariser</button></td>
+        </tr>`).join('')
+    : `<tr><td colspan="4" class="loading-row">Aucun retard 🎉</td></tr>`;
 }
 
 /* ==============================
-   GRAPHIQUE COTISATIONS (overview)
+   GRAPHIQUES OVERVIEW
    ============================== */
 let cotChart = null;
 
-function initCotChart(period) {
+async function loadCotisationsChart(period) {
   const ctx = document.getElementById('chart-cotisations');
   if (!ctx) return;
 
-  const data     = period === '12m' ? MOCK.cotisations12m : MOCK.cotisations6m;
-  const labels6  = ['Déc', 'Jan', 'Fév', 'Mar', 'Avr', 'Mai'];
-  const labels12 = ['Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc', 'Jan', 'Fév', 'Mar', 'Avr', 'Mai'];
+  try {
+    const data  = await apiCall('/cotisations');
+    const list  = data?.data || data || [];
+    const n     = period === '12m' ? 12 : 6;
+    const now   = new Date();
+    const labels = [], values = [];
 
-  if (cotChart) cotChart.destroy();
-  cotChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: period === '12m' ? labels12 : labels6,
-      datasets: [{
-        label: 'Cotisations (FCFA)',
-        data,
-        borderColor:       '#C1440E',
-        backgroundColor:   'rgba(193,68,14,.08)',
-        borderWidth:       2.5,
-        pointBackgroundColor: '#C1440E',
-        pointRadius:       4,
-        tension:           .35,
-        fill:              true,
-      }],
-    },
-    options: {
-      responsive: true, maintainAspectRatio: true,
-      plugins: {
-        legend: { display: false },
-        tooltip: { callbacks: { label: ctx => ' ' + Number(ctx.raw).toLocaleString('fr-FR') + ' FCFA' } },
+    for (let i = n - 1; i >= 0; i--) {
+      const d      = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const mm     = String(d.getMonth() + 1).padStart(2, '0');
+      const yyyy   = d.getFullYear();
+      labels.push(d.toLocaleDateString('fr-FR', { month: 'short' }));
+      const total = list
+        .filter(c =>
+          (c.statut === 'payée' || c.statut === 'payé') &&
+          c.date_paiement?.startsWith(`${yyyy}-${mm}`)
+        )
+        .reduce((s, c) => s + Number(c.montant || 0), 0);
+      values.push(total);
+    }
+
+    if (cotChart) cotChart.destroy();
+    cotChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Cotisations perçues (FCFA)', data: values,
+          borderColor: '#C1440E', backgroundColor: 'rgba(193,68,14,.08)',
+          borderWidth: 2.5, pointBackgroundColor: '#C1440E',
+          pointRadius: 4, tension: .35, fill: true,
+        }],
       },
-      scales: {
-        y: { grid: { color: '#EDE5D8' }, ticks: { callback: v => v >= 1e6 ? v/1e6+'M' : v >= 1000 ? v/1000+'k' : v, font: { size: 10 } } },
-        x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: c => ' ' + Number(c.raw).toLocaleString('fr-FR') + ' FCFA' } },
+        },
+        scales: {
+          y: { grid: { color: '#EDE5D8' }, ticks: { callback: v => v >= 1e6 ? v/1e6+'M' : v >= 1000 ? v/1000+'k' : v, font: { size: 10 } } },
+          x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+        },
       },
-    },
-  });
+    });
+  } catch (err) { console.warn('Graphique cotisations:', err.message); }
 }
 
-function initSinistreChart() {
+async function loadSinistreChart() {
   const ctx = document.getElementById('chart-sinistres');
   if (!ctx) return;
-  new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: Object.keys(MOCK.sinistres),
-      datasets: [{
-        data:            Object.values(MOCK.sinistres),
-        backgroundColor: ['#2D7A3A', '#C1440E', '#3B4F9C', '#D4920A'],
-        borderWidth:     2,
-        borderColor:     '#fff',
-      }],
-    },
-    options: {
-      responsive: true, maintainAspectRatio: true,
-      plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 10 } } },
-    },
-  });
+  try {
+    const data   = await apiCall('/sinistres');
+    const list   = data?.data || data || [];
+    const counts = {};
+    list.forEach(s => { counts[s.type] = (counts[s.type] || 0) + 1; });
+
+    new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: Object.keys(counts),
+        datasets: [{
+          data: Object.values(counts),
+          backgroundColor: ['#2D7A3A', '#C1440E', '#3B4F9C', '#D4920A', '#9A8570'],
+          borderWidth: 2, borderColor: '#fff',
+        }],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 10 } } },
+      },
+    });
+  } catch (err) { console.warn('Graphique sinistres:', err.message); }
 }
 
 function initPeriodButtons() {
@@ -312,56 +499,469 @@ function initPeriodButtons() {
     btn.addEventListener('click', function () {
       document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
       this.classList.add('active');
-      initCotChart(this.dataset.period);
+      loadCotisationsChart(this.dataset.period);
     });
   });
 }
 
 /* ==============================
-   GRAPHIQUES STATS COTISATIONS
+   ADHÉRENTS
+   ============================== */
+async function loadAdherents() {
+  showTableLoading('adherentsBody', 7);
+  try {
+    const data      = await apiCall('/adherents');
+    const adherents = data?.data || data || [];
+    const tbody     = document.getElementById('adherentsBody');
+
+    if (!adherents.length) { showTableEmpty('adherentsBody', 7, 'Aucun adhérent inscrit'); return; }
+
+    tbody.innerHTML = adherents.map(a => `
+      <tr>
+        <td><span style="font-family:var(--mono);font-size:.78rem">${a.numero || '—'}</span></td>
+        <td><strong>${a.nom || ''} ${a.prenom || ''}</strong></td>
+        <td>${a.email || '—'}</td>
+        <td>${a.telephone || '—'}</td>
+        <td>${badgeStatut(a.statut)}</td>
+        <td>
+          <button class="btn btn-xs btn-ghost" onclick="showSection('ayants')">
+            <i class="fas fa-child"></i> ${a.ayants_droit_count ?? 0}
+          </button>
+        </td>
+        <td>
+          <button class="icon-btn" title="Modifier" onclick="openEditAdherent(${a.id})"><i class="fas fa-pen"></i></button>
+          <button class="icon-btn" style="margin-left:4px" onclick="deleteAdherent(${a.id}, '${(a.nom || '').replace(/'/g,"\\'")}')"><i class="fas fa-trash"></i></button>
+        </td>
+      </tr>`).join('');
+
+    const title = document.querySelector('#section-adherents .tcard-title');
+    if (title) title.textContent = `${adherents.length} adhérent(s) inscrit(s)`;
+
+  } catch (err) {
+    showTableError('adherentsBody', 7, err.message);
+    toast('Erreur adhérents : ' + err.message, 'error');
+  }
+}
+
+async function saveAdherent() {
+  const form   = document.getElementById('modal-adherent');
+  const inputs = form.querySelectorAll('input');
+  const sel    = form.querySelector('select');
+  const errEl  = document.getElementById('adherent-err');
+  if (errEl) errEl.textContent = '';
+
+  const body = {
+    nom:       inputs[0]?.value?.trim(),
+    prenom:    inputs[1]?.value?.trim(),
+    email:     inputs[2]?.value?.trim(),
+    telephone: inputs[3]?.value?.trim(),
+    numero:    inputs[4]?.value?.trim(),
+    statut:    sel?.value,
+  };
+
+  try {
+    const id = form.dataset.editId;
+    if (id) {
+      await apiCall(`/adherents/${id}`, { method: 'PUT', body: JSON.stringify(body) });
+      toast('Adhérent modifié', 'success');
+    } else {
+      await apiCall('/adherents', { method: 'POST', body: JSON.stringify(body) });
+      toast('Adhérent enregistré', 'success');
+    }
+    closeModal('modal-adherent');
+    delete form.dataset.editId;
+    document.getElementById('adherent-modal-title').textContent = 'Nouvel Adhérent';
+    loadAdherents();
+    buildSearchCache();
+  } catch (err) {
+    if (errEl) errEl.textContent = err.message;
+  }
+}
+
+async function openEditAdherent(id) {
+  try {
+    const a      = await apiCall(`/adherents/${id}`);
+    const form   = document.getElementById('modal-adherent');
+    const inputs = form.querySelectorAll('input');
+    const sel    = form.querySelector('select');
+    inputs[0].value = a.nom       || '';
+    inputs[1].value = a.prenom    || '';
+    inputs[2].value = a.email     || '';
+    inputs[3].value = a.telephone || '';
+    inputs[4].value = a.numero    || '';
+    if (sel) sel.value = a.statut || 'actif';
+    document.getElementById('adherent-modal-title').textContent = 'Modifier l\'Adhérent';
+    form.dataset.editId = id;
+    openModal('modal-adherent');
+  } catch (err) { toast('Erreur : ' + err.message, 'error'); }
+}
+
+async function deleteAdherent(id, nom) {
+  confirmDelete(`l'adhérent ${nom}`, async () => {
+    try {
+      await apiCall(`/adherents/${id}`, { method: 'DELETE' });
+      toast('Adhérent supprimé', 'warning');
+      loadAdherents();
+    } catch (err) { toast('Erreur : ' + err.message, 'error'); }
+  });
+}
+
+/* ==============================
+   COTISATIONS
+   ============================== */
+async function loadCotisations() {
+  showTableLoading('cotisationsBody', 6);
+  try {
+    const data  = await apiCall('/cotisations');
+    const list  = data?.data || data || [];
+    const tbody = document.getElementById('cotisationsBody');
+
+    if (!list.length) { showTableEmpty('cotisationsBody', 6, 'Aucune cotisation enregistrée'); return; }
+
+    tbody.innerHTML = list.map(c => `
+      <tr>
+        <td>${c.adherent?.nom || ''} ${c.adherent?.prenom || ''}</td>
+        <td>${fmtFCFA(c.montant)}</td>
+        <td>${fmtDate(c.date_echeance)}</td>
+        <td>${c.date_paiement ? fmtDate(c.date_paiement) : '—'}</td>
+        <td>${badgeStatut(c.statut)}</td>
+        <td>
+          <button class="icon-btn" onclick="openEditCotisation(${c.id})"><i class="fas fa-pen"></i></button>
+          <button class="icon-btn" style="margin-left:4px" onclick="deleteCotisation(${c.id})"><i class="fas fa-trash"></i></button>
+        </td>
+      </tr>`).join('');
+
+  } catch (err) {
+    showTableError('cotisationsBody', 6, err.message);
+    toast('Erreur cotisations : ' + err.message, 'error');
+  }
+}
+
+async function saveCotisation() {
+  const form   = document.getElementById('modal-cotisation');
+  const sels   = form.querySelectorAll('select');
+  const inputs = form.querySelectorAll('input');
+  const body   = {
+    adherent_id:   sels[0]?.value,
+    montant:       inputs[0]?.value,
+    date_echeance: inputs[1]?.value,
+    statut:        sels[1]?.value,
+  };
+  try {
+    const id = form.dataset.editId;
+    if (id) {
+      await apiCall(`/cotisations/${id}`, { method: 'PUT', body: JSON.stringify(body) });
+      toast('Cotisation modifiée', 'success');
+    } else {
+      await apiCall('/cotisations', { method: 'POST', body: JSON.stringify(body) });
+      toast('Cotisation enregistrée', 'success');
+    }
+    closeModal('modal-cotisation');
+    delete form.dataset.editId;
+    loadCotisations();
+  } catch (err) { toast('Erreur : ' + err.message, 'error'); }
+}
+
+async function openEditCotisation(id) {
+  try {
+    const c      = await apiCall(`/cotisations/${id}`);
+    const form   = document.getElementById('modal-cotisation');
+    const inputs = form.querySelectorAll('input');
+    const sels   = form.querySelectorAll('select');
+    inputs[0].value = c.montant       || '';
+    inputs[1].value = c.date_echeance ? c.date_echeance.slice(0, 10) : '';
+    sels[1].value   = c.statut        || 'en attente';
+    form.dataset.editId = id;
+    openModal('modal-cotisation');
+  } catch (err) { toast('Erreur : ' + err.message, 'error'); }
+}
+
+async function deleteCotisation(id) {
+  confirmDelete('cette cotisation', async () => {
+    try {
+      await apiCall(`/cotisations/${id}`, { method: 'DELETE' });
+      toast('Cotisation supprimée', 'warning');
+      loadCotisations();
+    } catch (err) { toast('Erreur : ' + err.message, 'error'); }
+  });
+}
+
+/* ==============================
+   STATS COTISATIONS (graphiques détaillés)
    ============================== */
 let cotStatsDone = false;
 
-function initCotStatsCharts() {
+async function loadCotisationsStats() {
   if (cotStatsDone) return;
   cotStatsDone = true;
 
-  const mCtx = document.getElementById('chart-cot-mensuel');
-  if (mCtx) new Chart(mCtx, {
-    type: 'bar',
-    data: {
-      labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'],
-      datasets: [{
-        label: 'Cotisations (FCFA)',
-        data:  MOCK.cotMensuel,
-        backgroundColor: 'rgba(193,68,14,.75)',
-        borderRadius: 6,
-      }],
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { display: false } },
-      scales: {
-        y: { ticks: { callback: v => v >= 1e6 ? v/1e6+'M' : v >= 1000 ? v/1000+'k' : v } },
-        x: { grid: { display: false } },
-      },
-    },
-  });
+  try {
+    const data = await apiCall('/cotisations');
+    const list  = data?.data || data || [];
 
-  const rCtx = document.getElementById('chart-cot-recouvrement');
-  if (rCtx) new Chart(rCtx, {
-    type: 'pie',
-    data: {
-      labels: ['Payées', 'En attente', 'En retard'],
-      datasets: [{
-        data:            Object.values(MOCK.recouvrement),
-        backgroundColor: ['#2D7A3A', '#D4920A', '#DC2626'],
-        borderWidth:     3,
-        borderColor:     '#fff',
-      }],
-    },
-    options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { padding: 12, font: { size: 11 } } } } },
+    // Mensuel sur l'année en cours
+    const year   = new Date().getFullYear();
+    const months = Array.from({ length: 12 }, (_, i) => {
+      const d = new Date(year, i, 1);
+      return { label: d.toLocaleDateString('fr-FR', { month: 'short' }), mm: String(i + 1).padStart(2, '0') };
+    });
+
+    const montants = months.map(m =>
+      list
+        .filter(c => (c.statut === 'payée' || c.statut === 'payé') && c.date_paiement?.startsWith(`${year}-${m.mm}`))
+        .reduce((s, c) => s + Number(c.montant || 0), 0)
+    );
+
+    const mCtx = document.getElementById('chart-cot-mensuel');
+    if (mCtx) new Chart(mCtx, {
+      type: 'bar',
+      data: {
+        labels: months.map(m => m.label),
+        datasets: [{ label: 'FCFA', data: montants, backgroundColor: 'rgba(193,68,14,.75)', borderRadius: 6 }],
+      },
+      options: {
+        responsive: true, plugins: { legend: { display: false } },
+        scales: { y: { ticks: { callback: v => v >= 1e6 ? v/1e6+'M' : v >= 1000 ? v/1000+'k' : v } }, x: { grid: { display: false } } },
+      },
+    });
+
+    // Taux de recouvrement
+    const payees  = list.filter(c => c.statut === 'payée' || c.statut === 'payé').length;
+    const attente = list.filter(c => c.statut === 'en attente').length;
+    const retard  = list.filter(c => c.statut === 'en retard').length;
+
+    const rCtx = document.getElementById('chart-cot-recouvrement');
+    if (rCtx) new Chart(rCtx, {
+      type: 'pie',
+      data: {
+        labels: ['Payées', 'En attente', 'En retard'],
+        datasets: [{ data: [payees, attente, retard], backgroundColor: ['#2D7A3A', '#D4920A', '#DC2626'], borderWidth: 3, borderColor: '#fff' }],
+      },
+      options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { padding: 12, font: { size: 11 } } } } },
+    });
+
+  } catch (err) { console.warn('Stats cotisations:', err.message); }
+}
+
+/* ==============================
+   PRÊTS
+   ============================== */
+function calcMensualite(montant, taux, duree) {
+  if (!montant || !duree) return null;
+  const M = Number(montant), r = (Number(taux) || 0) / 100 / 12, n = Number(duree);
+  return r > 0 ? M * r * Math.pow(1+r,n) / (Math.pow(1+r,n)-1) : M / n;
+}
+
+async function loadPrets() {
+  showTableLoading('pretsBody', 7);
+  try {
+    const data  = await apiCall('/prets');
+    const list  = data?.data || data || [];
+    const tbody = document.getElementById('pretsBody');
+
+    if (!list.length) { showTableEmpty('pretsBody', 7, 'Aucun prêt enregistré'); return; }
+
+    tbody.innerHTML = list.map(p => {
+      const m = calcMensualite(p.montant, p.taux_interet, p.duree_mois);
+      return `
+        <tr>
+          <td>${p.adherent?.nom || ''} ${p.adherent?.prenom || ''}</td>
+          <td>${fmtFCFA(p.montant)}</td>
+          <td>${p.taux_interet ? p.taux_interet + '%' : '—'}</td>
+          <td>${p.duree_mois ? p.duree_mois + ' mois' : '—'}</td>
+          <td>${m ? fmtFCFA(Math.round(m)) : '—'}</td>
+          <td>${badgeStatut(p.statut)}</td>
+          <td>
+            <button class="icon-btn" onclick="openEditPret(${p.id})"><i class="fas fa-pen"></i></button>
+            <button class="icon-btn" style="margin-left:4px" onclick="deletePret(${p.id})"><i class="fas fa-trash"></i></button>
+          </td>
+        </tr>`;
+    }).join('');
+
+  } catch (err) {
+    showTableError('pretsBody', 7, err.message);
+    toast('Erreur prêts : ' + err.message, 'error');
+  }
+}
+
+async function savePret() {
+  const form   = document.getElementById('modal-pret');
+  const sels   = form.querySelectorAll('select');
+  const inputs = form.querySelectorAll('input');
+  const body   = {
+    adherent_id:  sels[0]?.value,
+    montant:      inputs[0]?.value,
+    taux_interet: inputs[1]?.value,
+    duree_mois:   inputs[2]?.value,
+    date_debut:   inputs[3]?.value,
+    statut:       sels[1]?.value,
+  };
+  try {
+    const id = form.dataset.editId;
+    if (id) {
+      await apiCall(`/prets/${id}`, { method: 'PUT', body: JSON.stringify(body) });
+      toast('Prêt modifié', 'success');
+    } else {
+      await apiCall('/prets', { method: 'POST', body: JSON.stringify(body) });
+      toast('Prêt enregistré', 'success');
+    }
+    closeModal('modal-pret');
+    delete form.dataset.editId;
+    loadPrets();
+  } catch (err) { toast('Erreur : ' + err.message, 'error'); }
+}
+
+async function openEditPret(id) {
+  try {
+    const p      = await apiCall(`/prets/${id}`);
+    const form   = document.getElementById('modal-pret');
+    const inputs = form.querySelectorAll('input');
+    const sels   = form.querySelectorAll('select');
+    inputs[0].value = p.montant      || '';
+    inputs[1].value = p.taux_interet || '';
+    inputs[2].value = p.duree_mois   || '';
+    inputs[3].value = p.date_debut   ? p.date_debut.slice(0, 10) : '';
+    sels[1].value   = p.statut       || 'en attente';
+    form.dataset.editId = id;
+    openModal('modal-pret');
+  } catch (err) { toast('Erreur : ' + err.message, 'error'); }
+}
+
+async function deletePret(id) {
+  confirmDelete('ce prêt', async () => {
+    try {
+      await apiCall(`/prets/${id}`, { method: 'DELETE' });
+      toast('Prêt supprimé', 'warning');
+      loadPrets();
+    } catch (err) { toast('Erreur : ' + err.message, 'error'); }
   });
+}
+
+/* ==============================
+   SINISTRES
+   ============================== */
+async function loadSinistres() {
+  showTableLoading('sinistresBody', 7);
+  try {
+    const data  = await apiCall('/sinistres');
+    const list  = data?.data || data || [];
+    const tbody = document.getElementById('sinistresBody');
+
+    if (!list.length) { showTableEmpty('sinistresBody', 7, 'Aucun sinistre déclaré'); return; }
+
+    tbody.innerHTML = list.map(s => `
+      <tr>
+        <td>${s.adherent?.nom || ''} ${s.adherent?.prenom || ''}</td>
+        <td><span class="badge b-indigo">${s.type || '—'}</span></td>
+        <td>${s.description || '—'}</td>
+        <td>${fmtDate(s.date_sinistre)}</td>
+        <td>${s.montant_reclame ? fmtFCFA(s.montant_reclame) : 'En évaluation'}</td>
+        <td>${badgeStatut(s.statut)}</td>
+        <td>
+          <button class="icon-btn" onclick="openEditSinistre(${s.id})"><i class="fas fa-pen"></i></button>
+          <button class="icon-btn" style="margin-left:4px" onclick="deleteSinistre(${s.id})"><i class="fas fa-trash"></i></button>
+        </td>
+      </tr>`).join('');
+
+  } catch (err) {
+    showTableError('sinistresBody', 7, err.message);
+    toast('Erreur sinistres : ' + err.message, 'error');
+  }
+}
+
+async function saveSinistre() {
+  const form   = document.getElementById('modal-sinistre');
+  const sels   = form.querySelectorAll('select');
+  const inputs = form.querySelectorAll('input');
+  const ta     = form.querySelector('textarea');
+  const body   = {
+    adherent_id:   sels[0]?.value,
+    description:   ta?.value,
+    type:          sels[1]?.value,
+    date_sinistre: inputs[0]?.value,
+    statut:        sels[2]?.value,
+  };
+  try {
+    const id = form.dataset.editId;
+    if (id) {
+      await apiCall(`/sinistres/${id}`, { method: 'PUT', body: JSON.stringify(body) });
+      toast('Sinistre modifié', 'success');
+    } else {
+      await apiCall('/sinistres', { method: 'POST', body: JSON.stringify(body) });
+      toast('Sinistre enregistré', 'success');
+    }
+    closeModal('modal-sinistre');
+    delete form.dataset.editId;
+    loadSinistres();
+  } catch (err) { toast('Erreur : ' + err.message, 'error'); }
+}
+
+async function openEditSinistre(id) {
+  try {
+    const s      = await apiCall(`/sinistres/${id}`);
+    const form   = document.getElementById('modal-sinistre');
+    const sels   = form.querySelectorAll('select');
+    const inputs = form.querySelectorAll('input');
+    const ta     = form.querySelector('textarea');
+    if (ta) ta.value = s.description || '';
+    inputs[0].value = s.date_sinistre ? s.date_sinistre.slice(0, 10) : '';
+    sels[1].value   = s.type   || 'Maladie';
+    sels[2].value   = s.statut || 'déclaré';
+    form.dataset.editId = id;
+    openModal('modal-sinistre');
+  } catch (err) { toast('Erreur : ' + err.message, 'error'); }
+}
+
+async function deleteSinistre(id) {
+  confirmDelete('ce sinistre', async () => {
+    try {
+      await apiCall(`/sinistres/${id}`, { method: 'DELETE' });
+      toast('Sinistre supprimé', 'warning');
+      loadSinistres();
+    } catch (err) { toast('Erreur : ' + err.message, 'error'); }
+  });
+}
+
+/* ==============================
+   ALERTES
+   ============================== */
+async function loadAlertes() {
+  try {
+    const [alertes] = await Promise.all([ apiCall('/alertes') ]);
+    const list = alertes?.data || alertes || [];
+
+    const retards   = list.filter(a => a.type?.includes('retard') || a.type?.includes('cotisation'));
+    const echeances = list.filter(a => a.type?.includes('pret')   || a.type?.includes('prêt'));
+
+    // Cartes résumé
+    const dangerVal  = document.querySelector('.alert-card.danger  .alert-card-val');
+    const warningVal = document.querySelector('.alert-card.warning .alert-card-val');
+    if (dangerVal)  dangerVal.textContent  = retards.length;
+    if (warningVal) warningVal.textContent  = echeances.length;
+
+    // Badge sidebar
+    const badge = document.getElementById('badge-alertes');
+    if (badge) badge.textContent = list.length;
+
+    // Tableau retards cotisations
+    const tbody = document.getElementById('alertes-cot-body');
+    if (tbody) {
+      tbody.innerHTML = retards.length
+        ? retards.slice(0, 10).map(a => `
+            <tr>
+              <td><strong>${a.adherent?.nom || a.nom || '—'}</strong></td>
+              <td>${a.adherent?.email || a.email || '—'}</td>
+              <td>${fmtFCFA(a.montant)}</td>
+              <td>${fmtDate(a.date_echeance)}</td>
+              <td>${badgeStatut('en retard')}</td>
+              <td><button class="btn btn-xs btn-primary" onclick="openModal('modal-cotisation')">Régulariser</button></td>
+            </tr>`).join('')
+        : `<tr><td colspan="6" class="loading-row">Aucun retard de cotisation 🎉</td></tr>`;
+    }
+
+  } catch (err) {
+    toast('Erreur alertes : ' + err.message, 'error');
+  }
 }
 
 /* ==============================
@@ -373,12 +973,10 @@ function calculateLoan() {
   const n = parseInt(document.getElementById('calc-duree')?.value)     || 0;
   if (!M || !n) return;
 
-  const mensualite = r > 0
-    ? M * r * Math.pow(1+r, n) / (Math.pow(1+r, n) - 1)
-    : M / n;
-  const total    = mensualite * n;
-  const interets = total - M;
-  const fmt      = v => Math.round(v).toLocaleString('fr-FR') + ' FCFA';
+  const mensualite = r > 0 ? M * r * Math.pow(1+r,n) / (Math.pow(1+r,n)-1) : M / n;
+  const total      = mensualite * n;
+  const interets   = total - M;
+  const fmt        = v => Math.round(v).toLocaleString('fr-FR') + ' FCFA';
 
   document.getElementById('res-mensualite').textContent = fmt(mensualite);
   document.getElementById('res-interets').textContent   = fmt(interets);
@@ -387,29 +985,69 @@ function calculateLoan() {
 }
 
 /* ==============================
-   EXPORT (mock — brancher sur le backend)
+   EXPORT — déclenche le téléchargement via le backend
    ============================== */
 function exportData(module, format) {
+  const token = getToken();
+  if (!token) { toast('Non authentifié', 'error'); return; }
   toast(`Export ${module} en ${format.toUpperCase()} en cours…`, 'success');
-  // Production : appel API => window.location = `/api/export/${module}?format=${format}&token=...`
+  const a    = document.createElement('a');
+  a.href     = `${API_URL}/${module}/export?format=${format}&token=${encodeURIComponent(token)}`;
+  a.download = `${module}_${new Date().toISOString().slice(0,10)}.${format}`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 
 /* ==============================
-   INITIALISATION PRINCIPALE
+   PROFIL
    ============================== */
-document.addEventListener('DOMContentLoaded', () => {
-  // Décommenter en production :
- if (!isAuthenticated()) { window.location.href = 'login.html'; return; }
+async function saveProfile() {
+  const form   = document.getElementById('modal-profil');
+  const inputs = form.querySelectorAll('input');
+  const user   = getCurrentUser();
+  const body   = {
+    name:      `${inputs[0]?.value || ''} ${inputs[1]?.value || ''}`.trim(),
+    email:     inputs[2]?.value || '',
+    telephone: inputs[3]?.value || '',
+  };
+  try {
+    await apiCall('/me', { method: 'PUT', body: JSON.stringify(body) });
+    const updated = { ...user, ...body };
+    localStorage.setItem('mamutuelle_user',  JSON.stringify(updated));
+    sessionStorage.setItem('mamutuelle_user', JSON.stringify(updated));
+    toast('Profil mis à jour', 'success');
+    closeModal('modal-profil');
+    injectUserInfo();
+  } catch (err) {
+    // Fallback : /me n'existe pas encore, on met à jour localement
+    const updated = { ...user, ...body };
+    localStorage.setItem('mamutuelle_user',  JSON.stringify(updated));
+    sessionStorage.setItem('mamutuelle_user', JSON.stringify(updated));
+    toast('Profil mis à jour (local)', 'success');
+    closeModal('modal-profil');
+    injectUserInfo();
+  }
+}
 
+/* ==============================
+   INITIALISATION
+   ============================== */
+document.addEventListener('DOMContentLoaded', async () => {
+
+  injectUserInfo();
   initSubmenus();
   initSidebarToggle();
   initModals();
+  initConfirmDelete();
   initSearch();
   initFilterButtons();
   initPeriodButtons();
   updateDate();
-  initCotChart('6m');
-  initSinistreChart();
-  calculateLoan();
+
+  // Vue d'ensemble par défaut
   showSection('overview');
+
+  // Cache recherche en arrière-plan
+  buildSearchCache();
 });
