@@ -13,23 +13,23 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // ── Nettoyage dans l'ordre des dépendances ──────────────────
-        DB::statement('SET FOREIGN_KEY_CHECKS=0');   // MySQL
-        // Pour PostgreSQL, remplace par :
-        // DB::statement('SET session_replication_role = replica');
+        // Désactiver les contraintes de clés étrangères pour PostgreSQL
+        DB::statement('SET session_replication_role = replica');
 
-        DB::table('audit_logs')->truncate();
-        DB::table('alertes')->truncate();
-        DB::table('prestations')->truncate();
-        DB::table('sinistres')->truncate();
-        DB::table('remboursements_prets')->truncate();
-        DB::table('prets')->truncate();
-        DB::table('cotisations')->truncate();
-        DB::table('ayants_droit')->truncate();
-        DB::table('adherents')->truncate();
-        DB::table('users')->truncate();
+        // Tables à nettoyer (seulement celles qui existent)
+        $tablesToTruncate = ['alertes', 'prestations', 'sinistres', 'remboursements_prets', 'prets', 'cotisations', 'ayants_droit', 'adherents', 'users'];
 
-        DB::statement('SET FOREIGN_KEY_CHECKS=1');   // MySQL
-        // Pour PostgreSQL : DB::statement('SET session_replication_role = DEFAULT');
+        foreach ($tablesToTruncate as $table) {
+            try {
+                DB::table($table)->truncate();
+            } catch (\Exception $e) {
+                // Table n'existe pas, on continue
+                continue;
+            }
+        }
+
+        // Réactiver les contraintes de clés étrangères pour PostgreSQL
+        DB::statement('SET session_replication_role = DEFAULT');
 
         // ============================================================
         // 1. USERS
@@ -204,44 +204,75 @@ class DatabaseSeeder extends Seeder
         $adhId4 = DB::table('adherents')->where('numero_adherent', 'ADH004')->value('id');
         $adhId5 = DB::table('adherents')->where('numero_adherent', 'ADH005')->value('id');
 
+        // Debug: vérifier les IDs
+        \Log::info('Adherent IDs:', ['adhId1' => $adhId1, 'adhId2' => $adhId2, 'adhId3' => $adhId3, 'adhId4' => $adhId4, 'adhId5' => $adhId5]);
+
         // ============================================================
         // 3. AYANTS DROIT
         // ============================================================
-        DB::table('ayants_droit')->insert([
-            ['adherent_id' => $adhId1, 'nom' => 'Koné',      'prenom' => 'Aïcha',    'relation' => 'conjoint', 'date_naissance' => '1987-06-10', 'created_at' => now(), 'updated_at' => now()],
+        \Log::info('Starting ayants_droit insertion');
+
+        $ayantsDroit = [
+            ['adherent_id' => $adhId1, 'nom' => 'Koné',      'prenom' => 'Aïcha',    'relation' => 'epoux', 'date_naissance' => '1987-06-10', 'created_at' => now(), 'updated_at' => now()],
             ['adherent_id' => $adhId1, 'nom' => 'Koné',      'prenom' => 'Ibrahim',  'relation' => 'enfant',   'date_naissance' => '2010-03-15', 'created_at' => now(), 'updated_at' => now()],
-            ['adherent_id' => $adhId2, 'nom' => 'Zongo',     'prenom' => 'Moussa',   'relation' => 'conjoint', 'date_naissance' => '1988-04-20', 'created_at' => now(), 'updated_at' => now()],
+            ['adherent_id' => $adhId2, 'nom' => 'Zongo',     'prenom' => 'Moussa',   'relation' => 'epoux', 'date_naissance' => '1988-04-20', 'created_at' => now(), 'updated_at' => now()],
             ['adherent_id' => $adhId2, 'nom' => 'Zongo',     'prenom' => 'Salimata', 'relation' => 'enfant',   'date_naissance' => '2015-11-05', 'created_at' => now(), 'updated_at' => now()],
-            ['adherent_id' => $adhId3, 'nom' => 'Bambara',   'prenom' => 'Marie',    'relation' => 'conjoint', 'date_naissance' => '1990-02-28', 'created_at' => now(), 'updated_at' => now()],
-            ['adherent_id' => $adhId4, 'nom' => 'Sawadogo',  'prenom' => 'Adama',    'relation' => 'conjoint', 'date_naissance' => '1989-07-17', 'created_at' => now(), 'updated_at' => now()],
-            ['adherent_id' => $adhId5, 'nom' => 'Ouédraogo', 'prenom' => 'Kadiatou', 'relation' => 'conjoint', 'date_naissance' => '1982-09-12', 'created_at' => now(), 'updated_at' => now()],
-        ]);
+            ['adherent_id' => $adhId3, 'nom' => 'Bambara',   'prenom' => 'Marie',    'relation' => 'epoux', 'date_naissance' => '1990-02-28', 'created_at' => now(), 'updated_at' => now()],
+            ['adherent_id' => $adhId4, 'nom' => 'Sawadogo',  'prenom' => 'Adama',    'relation' => 'epoux', 'date_naissance' => '1989-07-17', 'created_at' => now(), 'updated_at' => now()],
+            ['adherent_id' => $adhId5, 'nom' => 'Ouédraogo', 'prenom' => 'Kadiatou', 'relation' => 'epoux', 'date_naissance' => '1982-09-12', 'created_at' => now(), 'updated_at' => now()],
+        ];
+
+        foreach ($ayantsDroit as $index => $ayantDroit) {
+            try {
+                DB::table('ayants_droit')->insert($ayantDroit);
+                \Log::info("Ayant droit {$index} inserted successfully");
+            } catch (\Exception $e) {
+                \Log::error("Failed to insert ayant droit {$index}: " . $e->getMessage());
+                throw $e; // Re-throw to stop the seeder
+            }
+        }
+
+        \Log::info('All ayants droit inserted successfully');
 
         // ============================================================
         // 4. COTISATIONS
         // ============================================================
-        DB::table('cotisations')->insert([
+        \Log::info('Starting cotisations insertion');
+
+        $cotisations = [
             // ADH001 — Koné Oumar
             ['adherent_id' => $adhId1, 'montant' => 5000, 'date_echeance' => '2024-01-31', 'date_paiement' => '2024-01-28', 'statut' => 'payée',      'reference_paiement' => 'REF-2024-001', 'mode_paiement' => 'virement', 'created_at' => now(), 'updated_at' => now()],
             ['adherent_id' => $adhId1, 'montant' => 5000, 'date_echeance' => '2024-02-29', 'date_paiement' => '2024-02-25', 'statut' => 'payée',      'reference_paiement' => 'REF-2024-002', 'mode_paiement' => 'virement', 'created_at' => now(), 'updated_at' => now()],
             ['adherent_id' => $adhId1, 'montant' => 5000, 'date_echeance' => '2024-03-31', 'date_paiement' => '2024-03-27', 'statut' => 'payée',      'reference_paiement' => 'REF-2024-003', 'mode_paiement' => 'virement', 'created_at' => now(), 'updated_at' => now()],
-            ['adherent_id' => $adhId1, 'montant' => 5000, 'date_echeance' => '2024-04-30', 'date_paiement' => null,         'statut' => 'en attente', 'reference_paiement' => '',             'mode_paiement' => '',         'created_at' => now(), 'updated_at' => now()],
+            ['adherent_id' => $adhId1, 'montant' => 5000, 'date_echeance' => '2024-04-30', 'date_paiement' => null,         'statut' => 'en attente', 'reference_paiement' => '',             'mode_paiement' => null,       'created_at' => now(), 'updated_at' => now()],
             // ADH002 — Zongo Aminata
             ['adherent_id' => $adhId2, 'montant' => 5000, 'date_echeance' => '2024-01-31', 'date_paiement' => '2024-02-05', 'statut' => 'payée',      'reference_paiement' => 'REF-2024-010', 'mode_paiement' => 'especes',  'created_at' => now(), 'updated_at' => now()],
-            ['adherent_id' => $adhId2, 'montant' => 5000, 'date_echeance' => '2024-02-29', 'date_paiement' => null,         'statut' => 'en retard',  'reference_paiement' => '',             'mode_paiement' => '',         'created_at' => now(), 'updated_at' => now()],
-            ['adherent_id' => $adhId2, 'montant' => 5000, 'date_echeance' => '2024-03-31', 'date_paiement' => null,         'statut' => 'en retard',  'reference_paiement' => '',             'mode_paiement' => '',         'created_at' => now(), 'updated_at' => now()],
+            ['adherent_id' => $adhId2, 'montant' => 5000, 'date_echeance' => '2024-02-29', 'date_paiement' => null,         'statut' => 'en retard',  'reference_paiement' => '',             'mode_paiement' => null,       'created_at' => now(), 'updated_at' => now()],
+            ['adherent_id' => $adhId2, 'montant' => 5000, 'date_echeance' => '2024-03-31', 'date_paiement' => null,         'statut' => 'en retard',  'reference_paiement' => '',             'mode_paiement' => null,       'created_at' => now(), 'updated_at' => now()],
             // ADH003 — Bambara Brice
             ['adherent_id' => $adhId3, 'montant' => 7500, 'date_echeance' => '2024-01-31', 'date_paiement' => '2024-01-30', 'statut' => 'payée',      'reference_paiement' => 'REF-2024-020', 'mode_paiement' => 'cheque',   'created_at' => now(), 'updated_at' => now()],
             ['adherent_id' => $adhId3, 'montant' => 7500, 'date_echeance' => '2024-02-29', 'date_paiement' => '2024-02-28', 'statut' => 'payée',      'reference_paiement' => 'REF-2024-021', 'mode_paiement' => 'cheque',   'created_at' => now(), 'updated_at' => now()],
-            ['adherent_id' => $adhId3, 'montant' => 7500, 'date_echeance' => '2024-03-31', 'date_paiement' => null,         'statut' => 'en attente', 'reference_paiement' => '',             'mode_paiement' => '',         'created_at' => now(), 'updated_at' => now()],
+            ['adherent_id' => $adhId3, 'montant' => 7500, 'date_echeance' => '2024-03-31', 'date_paiement' => null,         'statut' => 'en attente', 'reference_paiement' => '',             'mode_paiement' => null,       'created_at' => now(), 'updated_at' => now()],
             // ADH004 — Sawadogo Mariam
             ['adherent_id' => $adhId4, 'montant' => 5000, 'date_echeance' => '2024-01-31', 'date_paiement' => '2024-01-29', 'statut' => 'payée',      'reference_paiement' => 'REF-2024-030', 'mode_paiement' => 'carte',    'created_at' => now(), 'updated_at' => now()],
-            ['adherent_id' => $adhId4, 'montant' => 5000, 'date_echeance' => '2024-02-29', 'date_paiement' => null,         'statut' => 'en retard',  'reference_paiement' => '',             'mode_paiement' => '',         'created_at' => now(), 'updated_at' => now()],
+            ['adherent_id' => $adhId4, 'montant' => 5000, 'date_echeance' => '2024-02-29', 'date_paiement' => null,         'statut' => 'en retard',  'reference_paiement' => '',             'mode_paiement' => null,       'created_at' => now(), 'updated_at' => now()],
             // ADH005 — Ouédraogo Issouf
             ['adherent_id' => $adhId5, 'montant' => 5000, 'date_echeance' => '2024-01-31', 'date_paiement' => '2024-01-31', 'statut' => 'payée',      'reference_paiement' => 'REF-2024-040', 'mode_paiement' => 'virement', 'created_at' => now(), 'updated_at' => now()],
             ['adherent_id' => $adhId5, 'montant' => 5000, 'date_echeance' => '2024-02-29', 'date_paiement' => '2024-02-29', 'statut' => 'payée',      'reference_paiement' => 'REF-2024-041', 'mode_paiement' => 'virement', 'created_at' => now(), 'updated_at' => now()],
             ['adherent_id' => $adhId5, 'montant' => 5000, 'date_echeance' => '2024-03-31', 'date_paiement' => '2024-03-31', 'statut' => 'payée',      'reference_paiement' => 'REF-2024-042', 'mode_paiement' => 'virement', 'created_at' => now(), 'updated_at' => now()],
-        ]);
+        ];
+
+        foreach ($cotisations as $index => $cotisation) {
+            try {
+                DB::table('cotisations')->insert($cotisation);
+                \Log::info("Cotisation {$index} inserted successfully");
+            } catch (\Exception $e) {
+                \Log::error("Failed to insert cotisation {$index}: " . $e->getMessage());
+                throw $e; // Re-throw to stop the seeder
+            }
+        }
+
+        \Log::info('All cotisations inserted successfully');
 
         // ============================================================
         // 5. PRÊTS
