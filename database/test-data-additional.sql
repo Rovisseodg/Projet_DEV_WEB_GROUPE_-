@@ -20,31 +20,19 @@ INSERT INTO users (name, email, password, role, created_at, updated_at) VALUES
 ('Compaoré Sophie', 'compaore.sophie@email.bf', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'adherent', NOW(), NOW()),
 ('Zida Michel', 'zida.michel@email.bf', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'adherent', NOW(), NOW());
 
--- Récupération des IDs des nouveaux utilisateurs
-SET @user6 = (SELECT id FROM users WHERE email = 'diallo.fatoumata@email.bf');
-SET @user7 = (SELECT id FROM users WHERE email = 'traore.souleymane@email.bf');
-SET @user8 = (SELECT id FROM users WHERE email = 'kabore.awa@email.bf');
-SET @user9 = (SELECT id FROM users WHERE email = 'sanou.ibrahim@email.bf');
-SET @user10 = (SELECT id FROM users WHERE email = 'nikiema.pauline@email.bf');
-SET @user11 = (SELECT id FROM users WHERE email = 'ouattara.karim@email.bf');
-SET @user12 = (SELECT id FROM users WHERE email = 'bado.rasmata@email.bf');
-SET @user13 = (SELECT id FROM users WHERE email = 'yameogo.blaise@email.bf');
-SET @user14 = (SELECT id FROM users WHERE email = 'compaore.sophie@email.bf');
-SET @user15 = (SELECT id FROM users WHERE email = 'zida.michel@email.bf');
-
+-- Récupération des IDs des nouveaux utilisateurs (inline, sans variables @user*)
 -- Adhérents supplémentaires
 INSERT INTO adherents (user_id, numero_adherent, nom, prenom, email, telephone, date_naissance, genre, adresse, ville, code_postal, date_inscription, statut, created_at, updated_at) VALUES
-(@user6, 'ADH006', 'Diallo', 'Fatoumata', 'diallo.fatoumata@email.bf', '+226 72 66 77 88', '1995-08-12', 'femme', 'Secteur 15, Rue 5.20', 'Ouagadougou', '01 BP 005', '2023-06-01', 'actif', NOW(), NOW()),
-(@user7, 'ADH007', 'Traoré', 'Souleymane', 'traore.souleymane@email.bf', '+226 69 77 88 99', '1982-12-03', 'homme', 'Avenue de l''Indépendance', 'Bobo-Dioulasso', '01 BP 006', '2023-07-15', 'actif', NOW(), NOW()),
-(@user8, 'ADH008', 'Kaboré', 'Awa', 'kabore.awa@email.bf', '+226 73 88 99 00', '1998-04-25', 'femme', 'Secteur 9, Rue 12.8', 'Ouagadougou', '01 BP 007', '2023-08-10', 'actif', NOW(), NOW()),
-(@user9, 'ADH009', 'Sanou', 'Ibrahim', 'sanou.ibrahim@email.bf', '+226 74 99 00 11', '1975-11-18', 'homme', 'Rue des Banques', 'Ouagadougou', '01 BP 008', '2023-09-05', 'actif', NOW(), NOW()),
-(@user10, 'ADH010', 'Nikiéma', 'Pauline', 'nikiema.pauline@email.bf', '+226 75 00 11 22', '1991-06-30', 'femme', 'Secteur 3, Avenue Charles de Gaulle', 'Ouagadougou', '01 BP 009', '2023-10-20', 'actif', NOW(), NOW()),
-(@user11, 'ADH011', 'Ouattara', 'Karim', 'ouattara.karim@email.bf', '+226 76 11 22 33', '1987-03-14', 'homme', 'Rue de la Cathédrale', 'Bobo-Dioulasso', '01 BP 010', '2023-11-12', 'actif', NOW(), NOW()),
-(@user12, 'ADH012', 'Bado', 'Rasmata', 'bado.rasmata@email.bf', '+226 77 22 33 44', '1993-09-07', 'femme', 'Secteur 6, Rue 15.3', 'Ouagadougou', '01 BP 011', '2023-12-01', 'actif', NOW(), NOW()),
-(@user13, 'ADH013', 'Yameogo', 'Blaise', 'yameogo.blaise@email.bf', '+226 78 33 44 55', '1980-01-22', 'homme', 'Avenue de la Nation', 'Ouagadougou', '01 BP 012', '2024-01-08', 'actif', NOW(), NOW()),
-(@user14, 'ADH014', 'Compaoré', 'Sophie', 'compaore.sophie@email.bf', '+226 79 44 55 66', '1996-12-11', 'femme', 'Secteur 11, Rue 7.14', 'Ouagadougou', '01 BP 013', '2024-02-15', 'actif', NOW(), NOW()),
-(@user15, 'ADH015', 'Zida', 'Michel', 'zida.michel@email.bf', '+226 60 55 66 77', '1978-07-05', 'homme', 'Rue de la Révolution', 'Ouagadougou', '01 BP 014', '2024-03-01', 'suspendu', NOW(), NOW());
-
+((SELECT id FROM users WHERE email = 'diallo.fatoumata@email.bf'), 'ADH006', 'Diallo', 'Fatoumata', 'diallo.fatoumata@email.bf', '+226 72 66 77 88', '1995-08-12', 'femme', 'Secteur 15, Rue 5.20', 'Ouagadougou', '01 BP 005', '2023-06-01', 'actif', NOW(), NOW()),
+((SELECT id FROM users WHERE email = 'traore.souleymane@email.bf'), 'ADH007', 'Traoré', 'Souleymane', 'traore.souleymane@email.bf', '+226 69 77 88 99', '1982-12-03', 'homme', 'Avenue de l''Indépendance', 'Bobo-Dioulasso', '01 BP 006', '2023-07-15', 'actif', NOW(), NOW()),
+((SELECT id FROM users WHERE email = 'kabore.awa@email.bf'), 'ADH008', 'Kaboré', 'Awa', 'kabore.awa@email.bf', '+226 73 88 99 00', '1998-04-25', 'femme', 'Secteur 9, Rue 12.8', 'Ouagadougou', '01 BP 007', '2023-08-10', 'actif', NOW(), NOW()),
+((SELECT id FROM users WHERE email = 'sanou.ibrahim@email.bf'), 'ADH009', 'Sanou', 'Ibrahim', 'sanou.ibrahim@email.bf', '+226 74 99 00 11', '1975-11-18', 'homme', 'Rue des Banques', 'Ouagadougou', '01 BP 008', '2023-09-05', 'actif', NOW(), NOW()),
+((SELECT id FROM users WHERE email = 'nikiema.pauline@email.bf'), 'ADH010', 'Nikiéma', 'Pauline', 'nikiema.pauline@email.bf', '+226 75 00 11 22', '1991-06-30', 'femme', 'Secteur 3, Avenue Charles de Gaulle', 'Ouagadougou', '01 BP 009', '2023-10-20', 'actif', NOW(), NOW()),
+((SELECT id FROM users WHERE email = 'ouattara.karim@email.bf'), 'ADH011', 'Ouattara', 'Karim', 'ouattara.karim@email.bf', '+226 76 11 22 33', '1987-03-14', 'homme', 'Rue de la Cathédrale', 'Bobo-Dioulasso', '01 BP 010', '2023-11-12', 'actif', NOW(), NOW()),
+((SELECT id FROM users WHERE email = 'bado.rasmata@email.bf'), 'ADH012', 'Bado', 'Rasmata', 'bado.rasmata@email.bf', '+226 77 22 33 44', '1993-09-07', 'femme', 'Secteur 6, Rue 15.3', 'Ouagadougou', '01 BP 011', '2023-12-01', 'actif', NOW(), NOW()),
+((SELECT id FROM users WHERE email = 'yameogo.blaise@email.bf'), 'ADH013', 'Yameogo', 'Blaise', 'yameogo.blaise@email.bf', '+226 78 33 44 55', '1980-01-22', 'homme', 'Avenue de la Nation', 'Ouagadougou', '01 BP 012', '2024-01-08', 'actif', NOW(), NOW()),
+((SELECT id FROM users WHERE email = 'compaore.sophie@email.bf'), 'ADH014', 'Compaoré', 'Sophie', 'compaore.sophie@email.bf', '+226 79 44 55 66', '1996-12-11', 'femme', 'Secteur 11, Rue 7.14', 'Ouagadougou', '01 BP 013', '2024-02-15', 'actif', NOW(), NOW()),
+((SELECT id FROM users WHERE email = 'zida.michel@email.bf'), 'ADH015', 'Zida', 'Michel', 'zida.michel@email.bf', '+226 60 55 66 77', '1978-07-05', 'homme', 'Rue de la Révolution', 'Ouagadougou', '01 BP 014', '2024-03-01', 'suspendu', NOW(), NOW());
 -- ============================================
 -- AYANTS DROIT SUPPLÉMENTAIRES
 -- ============================================

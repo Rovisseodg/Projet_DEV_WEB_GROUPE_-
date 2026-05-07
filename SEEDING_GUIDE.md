@@ -19,6 +19,12 @@ Fichier SQL complet avec toutes les données de test pour MaMutuelle.
 ### 2. `scripts/seed-database.sh`
 Script bash pour exécuter le seeding automatiquement sur Railway.
 
+### 3. `scripts/seed-database.cmd`
+Script Windows CMD pour exécuter le seeding sur Windows.
+
+### 4. `scripts/seed-database.ps1`
+Script PowerShell pour une exécution Windows plus propre.
+
 ## 🚀 How to Use on Railway
 
 ### Option 1: Manual SQL Execution (Recommended for First Setup)
@@ -45,7 +51,14 @@ Script bash pour exécuter le seeding automatiquement sur Railway.
    npm install -g @railway/cli
    ```
 
-2. **Login to Railway:**
+2. **Install PostgreSQL client (`psql`) on Windows:**
+   - Via Chocolatey:
+     ```powershell
+     choco install postgresql
+     ```
+   - Ou via PostgreSQL installer from https://www.postgresql.org/download/windows/
+
+3. **Login to Railway:**
    ```bash
    railway login
    ```
@@ -55,10 +68,22 @@ Script bash pour exécuter le seeding automatiquement sur Railway.
    railway link
    ```
 
-4. **Run the seeding script:**
-   ```bash
-   railway run bash scripts/seed-database.sh
-   ```
+4. **Run the seeding script**
+
+   - On macOS/Linux:
+     ```bash
+     railway run bash scripts/seed-database.sh
+     ```
+
+   - On Windows CMD:
+     ```cmd
+     railway run cmd /c scripts\seed-database.cmd
+     ```
+
+   - On Windows PowerShell:
+     ```powershell
+     railway run powershell -File scripts\seed-database.ps1
+     ```
 
 ### Option 3: Via Railway Web Interface
 
