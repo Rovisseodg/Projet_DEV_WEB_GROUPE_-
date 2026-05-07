@@ -20,19 +20,6 @@ Route::get('/', function () {
     ]);
 });
 
-// ROUTE TEMPORAIRE — À SUPPRIMER APRÈS UTILISATION
-Route::get('/fix-passwords', function () {
-    $users = \App\Models\User::all();
-    foreach ($users as $user) {
-        $user->update([
-            'password' => \Illuminate\Support\Facades\Hash::make('password123')
-        ]);
-    }
-    return response()->json([
-        'message' => 'Mots de passe réinitialisés',
-        'users'   => \App\Models\User::select('id','email','role')->get()
-    ]);
-});
 
 /* ====================================================================
  * AUTHENTIFICATION — Routes publiques
