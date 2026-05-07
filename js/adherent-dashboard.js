@@ -11,6 +11,7 @@ if (!isAuthenticated()) {
   window.location.href = 'login.html';
 }
 
+
 /* ==============================
    ÉTAT GLOBAL
    ============================== */

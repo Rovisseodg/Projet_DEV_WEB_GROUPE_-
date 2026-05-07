@@ -12,15 +12,10 @@ if (!isAuthenticated()) {
 }
 
 // Bloquer les adhérents — ils ont leur propre dashboard
-try {
-    const user = JSON.parse(
-        localStorage.getItem('mamutuelle_user') ||
-        sessionStorage.getItem('mamutuelle_user')
-    );
-    if (user?.role === 'adherent') {
-        window.location.href = 'adherent-dashboard.html';
-    }
-} catch (_) {}
+const user = getCurrentUser();
+if (user?.role === 'adherent') {
+    window.location.href = 'adherent-dashboard.html';
+}
 
 /* ==============================
    UTILISATEUR CONNECTÉ
