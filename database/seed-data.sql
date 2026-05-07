@@ -3,13 +3,23 @@
 -- PostgreSQL Syntax - Complete Test Data
 -- ============================================================
 
--- Disable foreign key constraints temporarily
-SET session_replication_role = REPLICA;
+BEGIN TRANSACTION;
+
+-- Clear existing data in reverse dependency order
+DELETE FROM prestations;
+DELETE FROM alertes;
+DELETE FROM sinistres;
+DELETE FROM remboursements_prets;
+DELETE FROM cotisations;
+DELETE FROM ayants_droit;
+DELETE FROM prets;
+DELETE FROM adherents;
+DELETE FROM audit_logs;
+DELETE FROM users;
 
 -- ============================================================
 -- 1. USERS
 -- ============================================================
-DELETE FROM users;
 
 INSERT INTO users (name, email, password, role, created_at, updated_at) VALUES
 ('Admin MaMutuelle', 'admin@mamutuelle.bf', '$2y$12$K1kJm8F7t.RZV.LH2.dS0uEZr5xKHsxJqVlVz5QcH7K0y8qQu2EwK', 'admin', NOW(), NOW()),
@@ -101,7 +111,7 @@ INSERT INTO remboursements_prets (pret_id, numero_mensualite, montant, date_eche
 -- ============================================================
 DELETE FROM sinistres;
 
-INSERT INTO sinistres (adherent_id, type_sinistre, description, date_declaration, statut, created_at, updated_at) VALUES
+INSERT INTO sinistres (adherent_id, type_sinistre, description, date_sinistre, statut, created_at, updated_at) VALUES
 (1, 'maladie', 'Crise paludique avec hospitalisation 5 jours', '2024-02-10', 'approuvé', NOW(), NOW()),
 (3, 'accident', 'Accident de circulation - fracture bras droit', '2024-01-20', 'approuvé', NOW(), NOW()),
 (2, 'maladie', 'Hypertension - suivi médical', '2024-03-05', 'en attente', NOW(), NOW());
@@ -126,8 +136,7 @@ INSERT INTO alertes (adherent_id, type_alerte, message, statut, created_at, upda
 (4, 'retard_cotisation', 'Cotisation de février 2024 non payée', 'active', NOW(), NOW()),
 (1, 'pret_echeance', 'Mensualité prêt du 15/05/2024 bientôt due', 'active', NOW(), NOW());
 
--- Re-enable foreign key constraints
-SET session_replication_role = DEFAULT;
+COMMIT;
 
 -- ============================================================
 -- VERIFICATION
