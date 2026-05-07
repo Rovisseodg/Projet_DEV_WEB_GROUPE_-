@@ -7,7 +7,12 @@
 // REDIRECTION SI DÉJÀ CONNECTÉ
 // ============================================
 if (isAuthenticated()) {
-    window.location.href = 'dashboard.html';
+    const user = getUser();
+    if (user?.role === 'adherent') {
+        window.location.href = 'adherent-dashboard.html';
+    } else {
+        window.location.href = 'dashboard.html';
+    }
 }
 
 // ============================================
@@ -142,7 +147,14 @@ document.getElementById('register-form').addEventListener('submit', async functi
         if (data && data.token) {
             showAlert('Inscription réussie ! Redirection…', 'success');
             setTimeout(() => {
-                window.location.href = 'dashboard.html';
+                const userRole = data.user?.role;
+                if (userRole === 'adherent') {
+                    window.location.href = 'adherent-dashboard.html';
+                } else if (userRole === 'admin' || userRole === 'agent') {
+                    window.location.href = 'dashboard.html';
+                } else {
+                    window.location.href = 'dashboard.html';
+                }
             }, 800);
         }
     } catch (error) {

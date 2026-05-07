@@ -8,9 +8,11 @@
 // ============================================
 if (isAuthenticated()) {
     const user = getUser();
-    window.location.href = user?.role === 'adherent'
-        ? 'adherent-dashboard.html'
-        : 'dashboard.html';
+    if (user?.role === 'adherent') {
+        window.location.href = 'adherent-dashboard.html';
+    } else {
+        window.location.href = 'dashboard.html';
+    }
 }
 
 // ============================================
