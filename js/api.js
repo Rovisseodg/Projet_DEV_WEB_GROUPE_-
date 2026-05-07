@@ -33,11 +33,42 @@ function removeCookie(name) {
 // Storage sécurisé : localStorage → sessionStorage → cookie
 // ============================================
 
+function parseJwtPayload(token) {
+    try {
+        const payload = token.split('.')[1];
+        if (!payload) return null;
+        const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+        return JSON.parse(decodeURIComponent(decoded.split('').map(c => `%${('00' + c.charCodeAt(0).toString(16)).slice(-2)}`).join('')));
+    } catch (e) {
+        return null;
+    }
+}
+
+function isTokenValid(token) {
+    const payload = parseJwtPayload(token);
+    if (!payload) return false;
+    if (payload.exp && typeof payload.exp === 'number') {
+        return payload.exp > Math.floor(Date.now() / 1000);
+    }
+    return true;
+}
+
+function clearAuth() {
+    logout();
+}
+
 function getToken() {
     try {
-        return localStorage.getItem(TOKEN_KEY)
+        const token = localStorage.getItem(TOKEN_KEY)
             || sessionStorage.getItem(TOKEN_KEY)
             || getCookie(TOKEN_KEY);
+
+        if (token && !isTokenValid(token)) {
+            clearAuth();
+            return null;
+        }
+
+        return token;
     } catch (e) {
         return getCookie(TOKEN_KEY);
     }
