@@ -6,18 +6,11 @@
 // ============================================
 // REDIRECTION SI DÉJÀ CONNECTÉ
 // ============================================
-if (isAuthenticated()) {
-    try {
-        const user = JSON.parse(
-            localStorage.getItem('mamutuelle_user') ||
-            sessionStorage.getItem('mamutuelle_user')
-        );
-        window.location.href = user?.role === 'adherent'
-            ? 'adherent-dashboard.html'
-            : 'dashboard.html';
-    } catch (_) {
-        window.location.href = 'dashboard.html';
-    }
+if (isAuthenticated()&& mutuelle_user?.role === 'adherent') {
+    window.location.href = 'adherent-dashboard.html';
+}
+else if (isAuthenticated()) {
+    window.location.href = 'dashboard.html';
 }
 
 // ============================================
