@@ -62,7 +62,7 @@ function setLoading(loading) {
 // ============================================
 // VALIDATION CÔTÉ CLIENT
 // ============================================
-function validateForm(name, email, password, confirmPassword, role) {
+function validateForm(name, email, password, confirmPassword) {
     let valid = true;
 
     const nameInput = document.getElementById('name');
@@ -109,17 +109,6 @@ function validateForm(name, email, password, confirmPassword, role) {
         confirmPwdErr.textContent = '';
     }
 
-    const roleInput = document.getElementById('role');
-    const roleErr   = document.getElementById('role-error');
-    if (!role) {
-        roleInput.classList.add('is-invalid');
-        roleErr.textContent = 'Veuillez sélectionner un rôle.';
-        valid = false;
-    } else {
-        roleInput.classList.remove('is-invalid');
-        roleErr.textContent = '';
-    }
-
     return valid;
 }
 
@@ -134,9 +123,9 @@ document.getElementById('register-form').addEventListener('submit', async functi
     const email          = document.getElementById('email').value.trim();
     const password       = document.getElementById('password').value;
     const confirmPassword = document.getElementById('confirm-password').value;
-    const role           = document.getElementById('role').value;
+    const role           = 'adherent';
 
-    if (!validateForm(name, email, password, confirmPassword, role)) return;
+    if (!validateForm(name, email, password, confirmPassword)) return;
 
     setLoading(true);
 
@@ -176,7 +165,7 @@ document.getElementById('register-form').addEventListener('submit', async functi
 // ============================================
 // EFFACER LA VALIDATION AU CHANGEMENT
 // ============================================
-['name', 'email', 'password', 'confirm-password', 'role'].forEach(function (id) {
+['name', 'email', 'password', 'confirm-password'].forEach(function (id) {
     document.getElementById(id).addEventListener('input', function () {
         this.classList.remove('is-invalid');
     });
