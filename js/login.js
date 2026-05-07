@@ -1,23 +1,16 @@
 // ============================================
 // LOGIN.JS – Logique spécifique à login.html
-// Dépend de api.js (login, isAuthenticated, TOKEN_KEY, USER_KEY)
+// Dépend de api.js (login, isAuthenticated, getUser)
 // ============================================
 
 // ============================================
 // REDIRECTION SI DÉJÀ CONNECTÉ
 // ============================================
 if (isAuthenticated()) {
-    try {
-        const user = JSON.parse(
-            localStorage.getItem('mamutuelle_user') ||
-            sessionStorage.getItem('mamutuelle_user')
-        );
-        window.location.href = user?.role === 'adherent'
-            ? 'adherent-dashboard.html'
-            : 'dashboard.html';
-    } catch (_) {
-        window.location.href = 'dashboard.html';
-    }
+    const user = getUser();
+    window.location.href = user?.role === 'adherent'
+        ? 'adherent-dashboard.html'
+        : 'dashboard.html';
 }
 
 // ============================================
@@ -40,10 +33,10 @@ document.getElementById('toggle-pwd').addEventListener('click', function () {
 // AFFICHAGE DES ALERTES
 // ============================================
 function showAlert(message, type = 'danger') {
-    const box = document.getElementById('alert-box');
+    const box       = document.getElementById('alert-box');
     const iconClass = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
-    box.className = `alert alert-${type}`;
-    box.innerHTML = `<i class="fas ${iconClass} me-2"></i>${message}`;
+    box.className   = `alert alert-${type}`;
+    box.innerHTML   = `<i class="fas ${iconClass} me-2"></i>${message}`;
     box.style.display = 'block';
 }
 
@@ -62,13 +55,11 @@ function setLoading(loading) {
     btn.disabled = loading;
     btn.setAttribute('aria-busy', String(loading));
 
-    const showingText = !loading;
-    txt.classList.toggle('d-none', !showingText);
-    txt.setAttribute('aria-hidden', String(!showingText));
+    txt.classList.toggle('d-none', !loading);
+    txt.setAttribute('aria-hidden', String(loading));
 
-    const showingSpinner = loading;
-    spin.classList.toggle('d-none', !showingSpinner);
-    spin.setAttribute('aria-hidden', String(!showingSpinner));
+    spin.classList.toggle('d-none', loading);
+    spin.setAttribute('aria-hidden', String(!loading));
 }
 
 // ============================================
@@ -118,45 +109,39 @@ document.getElementById('login-form').addEventListener('submit', async function 
     setLoading(true);
 
     try {
-        // Utilise la fonction login() de api.js
         const data = await login(email, password, remember);
 
         if (data && data.token) {
-            // Option "Se souvenir de moi" : copie aussi en sessionStorage si non coché
-            if (!remember) {
-                console.log('USER ROLE:', data.user?.role); // ← ajoute cette ligne
-                console.log('USER DATA:', data.user);        // ← et celle-ci
-                sessionStorage.setItem(TOKEN_KEY, data.token);
-                sessionStorage.setItem(USER_KEY, JSON.stringify(data.user));
-            }
-
             showAlert('Connexion réussie ! Redirection…', 'success');
+
             setTimeout(() => {
-                 const role = data.user?.role;
+                const role = data.user?.role;
                 if (role === 'adherent') {
                     window.location.href = 'adherent-dashboard.html';
+                } else if (role === 'admin' || role === 'agent') {
+                    window.location.href = 'dashboard.html';
                 } else {
                     window.location.href = 'dashboard.html';
                 }
             }, 800);
         }
-        } catch (error) {
-    console.error('Login error:', error);
 
-    if (!navigator.onLine) {
-        showAlert('Pas de connexion Internet. Vérifiez votre réseau.');
-    } else if (error.status === 401 || error.message?.includes('401') || error.message?.toLowerCase().includes('invalide')) {
-        showAlert('Identifiants incorrects. Vérifiez votre e-mail et mot de passe.');
-    } else if (error.status === 422) {
-        showAlert('Données invalides. Vérifiez les champs.');
-    } else if (error.status === 500) {
-        showAlert('Erreur serveur. Réessayez dans quelques instants.');
-    } else {
-        showAlert(`Erreur : ${error.message || 'inconnue'}`);
-    }
-}
+    } catch (error) {
+        console.error('Login error:', error);
 
-    finally {
+        if (!navigator.onLine) {
+            showAlert('Pas de connexion Internet. Vérifiez votre réseau.');
+        } else if (error.status === 401 || error.message?.toLowerCase().includes('invalide')) {
+            showAlert('Identifiants incorrects. Vérifiez votre e-mail et mot de passe.');
+        } else if (error.status === 422) {
+            showAlert('Données invalides. Vérifiez les champs.');
+        } else if (error.status === 500) {
+            showAlert('Erreur serveur. Réessayez dans quelques instants.');
+        } else {
+            showAlert(`Erreur : ${error.message || 'inconnue'}`);
+        }
+
+    } finally {
         setLoading(false);
     }
 });

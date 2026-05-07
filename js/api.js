@@ -6,19 +6,75 @@
 // ============================================
 // CONFIGURATION
 // ============================================
-const API_URL = window.location.origin + "/api";
+const API_URL   = window.location.origin + "/api";
 const TOKEN_KEY = 'mamutuelle_token';
 const USER_KEY  = 'mamutuelle_user';
 
 // ============================================
-// GESTION DU TOKEN
+// GESTION DES COOKIES (fallback pour Edge)
 // ============================================
 
-/**
- * Récupère le token stocké (localStorage ou sessionStorage)
- */
+function setCookie(name, value, days) {
+    const expires = new Date(Date.now() + days * 86400000).toUTCString();
+    document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
+}
+
+function getCookie(name) {
+    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+    return match ? decodeURIComponent(match[2]) : null;
+}
+
+function removeCookie(name) {
+    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax`;
+}
+
+// ============================================
+// GESTION DU TOKEN
+// Storage sécurisé : localStorage → sessionStorage → cookie
+// ============================================
+
 function getToken() {
-    return localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY);
+    try {
+        return localStorage.getItem(TOKEN_KEY)
+            || sessionStorage.getItem(TOKEN_KEY)
+            || getCookie(TOKEN_KEY);
+    } catch (e) {
+        return getCookie(TOKEN_KEY);
+    }
+}
+
+function getUser() {
+    try {
+        const raw = localStorage.getItem(USER_KEY)
+                 || sessionStorage.getItem(USER_KEY)
+                 || getCookie(USER_KEY);
+        return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+        try {
+            const raw = getCookie(USER_KEY);
+            return raw ? JSON.parse(raw) : null;
+        } catch (_) {
+            return null;
+        }
+    }
+}
+
+function saveAuth(token, user, remember) {
+    const userStr = JSON.stringify(user);
+    const days    = remember ? 7 : 1;
+
+    // 1. Toujours sauvegarder dans les cookies (fonctionne partout)
+    setCookie(TOKEN_KEY, token,   days);
+    setCookie(USER_KEY,  userStr, days);
+
+    // 2. Essayer aussi localStorage/sessionStorage
+    try {
+        const storage = remember ? localStorage : sessionStorage;
+        storage.setItem(TOKEN_KEY, token);
+        storage.setItem(USER_KEY,  userStr);
+    } catch (e) {
+        // Silencieux si bloqué par Edge
+    }
 }
 
 /**
@@ -29,13 +85,24 @@ function isAuthenticated() {
 }
 
 /**
- * Supprime le token et les données utilisateur des deux storages
+ * Supprime le token partout
  */
 function logout() {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
-    sessionStorage.removeItem(TOKEN_KEY);
-    sessionStorage.removeItem(USER_KEY);
+    // localStorage
+    try {
+        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(USER_KEY);
+    } catch (e) {}
+
+    // sessionStorage
+    try {
+        sessionStorage.removeItem(TOKEN_KEY);
+        sessionStorage.removeItem(USER_KEY);
+    } catch (e) {}
+
+    // Cookies
+    removeCookie(TOKEN_KEY);
+    removeCookie(USER_KEY);
 }
 
 // ============================================
@@ -53,7 +120,7 @@ async function apiCall(endpoint, options = {}) {
 
     const headers = {
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
+        'Accept':        'application/json',
         ...(token ? { 'Authorization': 'Bearer ' + token } : {}),
         ...(options.headers || {}),
     };
@@ -69,10 +136,9 @@ async function apiCall(endpoint, options = {}) {
     const data = await response.json();
 
     if (!response.ok) {
-        // Construire un message d'erreur lisible
         const message = data?.message || data?.error || response.statusText || 'Erreur inconnue';
-        const err = new Error(message);
-        err.status = response.status;
+        const err     = new Error(message);
+        err.status    = response.status;
         throw err;
     }
 
@@ -85,21 +151,15 @@ async function apiCall(endpoint, options = {}) {
 
 /**
  * Connexion — stocke le token selon "Se souvenir de moi"
- * @param {string}  email
- * @param {string}  password
- * @param {boolean} remember  - true → localStorage, false → sessionStorage
- * @returns {Promise<{token, user}>}
  */
 async function login(email, password, remember = true) {
     const data = await apiCall('/login', {
         method: 'POST',
-        body: JSON.stringify({ email, password }),
+        body:   JSON.stringify({ email, password }),
     });
 
     if (data?.token) {
-        const storage = remember ? localStorage : sessionStorage;
-        storage.setItem(TOKEN_KEY, data.token);
-        storage.setItem(USER_KEY, JSON.stringify(data.user));
+        saveAuth(data.token, data.user, remember);
     }
 
     return data;
@@ -107,21 +167,15 @@ async function login(email, password, remember = true) {
 
 /**
  * Inscription — stocke le token automatiquement
- * @param {string} name
- * @param {string} email
- * @param {string} password
- * @param {string} role
- * @returns {Promise<{token, user}>}
  */
 async function register(name, email, password, role) {
     const data = await apiCall('/register', {
         method: 'POST',
-        body: JSON.stringify({ name, email, password, role }),
+        body:   JSON.stringify({ name, email, password, role }),
     });
 
     if (data?.token) {
-        localStorage.setItem(TOKEN_KEY, data.token);
-        localStorage.setItem(USER_KEY, JSON.stringify(data.user));
+        saveAuth(data.token, data.user, true);
     }
 
     return data;
