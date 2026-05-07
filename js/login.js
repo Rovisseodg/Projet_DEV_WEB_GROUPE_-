@@ -124,6 +124,8 @@ document.getElementById('login-form').addEventListener('submit', async function 
         if (data && data.token) {
             // Option "Se souvenir de moi" : copie aussi en sessionStorage si non coché
             if (!remember) {
+                console.log('USER ROLE:', data.user?.role); // ← ajoute cette ligne
+                console.log('USER DATA:', data.user);        // ← et celle-ci
                 sessionStorage.setItem(TOKEN_KEY, data.token);
                 sessionStorage.setItem(USER_KEY, JSON.stringify(data.user));
             }
