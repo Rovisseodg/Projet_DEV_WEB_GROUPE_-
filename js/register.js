@@ -4,19 +4,8 @@
 // ============================================
 
 // ============================================
-// REDIRECTION SI DÉJÀ CONNECTÉ
-// ============================================
-if (isAuthenticated()) {
-    const user = getUser();
-    if (user?.role === 'adherent') {
-        window.location.href = 'adherent-dashboard.html';
-    } else {
-        window.location.href = 'dashboard.html';
-    }
-}
-
-// ============================================
 // TOGGLE AFFICHER / MASQUER LE MOT DE PASSE
+// ============================================
 // ============================================
 document.getElementById('toggle-pwd').addEventListener('click', function () {
     const pwdInput = document.getElementById('password');
