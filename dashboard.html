@@ -168,25 +168,25 @@
         <div class="stats-grid">
           <div class="stat-card s-sienna">
             <div class="stat-label">Adhérents Actifs</div>
-            <div class="stat-value">248</div>
+            <div class="stat-value" id="st-adherents">—</div>
             <div class="stat-sub">+12 ce mois</div>
             <i class="fas fa-users stat-icon"></i>
           </div>
           <div class="stat-card s-gold">
             <div class="stat-label">Cotisations (FCFA)</div>
-            <div class="stat-value">1,84M</div>
+            <div class="stat-value" id="st-cotisations">—</div>
             <div class="stat-sub">94% à jour</div>
             <i class="fas fa-coins stat-icon"></i>
           </div>
           <div class="stat-card s-green">
             <div class="stat-label">Prêts Actifs</div>
-            <div class="stat-value">12</div>
+            <div class="stat-value" id="st-prets">—</div>
             <div class="stat-sub">3 800 000 FCFA encours</div>
             <i class="fas fa-hand-holding-usd stat-icon"></i>
           </div>
           <div class="stat-card s-red">
             <div class="stat-label">Sinistres en Cours</div>
-            <div class="stat-value">3</div>
+            <div class="stat-value" id="st-sinistres">—</div>
             <div class="stat-sub">1 en attente de décision</div>
             <i class="fas fa-shield-alt stat-icon"></i>
           </div>
@@ -221,7 +221,7 @@
             </div>
             <table class="data-table">
               <thead><tr><th>Adhérent</th><th>Montant</th><th>Retard</th><th></th></tr></thead>
-              <tbody>
+              <tbody id="quick-retard">
                 <tr><td>Traoré Issa</td><td>15 000 FCFA</td><td><span class="badge b-red">12 j</span></td><td><button class="btn btn-xs btn-primary">Régulariser</button></td></tr>
                 <tr><td>Zongo Adama</td><td>15 000 FCFA</td><td><span class="badge b-gold">5 j</span></td><td><button class="btn btn-xs btn-primary">Régulariser</button></td></tr>
                 <tr><td>Sawadogo M.</td><td>20 000 FCFA</td><td><span class="badge b-red">18 j</span></td><td><button class="btn btn-xs btn-primary">Régulariser</button></td></tr>
@@ -314,7 +314,7 @@
           <div class="tcard-head"><span class="tcard-title">Cotisations en retard</span></div>
           <table class="data-table">
             <thead><tr><th>Adhérent</th><th>Email</th><th>Montant</th><th>Échéance</th><th>Retard</th><th>Action</th></tr></thead>
-            <tbody>
+            <tbody id="alertes-cot-body">
               <tr><td><strong>Traoré Issa</strong></td><td>i.traore@bf.com</td><td>15 000 FCFA</td><td>22/04/2026</td><td><span class="badge b-red">12 jours</span></td><td><button class="btn btn-xs btn-primary">Régulariser</button></td></tr>
               <tr><td><strong>Zongo Adama</strong></td><td>a.zongo@bf.com</td><td>15 000 FCFA</td><td>29/04/2026</td><td><span class="badge b-gold">5 jours</span></td><td><button class="btn btn-xs btn-primary">Régulariser</button></td></tr>
               <tr><td><strong>Sawadogo Mariam</strong></td><td>m.sawa@bf.com</td><td>20 000 FCFA</td><td>16/04/2026</td><td><span class="badge b-red">18 jours</span></td><td><button class="btn btn-xs btn-primary">Régulariser</button></td></tr>
