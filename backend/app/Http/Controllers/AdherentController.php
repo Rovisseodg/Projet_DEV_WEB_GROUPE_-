@@ -9,7 +9,7 @@ class AdherentController extends Controller
 {
     public function index()
     {
-        return response()->json(Adherent::with(['cotisations', 'prets', 'sinistres'])->get());
+        return response()->json(Adherent::with(['cotisations', 'prets', 'sinistres', 'ayantsDroit'])->get());
     }
 
     public function store(Request $request)

@@ -6,7 +6,7 @@
 // ============================================
 // CONFIGURATION
 // ============================================
-const API_URL   = window.location.origin + "/api";
+const API_URL   = window.API_URL || window.location.origin + "/api";
 const TOKEN_KEY = 'mamutuelle_token';
 const USER_KEY  = 'mamutuelle_user';
 

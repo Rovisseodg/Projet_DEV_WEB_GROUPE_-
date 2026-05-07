@@ -51,11 +51,7 @@ class AlerteController extends Controller
             ])
             ->get();
 
-        $alertes = [
-            'cotisations_retard' => $cotisationsRetard,
-            'prets_echeance' => $pretsEcheance,
-            'total' => count($cotisationsRetard) + count($pretsEcheance)
-        ];
+        $alertes = $cotisationsRetard->concat($pretsEcheance);
 
         return response()->json($alertes);
     }

@@ -387,7 +387,9 @@ async function loadOverview() {
   // ── Alertes rapides ──
   try {
     const alertes = await apiCall('/alertes');
-    const list    = alertes?.data || alertes || [];
+    const list    = alertes?.data
+      || (Array.isArray(alertes) ? alertes : [...(alertes?.cotisations_retard || []), ...(alertes?.prets_echeance || [])])
+      || [];
     const retards = list.filter(a => a.type?.includes('retard') || a.type?.includes('cotisation'));
 
     const badge = document.getElementById('badge-alertes');
@@ -524,14 +526,14 @@ async function loadAdherents() {
 
     tbody.innerHTML = adherents.map(a => `
       <tr>
-        <td><span style="font-family:var(--mono);font-size:.78rem">${a.numero || '—'}</span></td>
+        <td><span style="font-family:var(--mono);font-size:.78rem">${a.numero_adherent || '—'}</span></td>
         <td><strong>${a.nom || ''} ${a.prenom || ''}</strong></td>
         <td>${a.email || '—'}</td>
         <td>${a.telephone || '—'}</td>
         <td>${badgeStatut(a.statut)}</td>
         <td>
           <button class="btn btn-xs btn-ghost" onclick="showSection('ayants')">
-            <i class="fas fa-child"></i> ${a.ayants_droit_count ?? 0}
+            <i class="fas fa-child"></i> ${a.ayantsDroit?.length ?? 0}
           </button>
         </td>
         <td>
@@ -557,12 +559,12 @@ async function saveAdherent() {
   if (errEl) errEl.textContent = '';
 
   const body = {
-    nom:       inputs[0]?.value?.trim(),
-    prenom:    inputs[1]?.value?.trim(),
-    email:     inputs[2]?.value?.trim(),
-    telephone: inputs[3]?.value?.trim(),
-    numero:    inputs[4]?.value?.trim(),
-    statut:    sel?.value,
+    nom:             inputs[0]?.value?.trim(),
+    prenom:          inputs[1]?.value?.trim(),
+    email:           inputs[2]?.value?.trim(),
+    telephone:       inputs[3]?.value?.trim(),
+    numero_adherent: inputs[4]?.value?.trim(),
+    statut:          sel?.value,
   };
 
   try {
@@ -590,11 +592,11 @@ async function openEditAdherent(id) {
     const form   = document.getElementById('modal-adherent');
     const inputs = form.querySelectorAll('input');
     const sel    = form.querySelector('select');
-    inputs[0].value = a.nom       || '';
-    inputs[1].value = a.prenom    || '';
-    inputs[2].value = a.email     || '';
-    inputs[3].value = a.telephone || '';
-    inputs[4].value = a.numero    || '';
+    inputs[0].value = a.nom              || '';
+    inputs[1].value = a.prenom           || '';
+    inputs[2].value = a.email            || '';
+    inputs[3].value = a.telephone        || '';
+    inputs[4].value = a.numero_adherent  || '';
     if (sel) sel.value = a.statut || 'actif';
     document.getElementById('adherent-modal-title').textContent = 'Modifier l\'Adhérent';
     form.dataset.editId = id;
@@ -934,7 +936,9 @@ async function deleteSinistre(id) {
 async function loadAlertes() {
   try {
     const [alertes] = await Promise.all([ apiCall('/alertes') ]);
-    const list = alertes?.data || alertes || [];
+    const list = alertes?.data
+      || (Array.isArray(alertes) ? alertes : [...(alertes?.cotisations_retard || []), ...(alertes?.prets_echeance || [])])
+      || [];
 
     const retards   = list.filter(a => a.type?.includes('retard') || a.type?.includes('cotisation'));
     const echeances = list.filter(a => a.type?.includes('pret')   || a.type?.includes('prêt'));
