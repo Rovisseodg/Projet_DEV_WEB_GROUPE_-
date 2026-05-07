@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Filtres Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 10px; border: 1px solid #ccc; }
+        .filter-btn { margin: 5px; padding: 5px 10px; cursor: pointer; }
+        .filter-btn.active { background: #007bff; color: white; }
+        table { border-collapse: collapse; width: 100%; }
+        td, th { border: 1px solid #ddd; padding: 8px; }
+        .badge { padding: 2px 6px; border-radius: 3px; }
+        .b-green { background: #d4edda; color: #155724; }
+        .b-gold { background: #fff3cd; color: #856404; }
+        .b-red { background: #f8d7da; color: #721c24; }
+        .b-gray { background: #e2e3e5; color: #383d41; }
+    </style>
+</head>
+<body>
+    <h1>Test des Filtres du Dashboard</h1>
+
+    <div class="test-section">
+        <h2>Adhérents</h2>
+        <div class="sec-filters">
+            <button class="filter-btn active">Tous</button>
+            <button class="filter-btn">Actifs</button>
+            <button class="filter-btn">Suspendus</button>
+            <button class="filter-btn">Retraités</button>
+        </div>
+        <table>
+            <thead>
+                <tr><th>Numéro</th><th>Nom</th><th>Email</th><th>Téléphone</th><th>Statut</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="adherentsBody">
+                <tr><td>A001</td><td>Dupont Jean</td><td>jean@email.com</td><td>0123456789</td><td><span class="badge b-green">actif</span></td><td>Actions</td></tr>
+                <tr><td>A002</td><td>Martin Marie</td><td>marie@email.com</td><td>0123456789</td><td><span class="badge b-red">suspendu</span></td><td>Actions</td></tr>
+                <tr><td>A003</td><td>Durand Paul</td><td>paul@email.com</td><td>0123456789</td><td><span class="badge b-green">actif</span></td><td>Actions</td></tr>
+                <tr><td>A004</td><td>Leroy Sophie</td><td>sophie@email.com</td><td>0123456789</td><td><span class="badge b-gray">retraité</span></td><td>Actions</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="test-section">
+        <h2>Cotisations</h2>
+        <div class="sec-filters">
+            <button class="filter-btn active">Toutes</button>
+            <button class="filter-btn">Payées</button>
+            <button class="filter-btn">En attente</button>
+            <button class="filter-btn">En retard</button>
+        </div>
+        <table>
+            <thead>
+                <tr><th>Adhérent</th><th>Montant</th><th>Échéance</th><th>Paiement</th><th>Statut</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="cotisationsBody">
+                <tr><td>Dupont Jean</td><td>50000</td><td>2024-01-15</td><td>2024-01-10</td><td><span class="badge b-green">payée</span></td><td>Actions</td></tr>
+                <tr><td>Martin Marie</td><td>50000</td><td>2024-01-15</td><td>—</td><td><span class="badge b-gold">en attente</span></td><td>Actions</td></tr>
+                <tr><td>Durand Paul</td><td>50000</td><td>2024-01-15</td><td>—</td><td><span class="badge b-red">en retard</span></td><td>Actions</td></tr>
+                <tr><td>Leroy Sophie</td><td>50000</td><td>2024-01-15</td><td>2024-01-12</td><td><span class="badge b-green">payée</span></td><td>Actions</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function initFilterButtons() {
+            document.querySelectorAll('.sec-filters').forEach(group => {
+                const tbodyId = group.closest('.test-section').querySelector('tbody').id;
+                const tbody = document.getElementById(tbodyId);
+
+                group.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        // Changer l'apparence des boutons
+                        group.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                        this.classList.add('active');
+
+                        // Appliquer le filtrage
+                        const filterText = this.textContent.trim().toLowerCase();
+                        const rows = tbody?.querySelectorAll('tr') || [];
+
+                        // Mapping des textes de boutons vers les statuts réels
+                        const statusMap = {
+                          'actifs': 'actif',
+                          'suspendus': 'suspendu',
+                          'retraités': 'retraité',
+                          'payées': 'payée',
+                          'payé': 'payée', // au cas où
+                          'approuvés': 'approuvé',
+                          'remboursés': 'remboursé',
+                          'déclarés': 'déclaré',
+                          'en cours': 'en cours'
+                        };
+
+                        rows.forEach(row => {
+                            if (filterText === 'tous' || filterText === 'toutes') {
+                                row.style.display = '';
+                                return;
+                            }
+
+                            // Trouver la cellule du statut (5ème colonne)
+                            const cells = row.querySelectorAll('td');
+                            const statusCell = cells[4];
+
+                            if (statusCell) {
+                                const statusText = statusCell.textContent.trim().toLowerCase();
+                                // Utiliser le mapping ou le texte original
+                                const mappedStatus = statusMap[filterText] || filterText;
+                                row.style.display = statusText.includes(mappedStatus) ? '' : 'none';
+                            }
+                        });
+                    });
+                });
+            });
+        }
+
+        // Initialiser au chargement
+        document.addEventListener('DOMContentLoaded', initFilterButtons);
+    </script>
+</body>
+</html>

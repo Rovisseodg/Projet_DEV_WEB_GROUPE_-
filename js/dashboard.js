@@ -289,10 +289,49 @@ function filterTable(tbodyId, q) {
 
 function initFilterButtons() {
   document.querySelectorAll('.sec-filters').forEach(group => {
+    const tbodyId = group.closest('.section').id.replace('section-', '') + 'Body';
+    const tbody = document.getElementById(tbodyId);
+
     group.querySelectorAll('.filter-btn').forEach(btn => {
       btn.addEventListener('click', function () {
+        // Changer l'apparence des boutons
         group.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         this.classList.add('active');
+
+        // Appliquer le filtrage
+        const filterText = this.textContent.trim().toLowerCase();
+        const rows = tbody?.querySelectorAll('tr') || [];
+
+        // Mapping des textes de boutons vers les statuts réels
+        const statusMap = {
+          'actifs': 'actif',
+          'suspendus': 'suspendu',
+          'retraités': 'retraité',
+          'payées': 'payée',
+          'payé': 'payée', // au cas où
+          'approuvés': 'approuvé',
+          'remboursés': 'remboursé',
+          'déclarés': 'déclaré',
+          'en cours': 'en cours'
+        };
+
+        rows.forEach(row => {
+          if (filterText === 'tous' || filterText === 'toutes') {
+            row.style.display = '';
+            return;
+          }
+
+          // Trouver la cellule du statut (généralement la 5ème colonne)
+          const cells = row.querySelectorAll('td');
+          const statusCell = cells[4]; // Index 4 pour la 5ème colonne (0-based)
+
+          if (statusCell) {
+            const statusText = statusCell.textContent.trim().toLowerCase();
+            // Utiliser le mapping ou le texte original
+            const mappedStatus = statusMap[filterText] || filterText;
+            row.style.display = statusText.includes(mappedStatus) ? '' : 'none';
+          }
+        });
       });
     });
   });
