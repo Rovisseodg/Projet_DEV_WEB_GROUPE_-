@@ -20,6 +20,7 @@ RUN cp index.html backend/public/ 2>/dev/null || true && \
     cp login.html backend/public/ 2>/dev/null || true && \
     cp register.html backend/public/ 2>/dev/null || true && \
     cp dashboard.html backend/public/ 2>/dev/null || true && \
+    cp adherent-dashboard.html backend/public/ 2>/dev/null || true && \
     mkdir -p backend/public/css backend/public/js && \
     cp -r css/* backend/public/css/ 2>/dev/null || true && \
     cp -r js/* backend/public/js/ 2>/dev/null || true
