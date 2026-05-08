@@ -409,56 +409,24 @@
       </div>
 
       <!-- ====== AYANTS DROIT ====== -->
+      <!-- ====== AYANTS DROIT ====== -->
       <div class="section" id="section-ayants">
         <div class="sec-head">
-          <div class="sec-title">Gestion des Ayants Droit</div>
-          <button class="btn btn-primary btn-sm" onclick="openModal('modal-ayant')"><i class="fas fa-plus"></i> Ajouter un ayant droit</button>
+          <div class="sec-head-left">
+            <div class="sec-title">Gestion des Ayants Droit</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-ghost btn-sm" onclick="showSection('adherents')"><i class="fas fa-arrow-left"></i> Retour</button>
+            <button class="btn btn-primary btn-sm" onclick="openModal('modal-ayant-droit')"><i class="fas fa-plus"></i> Ajouter un ayant droit</button>
+          </div>
         </div>
-        <div class="ayant-grid">
-          <div class="ayant-card">
-            <div class="ayant-card-head">
-              <div class="ayant-avatar">AK</div>
-              <div><div class="ayant-name">Aminata Koné</div><div class="ayant-rel">Épouse · Koné Oumar</div></div>
-            </div>
-            <div class="ayant-meta"><span>Né(e) :</span> 15/03/1988 &nbsp;|&nbsp; <span>Lien :</span> Conjoint(e)</div>
-            <div style="margin-top:10px;display:flex;gap:6px">
-              <button class="btn btn-xs btn-ghost"><i class="fas fa-pen"></i> Modifier</button>
-              <button class="btn btn-xs btn-danger"><i class="fas fa-trash"></i></button>
-            </div>
-          </div>
-          <div class="ayant-card">
-            <div class="ayant-card-head">
-              <div class="ayant-avatar">IK</div>
-              <div><div class="ayant-name">Ibrahim Koné</div><div class="ayant-rel">Fils · Koné Oumar</div></div>
-            </div>
-            <div class="ayant-meta"><span>Né(e) :</span> 02/07/2012 &nbsp;|&nbsp; <span>Lien :</span> Enfant</div>
-            <div style="margin-top:10px;display:flex;gap:6px">
-              <button class="btn btn-xs btn-ghost"><i class="fas fa-pen"></i> Modifier</button>
-              <button class="btn btn-xs btn-danger"><i class="fas fa-trash"></i></button>
-            </div>
-          </div>
-          <div class="ayant-card">
-            <div class="ayant-card-head">
-              <div class="ayant-avatar">SO</div>
-              <div><div class="ayant-name">Salimata Ouédraogo</div><div class="ayant-rel">Fille · Ouédraogo Fatimata</div></div>
-            </div>
-            <div class="ayant-meta"><span>Né(e) :</span> 19/11/2009 &nbsp;|&nbsp; <span>Lien :</span> Enfant</div>
-            <div style="margin-top:10px;display:flex;gap:6px">
-              <button class="btn btn-xs btn-ghost"><i class="fas fa-pen"></i> Modifier</button>
-              <button class="btn btn-xs btn-danger"><i class="fas fa-trash"></i></button>
-            </div>
-          </div>
-          <div class="ayant-card">
-            <div class="ayant-card-head">
-              <div class="ayant-avatar">MO</div>
-              <div><div class="ayant-name">Moumouni Ouédraogo</div><div class="ayant-rel">Père · Ouédraogo Fatimata</div></div>
-            </div>
-            <div class="ayant-meta"><span>Né(e) :</span> 04/01/1955 &nbsp;|&nbsp; <span>Lien :</span> Parent</div>
-            <div style="margin-top:10px;display:flex;gap:6px">
-              <button class="btn btn-xs btn-ghost"><i class="fas fa-pen"></i> Modifier</button>
-              <button class="btn btn-xs btn-danger"><i class="fas fa-trash"></i></button>
-            </div>
-          </div>
+        <div class="tcard">
+          <table class="data-table">
+            <thead><tr><th>Nom complet</th><th>Relation</th><th>Date de naissance</th><th>Actions</th></tr></thead>
+            <tbody id="ayantsDroitBody">
+              <tr><td colspan="4" class="loading-row"><i class="fas fa-spinner fa-spin"></i> Chargement…</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -779,15 +747,11 @@
   </div>
 </div>
 
-<div class="overlay" id="modal-ayant">
+<div class="overlay" id="modal-ayant-droit">
   <div class="modal">
     <div class="modal-head">
       <h2>Ajouter un Ayant Droit</h2>
-      <button class="modal-close" onclick="closeModal('modal-ayant')">&times;</button>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Adhérent principal</label>
-      <select class="form-control"><option>Koné Oumar</option><option>Ouédraogo Fatimata</option><option>Bambara Brice</option></select>
+      <button class="modal-close" onclick="closeModal('modal-ayant-droit')">&times;</button>
     </div>
     <div class="form-row">
       <div class="form-group"><label class="form-label">Nom</label><input class="form-control" placeholder="Koné"/></div>
@@ -795,13 +759,13 @@
     </div>
     <div class="form-row">
       <div class="form-group"><label class="form-label">Lien de parenté</label>
-        <select class="form-control"><option>Conjoint(e)</option><option>Enfant</option><option>Parent</option><option>Autre</option></select>
+        <select class="form-control"><option>conjoint</option><option>enfant</option><option>parent</option><option>autre</option></select>
       </div>
       <div class="form-group"><label class="form-label">Date de naissance</label><input class="form-control" type="date"/></div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('modal-ayant')">Annuler</button>
-      <button class="btn btn-primary" onclick="closeModal('modal-ayant');toast('Ayant droit ajouté','success')"><i class="fas fa-save"></i> Enregistrer</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-ayant-droit')">Annuler</button>
+      <button class="btn btn-primary" onclick="saveAyantDroit()"><i class="fas fa-save"></i> Enregistrer</button>
     </div>
   </div>
 </div>

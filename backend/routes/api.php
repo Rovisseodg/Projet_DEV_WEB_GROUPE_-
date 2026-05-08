@@ -82,6 +82,12 @@ Route::middleware('auth:api')->group(function () {
         // CRUD complet adhérents
         Route::apiResource('adherents',   AdherentController::class);
 
+        // Ayants droit d'un adhérent (routes imbriquées)
+        Route::get('/adherents/{adherent_id}/ayants-droit',         [AdherentController::class, 'getAyantsDroit']);
+        Route::post('/adherents/{adherent_id}/ayants-droit',        [AdherentController::class, 'storeAyantDroit']);
+        Route::put('/adherents/{adherent_id}/ayants-droit/{id}',    [AdherentController::class, 'updateAyantDroit']);
+        Route::delete('/adherents/{adherent_id}/ayants-droit/{id}', [AdherentController::class, 'destroyAyantDroit']);
+
         // CRUD complet cotisations
         Route::apiResource('cotisations', CotisationController::class);
 
