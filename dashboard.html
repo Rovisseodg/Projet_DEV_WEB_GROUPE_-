@@ -416,7 +416,7 @@
             <div class="sec-title">Gestion des Ayants Droit</div>
             <div class="sec-filters">
               <button class="filter-btn active" onclick="setAyantsRelationFilter('Toutes')">Toutes</button>
-              <button class="filter-btn" onclick="setAyantsRelationFilter('conjoint')">Conjoint</button>
+              <button class="filter-btn" onclick="setAyantsRelationFilter('conjoint')">Époux</button>
               <button class="filter-btn" onclick="setAyantsRelationFilter('enfant')">Enfant</button>
               <button class="filter-btn" onclick="setAyantsRelationFilter('parent')">Parent</button>
               <button class="filter-btn" onclick="setAyantsRelationFilter('autre')">Autre</button>
@@ -770,7 +770,7 @@
     </div>
     <div class="form-row">
       <div class="form-group"><label class="form-label">Lien de parenté</label>
-        <select class="form-control"><option>conjoint</option><option>enfant</option><option>parent</option><option>autre</option></select>
+        <select class="form-control"><option value="conjoint">Époux</option><option value="enfant">Enfant</option><option value="parent">Parent</option><option value="autre">Autre</option></select>
       </div>
       <div class="form-group"><label class="form-label">Date de naissance</label><input class="form-control" type="date"/></div>
     </div>
