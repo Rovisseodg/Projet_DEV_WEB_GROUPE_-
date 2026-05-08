@@ -97,6 +97,7 @@ const SUBS = {
 const SECTION_LOADERS = {
   overview:            loadOverview,
   adherents:           loadAdherents,
+  ayants:              loadAyants,
   cotisations:         loadCotisations,
   'cotisations-stats': loadCotisationsStats,
   prets:               loadPrets,
@@ -638,18 +639,57 @@ async function showAyantsDroitFor(adherentId, adherentName) {
   showSection('ayants');
 }
 
+async function loadAyants() {
+  const tbody = document.getElementById('ayantsDroitBody');
+  if (!tbody) return;
+
+  if (_selectedAdherentId) {
+    await loadAyantsDroitForAdherent(_selectedAdherentId);
+    return;
+  }
+
+  showTableLoading('ayantsDroitBody', 4);
+  try {
+    const data = await apiCall('/adherents');
+    const adherents = data?.data || data || [];
+    const allAyants = adherents.flatMap(a => (a.ayantsDroit || a.ayants_droit || []).map(ayant => ({
+      ...ayant,
+      adherentName: `${a.nom || ''} ${a.prenom || ''}`.trim(),
+    })));
+
+    if (!allAyants.length) {
+      showTableEmpty('ayantsDroitBody', 4, 'Aucun ayant droit enregistré');
+      return;
+    }
+
+    tbody.innerHTML = allAyants.map(a => `
+      <tr>
+        <td><strong>${a.nom || ''} ${a.prenom || ''}</strong>${a.adherentName ? `<div class="small text-muted">Adhérent : ${a.adherentName}</div>` : ''}</td>
+        <td>${a.relation || '—'}</td>
+        <td>${a.date_naissance ? new Date(a.date_naissance).toLocaleDateString('fr-FR') : '—'}</td>
+        <td>
+          <button class="icon-btn" title="Modifier" onclick="openEditAyantDroit(${a.id})"><i class="fas fa-pen"></i></button>
+          <button class="icon-btn" style="margin-left:4px" onclick="deleteAyantDroit(${a.id}, '${(a.nom || '').replace(/'/g,"\\'")}')"><i class="fas fa-trash"></i></button>
+        </td>
+      </tr>`).join('');
+  } catch (err) {
+    showTableError('ayantsDroitBody', 4, err.message);
+    toast('Erreur : ' + err.message, 'error');
+  }
+}
+
 async function loadAyantsDroitForAdherent(adherentId) {
   const tbody = document.getElementById('ayantsDroitBody');
   if (!tbody) return;
 
-  showTableLoading('ayantsDroitBody', 5);
+  showTableLoading('ayantsDroitBody', 4);
   try {
     const adherent = await apiCall(`/adherents/${adherentId}`);
     const ayantsDroit = adherent?.ayantsDroit || adherent?.ayants_droit || [];
 
-    if (!ayantsDroit.length) { 
-      showTableEmpty('ayantsDroitBody', 5, 'Aucun ayant droit enregistré'); 
-      return; 
+    if (!ayantsDroit.length) {
+      showTableEmpty('ayantsDroitBody', 4, 'Aucun ayant droit enregistré');
+      return;
     }
 
     tbody.innerHTML = ayantsDroit.map(a => `
@@ -659,12 +699,12 @@ async function loadAyantsDroitForAdherent(adherentId) {
         <td>${a.date_naissance ? new Date(a.date_naissance).toLocaleDateString('fr-FR') : '—'}</td>
         <td>
           <button class="icon-btn" title="Modifier" onclick="openEditAyantDroit(${a.id})"><i class="fas fa-pen"></i></button>
-          <button class="icon-btn" style="margin-left:4px" onclick="deleteAyantDroit(${a.id}, '${(a.nom || '').replace(/'/g,"\\'")}')" ><i class="fas fa-trash"></i></button>
+          <button class="icon-btn" style="margin-left:4px" onclick="deleteAyantDroit(${a.id}, '${(a.nom || '').replace(/'/g,"\\'")}')"><i class="fas fa-trash"></i></button>
         </td>
       </tr>`).join('');
 
   } catch (err) {
-    showTableError('ayantsDroitBody', 5, err.message);
+    showTableError('ayantsDroitBody', 4, err.message);
     toast('Erreur : ' + err.message, 'error');
   }
 }
