@@ -288,9 +288,31 @@ function filterTable(tbodyId, q) {
 }
 
 function initFilterButtons() {
+  // Configuration du nombre de colonnes et index du statut pour chaque section
+  const config = {
+    'adherentsBody': { statusIndex: 4 },      // 5ème colonne (0-based)
+    'cotisationsBody': { statusIndex: 4 },    // 5ème colonne
+    'pretsBody': { statusIndex: 5 },          // 6ème colonne
+    'sinistresBody': { statusIndex: 5 }       // 6ème colonne
+  };
+
+  // Mapping des textes de boutons vers les statuts réels
+  const statusMap = {
+    'actifs': 'actif',
+    'suspendus': 'suspendu',
+    'retraités': 'retraité',
+    'payées': 'payée',
+    'payé': 'payée',
+    'approuvés': 'approuvé',
+    'remboursés': 'remboursé',
+    'déclarés': 'déclaré',
+    'en cours': 'en cours'
+  };
+
   document.querySelectorAll('.sec-filters').forEach(group => {
     const tbodyId = group.closest('.section').id.replace('section-', '') + 'Body';
     const tbody = document.getElementById(tbodyId);
+    const statusIndex = config[tbodyId]?.statusIndex || 4;
 
     group.querySelectorAll('.filter-btn').forEach(btn => {
       btn.addEventListener('click', function () {
@@ -302,28 +324,15 @@ function initFilterButtons() {
         const filterText = this.textContent.trim().toLowerCase();
         const rows = tbody?.querySelectorAll('tr') || [];
 
-        // Mapping des textes de boutons vers les statuts réels
-        const statusMap = {
-          'actifs': 'actif',
-          'suspendus': 'suspendu',
-          'retraités': 'retraité',
-          'payées': 'payée',
-          'payé': 'payée', // au cas où
-          'approuvés': 'approuvé',
-          'remboursés': 'remboursé',
-          'déclarés': 'déclaré',
-          'en cours': 'en cours'
-        };
-
         rows.forEach(row => {
           if (filterText === 'tous' || filterText === 'toutes') {
             row.style.display = '';
             return;
           }
 
-          // Trouver la cellule du statut (généralement la 5ème colonne)
+          // Trouver la cellule du statut selon l'index configuré
           const cells = row.querySelectorAll('td');
-          const statusCell = cells[4]; // Index 4 pour la 5ème colonne (0-based)
+          const statusCell = cells[statusIndex];
 
           if (statusCell) {
             const statusText = statusCell.textContent.trim().toLowerCase();
@@ -333,6 +342,33 @@ function initFilterButtons() {
           }
         });
       });
+    });
+  });
+}
+
+/* ==============================
+   RECHERCHE TEXTE LOCAL
+   ============================== */
+function searchInTable(tbodyId, searchText) {
+  const tbody = document.getElementById(tbodyId);
+  if (!tbody) return;
+  
+  const rows = tbody.querySelectorAll('tr');
+  const query = searchText.toLowerCase();
+  
+  rows.forEach(row => {
+    const text = row.textContent.toLowerCase();
+    row.style.display = text.includes(query) ? '' : 'none';
+  });
+}
+
+function initSearchBoxes() {
+  document.querySelectorAll('.search-box input').forEach(input => {
+    const section = input.closest('.section');
+    const tbodyId = section?.id.replace('section-', '') + 'Body';
+    
+    input.addEventListener('input', function() {
+      searchInTable(tbodyId, this.value);
     });
   });
 }
@@ -1091,6 +1127,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initConfirmDelete();
   initSearch();
   initFilterButtons();
+  initSearchBoxes();
   initPeriodButtons();
   updateDate();
 

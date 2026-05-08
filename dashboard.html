@@ -480,6 +480,13 @@
           </div>
         </div>
         <div class="tcard">
+          <div class="tcard-head">
+            <span class="tcard-title">Cotisations enregistrées</span>
+            <div class="hdr-search" style="width:200px;padding:5px 12px">
+              <i class="fas fa-search"></i>
+              <input type="text" placeholder="Filtrer…" oninput="searchInTable('cotisationsBody', this.value)"/>
+            </div>
+          </div>
           <table class="data-table">
             <thead><tr><th>Adhérent</th><th>Montant</th><th>Échéance</th><th>Payé le</th><th>Statut</th><th>Actions</th></tr></thead>
             <tbody id="cotisationsBody">
@@ -522,6 +529,13 @@
           <button class="btn btn-primary btn-sm" onclick="openModal('modal-pret')"><i class="fas fa-plus"></i> Nouveau prêt</button>
         </div>
         <div class="tcard">
+          <div class="tcard-head">
+            <span class="tcard-title">Prêts enregistrés</span>
+            <div class="hdr-search" style="width:200px;padding:5px 12px">
+              <i class="fas fa-search"></i>
+              <input type="text" placeholder="Filtrer…" oninput="searchInTable('pretsBody', this.value)"/>
+            </div>
+          </div>
           <table class="data-table">
             <thead><tr><th>Adhérent</th><th>Montant</th><th>Taux</th><th>Durée</th><th>Mensualité</th><th>Statut</th><th>Actions</th></tr></thead>
             <tbody id="pretsBody">
@@ -595,6 +609,13 @@
           <button class="btn btn-primary btn-sm" onclick="openModal('modal-sinistre')"><i class="fas fa-plus"></i> Nouveau sinistre</button>
         </div>
         <div class="tcard">
+          <div class="tcard-head">
+            <span class="tcard-title">Sinistres déclarés</span>
+            <div class="hdr-search" style="width:200px;padding:5px 12px">
+              <i class="fas fa-search"></i>
+              <input type="text" placeholder="Filtrer…" oninput="searchInTable('sinistresBody', this.value)"/>
+            </div>
+          </div>
           <table class="data-table">
             <thead><tr><th>Adhérent</th><th>Type</th><th>Description</th><th>Date</th><th>Montant</th><th>Statut</th><th>Actions</th></tr></thead>
             <tbody id="sinistresBody">
