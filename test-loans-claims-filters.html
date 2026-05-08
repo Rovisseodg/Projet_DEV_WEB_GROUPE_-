@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Filtres Prêts et Sinistres</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 10px; border: 1px solid #ccc; }
+        .sec-filters { margin: 10px 0; }
+        .filter-btn { margin: 5px; padding: 5px 10px; cursor: pointer; border: 1px solid #ccc; background: white; }
+        .filter-btn.active { background: #007bff; color: white; }
+        table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+        td, th { border: 1px solid #ddd; padding: 8px; }
+        .badge { padding: 2px 6px; border-radius: 3px; }
+        .b-green { background: #d4edda; color: #155724; }
+        .b-gold { background: #fff3cd; color: #856404; }
+        .b-red { background: #f8d7da; color: #721c24; }
+        .b-gray { background: #e2e3e5; color: #383d41; }
+        .b-indigo { background: #e3f2fd; color: #0d47a1; }
+        .hdr-search { display: flex; align-items: center; border: 1px solid #ccc; border-radius: 4px; padding: 5px 12px; width: 200px; }
+        .hdr-search i { color: #666; margin-right: 8px; }
+        .hdr-search input { border: none; outline: none; flex: 1; }
+    </style>
+</head>
+<body>
+    <h1>Test des Filtres Prêts et Sinistres</h1>
+
+    <div class="test-section">
+        <h2>Prêts</h2>
+        <div class="sec-filters">
+            <button class="filter-btn active">Tous</button>
+            <button class="filter-btn">Approuvés</button>
+            <button class="filter-btn">En attente</button>
+            <button class="filter-btn">Remboursés</button>
+        </div>
+        <div class="hdr-search">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Filtrer…" oninput="filterTable('pretsBody', this.value)"/>
+        </div>
+        <table>
+            <thead>
+                <tr><th>Adhérent</th><th>Montant</th><th>Taux</th><th>Durée</th><th>Mensualité</th><th>Statut</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="pretsBody">
+                <tr><td>Compaoré Ablassé</td><td>350 000 FCFA</td><td>5%</td><td>12 mois</td><td>30 104 FCFA</td><td><span class="badge b-green">Approuvé</span></td><td>Actions</td></tr>
+                <tr><td>Ouédraogo Jean</td><td>180 000 FCFA</td><td>5%</td><td>6 mois</td><td>30 617 FCFA</td><td><span class="badge b-green">Approuvé</span></td><td>Actions</td></tr>
+                <tr><td>Zongo Aminata</td><td>500 000 FCFA</td><td>4%</td><td>24 mois</td><td>21 709 FCFA</td><td><span class="badge b-gold">En attente</span></td><td>Actions</td></tr>
+                <tr><td>Traoré Fatou</td><td>250 000 FCFA</td><td>6%</td><td>18 mois</td><td>15 500 FCFA</td><td><span class="badge b-green">Remboursé</span></td><td>Actions</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="test-section">
+        <h2>Sinistres</h2>
+        <div class="sec-filters">
+            <button class="filter-btn active">Tous</button>
+            <button class="filter-btn">Déclarés</button>
+            <button class="filter-btn">En cours</button>
+            <button class="filter-btn">Remboursés</button>
+        </div>
+        <div class="hdr-search">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Filtrer…" oninput="filterTable('sinistresBody', this.value)"/>
+        </div>
+        <table>
+            <thead>
+                <tr><th>Adhérent</th><th>Type</th><th>Description</th><th>Date</th><th>Montant</th><th>Statut</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="sinistresBody">
+                <tr><td>Bambara Brice</td><td><span class="badge b-indigo">Hospitalisation</span></td><td>Chirurgie appendicite</td><td>28/04/2026</td><td>180 000 FCFA</td><td><span class="badge b-gold">En cours</span></td><td>Actions</td></tr>
+                <tr><td>Konaté Seydou</td><td><span class="badge b-indigo">Maladie</span></td><td>Paludisme grave</td><td>10/04/2026</td><td>45 000 FCFA</td><td><span class="badge b-green">Remboursé</span></td><td>Actions</td></tr>
+                <tr><td>Sawadogo Mariam</td><td><span class="badge b-indigo">Accident</span></td><td>Accident de moto</td><td>02/05/2026</td><td>En évaluation</td><td><span class="badge b-gray">Déclaré</span></td><td>Actions</td></tr>
+                <tr><td>Diallo Aïcha</td><td><span class="badge b-indigo">Maladie</span></td><td>Grippe sévère</td><td>15/04/2026</td><td>25 000 FCFA</td><td><span class="badge b-green">Remboursé</span></td><td>Actions</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Configuration du nombre de colonnes et index du statut pour chaque section
+        const config = {
+            'pretsBody': { statusIndex: 5 },      // 6ème colonne (0-based)
+            'sinistresBody': { statusIndex: 5 }   // 6ème colonne
+        };
+
+        // Mapping des textes de boutons vers les statuts réels
+        const statusMap = {
+            'approuvés': 'approuvé',
+            'remboursés': 'remboursé',
+            'déclarés': 'déclaré',
+            'en cours': 'en cours'
+        };
+
+        function initFilterButtons() {
+            document.querySelectorAll('.sec-filters').forEach(group => {
+                const tbodyId = group.closest('.test-section').querySelector('tbody').id;
+                const tbody = document.getElementById(tbodyId);
+                const statusIndex = config[tbodyId]?.statusIndex || 4;
+
+                group.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        // Changer l'apparence des boutons
+                        group.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                        this.classList.add('active');
+
+                        // Appliquer le filtrage
+                        const filterText = this.textContent.trim().toLowerCase();
+                        const rows = tbody?.querySelectorAll('tr') || [];
+
+                        rows.forEach(row => {
+                            if (filterText === 'tous' || filterText === 'toutes') {
+                                row.style.display = '';
+                                return;
+                            }
+
+                            // Trouver la cellule du statut selon l'index configuré
+                            const cells = row.querySelectorAll('td');
+                            const statusCell = cells[statusIndex];
+
+                            if (statusCell) {
+                                const statusText = statusCell.textContent.trim().toLowerCase();
+                                // Utiliser le mapping ou le texte original
+                                const mappedStatus = statusMap[filterText] || filterText;
+                                row.style.display = statusText.includes(mappedStatus) ? '' : 'none';
+                            }
+                        });
+                    });
+                });
+            });
+        }
+
+        function filterTable(tbodyId, q) {
+            document.getElementById(tbodyId)?.querySelectorAll('tr').forEach(r => {
+                r.style.display = r.textContent.toLowerCase().includes(q.toLowerCase()) ? '' : 'none';
+            });
+        }
+
+        // Initialiser au chargement
+        document.addEventListener('DOMContentLoaded', initFilterButtons);
+    </script>
+</body>
+</html>
