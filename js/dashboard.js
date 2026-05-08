@@ -592,6 +592,7 @@ function initPeriodButtons() {
    ADHÉRENTS
    ============================== */
 let _selectedAdherentId = null;
+let _ayantsRelationFilter = 'Toutes';
 
 async function loadAdherents() {
   showTableLoading('adherentsBody', 7);
@@ -645,6 +646,7 @@ async function loadAyants() {
 
   if (_selectedAdherentId) {
     await loadAyantsDroitForAdherent(_selectedAdherentId);
+    filterAyantsDroit();
     return;
   }
 
@@ -672,6 +674,8 @@ async function loadAyants() {
           <button class="icon-btn" style="margin-left:4px" onclick="deleteAyantDroit(${a.id}, '${(a.nom || '').replace(/'/g,"\\'")}')"><i class="fas fa-trash"></i></button>
         </td>
       </tr>`).join('');
+
+    filterAyantsDroit();
   } catch (err) {
     showTableError('ayantsDroitBody', 4, err.message);
     toast('Erreur : ' + err.message, 'error');
@@ -703,10 +707,44 @@ async function loadAyantsDroitForAdherent(adherentId) {
         </td>
       </tr>`).join('');
 
+    filterAyantsDroit();
   } catch (err) {
     showTableError('ayantsDroitBody', 4, err.message);
     toast('Erreur : ' + err.message, 'error');
   }
+}
+
+function setAyantsRelationFilter(relation) {
+  _ayantsRelationFilter = relation;
+  document.querySelectorAll('#section-ayants .filter-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.textContent.trim().toLowerCase() === relation.toLowerCase());
+  });
+  filterAyantsDroit();
+}
+
+function filterAyantsDroit() {
+  const tbody = document.getElementById('ayantsDroitBody');
+  if (!tbody) return;
+
+  const searchInput = document.querySelector('#section-ayants .hdr-search input');
+  const searchText = searchInput?.value.trim().toLowerCase() || '';
+  const rows = Array.from(tbody.querySelectorAll('tr'));
+
+  rows.forEach(row => {
+    const cells = row.querySelectorAll('td');
+    if (!cells.length || cells[0]?.colSpan > 1) {
+      row.style.display = '';
+      return;
+    }
+
+    const relation = cells[1]?.textContent.trim().toLowerCase() || '';
+    const rowText = row.textContent.trim().toLowerCase();
+
+    const matchesRelation = _ayantsRelationFilter === 'Toutes' || relation.includes(_ayantsRelationFilter.toLowerCase());
+    const matchesSearch = !searchText || rowText.includes(searchText);
+
+    row.style.display = matchesRelation && matchesSearch ? '' : 'none';
+  });
 }
 
 async function openEditAyantDroit(ayantId) {

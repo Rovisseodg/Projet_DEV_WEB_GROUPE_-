@@ -414,8 +414,19 @@
         <div class="sec-head">
           <div class="sec-head-left">
             <div class="sec-title">Gestion des Ayants Droit</div>
+            <div class="sec-filters">
+              <button class="filter-btn active" onclick="setAyantsRelationFilter('Toutes')">Toutes</button>
+              <button class="filter-btn" onclick="setAyantsRelationFilter('conjoint')">Conjoint</button>
+              <button class="filter-btn" onclick="setAyantsRelationFilter('enfant')">Enfant</button>
+              <button class="filter-btn" onclick="setAyantsRelationFilter('parent')">Parent</button>
+              <button class="filter-btn" onclick="setAyantsRelationFilter('autre')">Autre</button>
+            </div>
           </div>
-          <div style="display:flex;gap:8px">
+          <div style="display:flex;gap:8px;align-items:center">
+            <div class="hdr-search" style="width:220px;padding:5px 12px">
+              <i class="fas fa-search"></i>
+              <input type="text" placeholder="Rechercher…" oninput="filterAyantsDroit()"/>
+            </div>
             <button class="btn btn-ghost btn-sm" onclick="showSection('adherents')"><i class="fas fa-arrow-left"></i> Retour</button>
             <button class="btn btn-primary btn-sm" onclick="openModal('modal-ayant-droit')"><i class="fas fa-plus"></i> Ajouter un ayant droit</button>
           </div>
