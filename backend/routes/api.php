@@ -110,6 +110,12 @@ Route::middleware('auth:api')->group(function () {
                 'sinistres_en_cours' => \App\Models\Sinistre::where('statut', 'en cours')->count(),
             ]);
         });
+
+        // Exports
+        Route::get('/adherents/export',  [AdherentController::class, 'export']);
+        Route::get('/cotisations/export', [CotisationController::class, 'export']);
+        Route::get('/prets/export',       [PretController::class, 'export']);
+        Route::get('/sinistres/export',   [SinistreController::class, 'export']);
     });
 
     

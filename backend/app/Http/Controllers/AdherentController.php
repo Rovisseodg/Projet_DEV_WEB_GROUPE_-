@@ -132,4 +132,72 @@ class AdherentController extends Controller
         $ayantDroit->delete();
         return response()->json(['message' => 'Ayant droit supprimé']);
     }
+
+    public function export(Request $request)
+    {
+        $format = $request->query('format', 'csv');
+        $adherents = Adherent::with(['cotisations', 'prets', 'sinistres', 'ayantsDroit'])->get();
+
+        $data = [];
+        $data[] = ['Numéro Adhérent', 'Nom', 'Prénom', 'Email', 'Téléphone', 'Statut', 'Date Inscription', 'Nombre Ayants Droit'];
+
+        foreach ($adherents as $adherent) {
+            $data[] = [
+                $adherent->numero_adherent,
+                $adherent->nom,
+                $adherent->prenom,
+                $adherent->email,
+                $adherent->telephone,
+                $adherent->statut,
+                $adherent->date_inscription ? $adherent->date_inscription->format('Y-m-d') : '',
+                $adherent->ayantsDroit->count()
+            ];
+        }
+
+        return $this->generateExport($data, 'adherents', $format);
+    }
+
+    private function generateExport($data, $filename, $format)
+    {
+        $filename = $filename . '_' . date('Y-m-d_H-i-s');
+
+        if ($format === 'csv') {
+            $csv = '';
+            foreach ($data as $row) {
+                $csv .= implode(',', array_map(function($field) {
+                    return '"' . str_replace('"', '""', $field) . '"';
+                }, $row)) . "\n";
+            }
+
+            return response($csv)
+                ->header('Content-Type', 'text/csv')
+                ->header('Content-Disposition', 'attachment; filename="' . $filename . '.csv"');
+        }
+
+        if ($format === 'xlsx' || $format === 'excel') {
+            // Pour Excel, on utilise un CSV avec des en-têtes Excel
+            $csv = '';
+            foreach ($data as $row) {
+                $csv .= implode("\t", $row) . "\n";
+            }
+
+            return response($csv)
+                ->header('Content-Type', 'application/vnd.ms-excel')
+                ->header('Content-Disposition', 'attachment; filename="' . $filename . '.xls"');
+        }
+
+        if ($format === 'pdf') {
+            // Génération PDF simple (texte brut)
+            $pdfContent = "Export des données - " . ucfirst($filename) . "\n\n";
+            foreach ($data as $row) {
+                $pdfContent .= implode(' | ', $row) . "\n";
+            }
+
+            return response($pdfContent)
+                ->header('Content-Type', 'application/pdf')
+                ->header('Content-Disposition', 'attachment; filename="' . $filename . '.pdf"');
+        }
+
+        return response()->json(['error' => 'Format non supporté'], 400);
+    }
 }
