@@ -739,8 +739,19 @@ function filterAyantsDroit() {
 
     const relation = cells[1]?.textContent.trim().toLowerCase() || '';
     const rowText = row.textContent.trim().toLowerCase();
+    const normalizedRelation = relation.replace('conjoint', 'epoux');
+    const filterValue = _ayantsRelationFilter.toLowerCase();
 
-    const matchesRelation = _ayantsRelationFilter === 'Toutes' || relation.includes(_ayantsRelationFilter.toLowerCase());
+    const relationMap = {
+      epoux: ['epoux', 'conjoint'],
+      conjoint: ['epoux', 'conjoint'],
+      enfant: ['enfant'],
+      parent: ['parent'],
+      autre: ['autre'],
+    };
+
+    const accepted = relationMap[filterValue] || [filterValue];
+    const matchesRelation = _ayantsRelationFilter === 'Toutes' || accepted.some(r => relation.includes(r));
     const matchesSearch = !searchText || rowText.includes(searchText);
 
     row.style.display = matchesRelation && matchesSearch ? '' : 'none';
@@ -760,7 +771,7 @@ async function openEditAyantDroit(ayantId) {
   if (inputs[0]) inputs[0].value = ayant.nom || '';
   if (inputs[1]) inputs[1].value = ayant.prenom || '';
   if (inputs[2]) inputs[2].value = ayant.date_naissance ? ayant.date_naissance.slice(0, 10) : '';
-  if (sels[0]) sels[0].value = ayant.relation || 'conjoint';
+  if (sels[0]) sels[0].value = ayant.relation || 'epoux';
   
   form.dataset.editId = ayantId;
   openModal('modal-ayant-droit');

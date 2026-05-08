@@ -86,7 +86,7 @@ class AdherentController extends Controller
         $validated = $request->validate([
             'nom' => 'required|string',
             'prenom' => 'required|string',
-            'relation' => 'required|string|in:conjoint,enfant,parent,autre',
+            'relation' => 'required|string|in:epoux,conjoint,enfant,parent,autre',
             'date_naissance' => 'nullable|date',
         ]);
 
@@ -109,7 +109,7 @@ class AdherentController extends Controller
         $validated = $request->validate([
             'nom' => 'string',
             'prenom' => 'string',
-            'relation' => 'string|in:conjoint,enfant,parent,autre',
+            'relation' => 'string|in:epoux,conjoint,enfant,parent,autre',
             'date_naissance' => 'nullable|date',
         ]);
 
