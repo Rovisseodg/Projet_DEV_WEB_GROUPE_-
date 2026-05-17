@@ -99,6 +99,7 @@ document.getElementById('login-form').addEventListener('submit', async function 
     if (!validateForm(email, password)) return;
 
     setLoading(true);
+    console.debug('Login: submitting', { email, remember });
 
     try {
         const data = await login(email, password, remember);
@@ -118,11 +119,16 @@ document.getElementById('login-form').addEventListener('submit', async function 
             }, 800);
         } else {
             // Si l'API a répondu mais sans token, considérer comme identifiants invalides
+            console.debug('Login: no token in response', data);
+            setLoading(false);
             showAlert('Identifiants incorrects. Vérifiez votre e-mail et mot de passe.');
+            return;
         }
 
     } catch (error) {
         console.error('Login error:', error);
+        // Masquer immédiatement l'état de chargement pour éviter que le spinner reste visible
+        setLoading(false);
 
         if (!navigator.onLine) {
             showAlert('Pas de connexion Internet. Vérifiez votre réseau.');
