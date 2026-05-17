@@ -172,7 +172,7 @@ CREATE INDEX idx_audit_logs_user_id ON audit_logs(user_id);
 
 -- DATA SEEDING
 INSERT INTO users (name, email, password, role) VALUES
-('Admin MaMutuelle', 'admin@mamutuelle.fr', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin');
+('Admin MaMutuelle', 'admin@mamutuelle.fr', '$2y$12$K1kJm8F7t.RZV.LH2.dS0uEZr5xKHsxJqVlVz5QcH7K0y8qQu2EwK', 'admin');
 
 INSERT INTO adherents (user_id, nom, prenom, email, telephone, numero_adherent, date_inscription, statut) VALUES
 (1, 'Dupont', 'Jean', 'jean@example.com', '0612345678', 'ADH001', '2024-01-01', 'actif');

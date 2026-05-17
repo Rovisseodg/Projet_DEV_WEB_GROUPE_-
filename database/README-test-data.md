@@ -4,12 +4,17 @@ Ce document explique comment utiliser les données de test pour le système MaMu
 
 ## Comptes de Test Disponibles
 
+### ⚠️ Identifiants Universels de Test
+**Tous les comptes utilisent le même mot de passe : `password123`**
+
 ### Comptes Administrateur et Agent
 - **Admin** : `admin@mamutuelle.bf` / `password123`
 - **Agent** : `agent@mamutuelle.bf` / `password123`
 
 ### Comptes Adhérents (15 comptes)
-Tous les mots de passe sont : `password123`
+Tous les mots de passe sont identiques : `password123`
+
+**Note de Sécurité:** En production, chaque utilisateur doit avoir un mot de passe unique et fort.
 
 | Email | Nom | Prénom | N° Adhérent | Statut |
 |-------|-----|--------|-------------|--------|
@@ -126,8 +131,10 @@ psql -U [username] -d [database_name] -f database/test-data-additional.sql
 
 ## Notes Techniques
 
-- Tous les mots de passe sont hashés avec `Hash::make('password123')`
+- **Tous les mots de passe sont identiques :** `password123` (hashés avec bcrypt 12 rounds)
+- Hash bcrypt : `$2y$12$K1kJm8F7t.RZV.LH2.dS0uEZr5xKHsxJqVlVz5QcH7K0y8qQu2EwK`
 - Les montants sont en FCFA (Francs CFA)
 - Les dates sont réalistes pour 2024
 - Les statuts couvrent tous les cas métier possibles
 - Les données respectent les contraintes de clés étrangères
+- **⚠️ IMPORTANT:** Ces données sont pour les tests uniquement. Ne pas utiliser en production.
