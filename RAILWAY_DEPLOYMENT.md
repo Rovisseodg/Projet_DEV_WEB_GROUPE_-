@@ -8,16 +8,20 @@ Le projet utilise maintenant Docker pour un déploiement plus fiable :
 - **`railway.json`** : Configuration Railway pour Docker
 - **`.dockerignore`** : Optimisation du build Docker
 
+Note: le projet contient un `Dockerfile` à la racine et un `Dockerfile` dans `backend/` (utilisé pour construire l'image PHP/Laravel). Le dépôt contient aussi un `docker-compose.yml` pour l'orchestration locale (app + postgres).
+
 ## 🏗️ Structure du projet
 
 ```
 /
-├── backend/          # API Laravel (point d'entrée)
-├── frontend/         # Interface utilisateur
-├── Dockerfile        # Configuration Docker
+├── backend/          # API Laravel (artisan, public/, routes/, app/)
+├── css/              # Styles frontend
+├── js/               # Scripts frontend
+├── Dockerfile        # Dockerfile racine (build global)
+├── backend/Dockerfile# Dockerfile spécifique au service backend
+├── docker-compose.yml# Orchestration locale (app + db)
 ├── railway.json      # Configuration Railway
-├── .dockerignore     # Optimisation Docker
-└── docker-compose.yml
+└── *.html             # Pages frontend (index.html, login.html, dashboard.html...)
 ```
 
 ## 🚀 Déploiement
@@ -63,6 +67,8 @@ Railway App (Docker)
 - **Application** : `https://your-app.railway.app/`
 - **API** : `https://your-app.railway.app/api/`
 - **Dashboard** : `https://your-app.railway.app/dashboard.html`
+
+Note: selon la manière dont vous construisez l'image Docker, le frontend peut être servi depuis `backend/public/` ou directement depuis un serveur statique/ CDN. Si vous servez le frontend statiquement, adaptez la configuration Railway en conséquence.
 
 ### 6. Fonctionnalités
 

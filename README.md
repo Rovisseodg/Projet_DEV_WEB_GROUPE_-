@@ -9,21 +9,28 @@ cd MaMutuelle
 
 Lire: `docs/GUIDE_DEMARRAGE_RAPIDE.md`
 
-## 📁 Structure
+## 📁 Structure (vue d'ensemble)
+
+Le dépôt contient à la fois une application frontend statique (HTML/CSS/JS) et une API Laravel dans le dossier `backend/`. Quelques fichiers importants à la racine gèrent le déploiement et la configuration.
 
 ```
 MaMutuelle/
-├── backend/             # Laravel PHP API
-├── frontend/            # HTML/CSS/JavaScript
-├── database/            # Schémas SQL & migrations
-├── docs/                # Documentation complète
-└── .github/workflows/   # CI/CD (si configuré)
+├── backend/             # Laravel PHP API (artisan, composer.json, routes/, app/, public/)
+├── css/                 # Styles frontend réutilisables (login.css, dashboard.css...)
+├── js/                  # Scripts frontend (login.js, api.js, dashboard.js...)
+├── database/            # Schémas SQL & scripts de seed (schema.sql, seed-data.sql)
+├── docs/                # Documentation complète et guides
+├── Dockerfile           # Dockerfile racine (build app)
+├── docker-compose.yml   # Orchestration locale (services: app, db...)
+├── railway.json         # Configuration Railway (si utilisé)
+├── index.html           # Pages publiques / frontend (login.html, register.html, dashboard.html...)
+└── README.md            # Ce fichier
 ```
 
 ## 🛠 Stack
 
-- **Frontend:** HTML5, CSS3, JavaScript, Bootstrap 5, Chart.js
-- **Backend:** PHP 8.1+, Laravel 11, JWT Auth
+- **Frontend:** HTML5, CSS3, JavaScript, Bootstrap 5, Chart.js (pages statiques à la racine + assets dans `css/` et `js/`)
+- **Backend:** PHP 8.x, Laravel (dossier `backend/`), JWT Auth possible via package
 - **Database:** PostgreSQL 13+
 - **Déploiement:** Compatible Nixpacks, Railway, Heroku
 
@@ -33,6 +40,8 @@ MaMutuelle/
 - [MIGRATION_POSTGRESQL.md](docs/MIGRATION_POSTGRESQL.md) - Migration BD
 - [RAPPORT_PROJET.md](docs/RAPPORT_PROJET.md) - Specs complètes
 - [GUIDE_HEBERGEMENT.md](docs/GUIDE_HEBERGEMENT.md) - Déploiement
+
+Voir également `RAILWAY_DEPLOYMENT.md` à la racine pour les instructions liées à Railway / Docker.
 
 ## ⚠️ **État du Projet - Éléments Manquants**
 

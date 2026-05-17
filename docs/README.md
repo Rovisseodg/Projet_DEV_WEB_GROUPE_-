@@ -10,60 +10,52 @@ MaMutuelle est une application complète de **gestion d'une mutuelle** permettan
 
 ---
 
-## 📁 Structure du Projet
+## 📁 Structure du Projet (réelle)
+
+Le dossier `docs/` contient les guides et les fichiers d'accompagnement pour les développeurs, DevOps et PO. Voici la structure attendue du dépôt et où trouver chaque chose :
 
 ```
 MaMutuelle/
-├── docs/                      # Documentation complète
-│   ├── README.md             # Ce fichier
-│   ├── RAPPORT_PROJET.md     # Spécifications complètes
-│   ├── GUIDE_DEMARRAGE_RAPIDE.md
-│   ├── GUIDE_HEBERGEMENT.md
-│   └── ...
-├── frontend/                 # HTML/CSS/JavaScript
-│   ├── index.html
-│   ├── css/
-│   ├── js/
-│   └── assets/
-├── backend/                  # Laravel PHP
-│   ├── app/
-│   ├── routes/
-│   ├── database/
-│   └── ...
-├── database/                 # SQL & migrations
-│   └── schema.sql
-└── deployment/               # Config déploiement
-    └── .env.example
+├── backend/                  # Laravel API (artisan, composer.json, public/, routes/, app/)
+├── css/                      # Styles du frontend (login.css, dashboard.css...)
+├── js/                       # Scripts frontend (login.js, api.js, dashboard.js...)
+├── database/                 # Schémas SQL et scripts de seed
+├── docs/                     # Documentation (ce dossier)
+├── Dockerfile                # Build Docker racine
+├── docker-compose.yml        # Orchestration locale
+├── RAILWAY_DEPLOYMENT.md     # Guide déploiement Railway (racine)
+└── *.html                    # Pages frontend (index.html, login.html, dashboard.html...)
 ```
 
 ---
 
-## 🚀 Démarrage Rapide
+## 🚀 Démarrage Rapide (local)
 
-### Pour les Developers
+1. Cloner le dépôt et ouvrir le répertoire :
 
 ```bash
-# 1. Cloner le repo
-git clone https://github.com/USERNAME/MaMutuelle.git
-cd MaMutuelle
+git clone <repo-url>
+cd Projet_DEV_WEB_GROUPE_-
+```
 
-# 2. Lire le guide de démarrage
-cat docs/GUIDE_DEMARRAGE_RAPIDE.md
+2. Backend :
 
-# 3. Setup backend (30 min)
+```bash
+cd backend
 composer install
 cp .env.example .env
 php artisan key:generate
-
-# 4. Setup database
-createdb mamutuelle
-psql mamutuelle < database/schema.sql
-
-# 5. Start dev server
-php artisan serve
+php artisan migrate --seed
+php artisan serve --host=0.0.0.0 --port=8000
 ```
 
-Frontend accessible: `http://localhost:8000`
+3. Frontend : ouvrir `index.html` / `login.html` dans votre navigateur ou servir statiquement depuis `backend/public/` si vous avez configuré le serveur web.
+
+4. Déploiement local avec Docker :
+
+```bash
+docker compose up --build
+```
 
 ### Pour DevOps
 
