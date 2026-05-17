@@ -46,10 +46,11 @@ function setLoading(loading) {
     btn.disabled = loading;
     btn.setAttribute('aria-busy', String(loading));
 
-    txt.classList.toggle('d-none', !loading);
+    // Quand `loading` est vrai on cache le texte et on affiche le spinner.
+    txt.classList.toggle('d-none', loading);
     txt.setAttribute('aria-hidden', String(loading));
 
-    spin.classList.toggle('d-none', loading);
+    spin.classList.toggle('d-none', !loading);
     spin.setAttribute('aria-hidden', String(!loading));
 }
 
@@ -115,6 +116,9 @@ document.getElementById('login-form').addEventListener('submit', async function 
                     window.location.href = 'dashboard.html';
                 }
             }, 800);
+        } else {
+            // Si l'API a répondu mais sans token, considérer comme identifiants invalides
+            showAlert('Identifiants incorrects. Vérifiez votre e-mail et mot de passe.');
         }
 
     } catch (error) {
