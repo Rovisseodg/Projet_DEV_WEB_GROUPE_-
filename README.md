@@ -11,25 +11,33 @@ Lire: `docs/GUIDE_DEMARRAGE_RAPIDE.md`
 
 ## 📁 Structure (vue d'ensemble)
 
-Le dépôt contient à la fois une application frontend statique (HTML/CSS/JS) et une API Laravel dans le dossier `backend/`. Quelques fichiers importants à la racine gèrent le déploiement et la configuration.
+Le dépôt contient à la fois une application frontend statique (HTML/CSS/JS) et une API Laravel dans le dossier `backend/`. Les fichiers sont bien organisés par fonction.
 
 ```
 MaMutuelle/
-├── backend/             # Laravel PHP API (artisan, composer.json, routes/, app/, public/)
-├── css/                 # Styles frontend réutilisables (login.css, dashboard.css...)
-├── js/                  # Scripts frontend (login.js, api.js, dashboard.js...)
-├── database/            # Schémas SQL & scripts de seed (schema.sql, seed-data.sql)
-├── docs/                # Documentation complète et guides
-├── Dockerfile           # Dockerfile racine (build app)
-├── docker-compose.yml   # Orchestration locale (services: app, db...)
-├── railway.json         # Configuration Railway (si utilisé)
-├── index.html           # Pages publiques / frontend (login.html, register.html, dashboard.html...)
-└── README.md            # Ce fichier
+├── backend/                 # Laravel PHP API (artisan, composer.json, routes/, app/, public/)
+├── frontend/                # Tous les fichiers frontend
+│   ├── css/                # Styles frontend (login.css, dashboard.css, etc.)
+│   ├── js/                 # Scripts frontend (api.js, dashboard.js, etc.)
+│   ├── tests/              # Fichiers de test HTML
+│   ├── index.html          # Page d'accueil
+│   ├── login.html          # Authentification
+│   ├── register.html       # Inscription
+│   ├── dashboard.html      # Tableau de bord
+│   └── adherent-dashboard.html  # Tableau de bord des adhérents
+├── database/                # Schémas SQL & scripts de seed (schema.sql, seed-data.sql)
+├── docs/                    # Documentation complète et guides
+├── scripts/                 # Scripts d'infrastructure (seeding, etc.)
+├── Dockerfile               # Dockerfile pour build
+├── docker-compose.yml       # Orchestration locale (services: app, db...)
+├── railway.json             # Configuration Railway (si utilisé)
+├── package.json             # Dépendances du projet
+└── README.md                # Ce fichier
 ```
 
 ## 🛠 Stack
 
-- **Frontend:** HTML5, CSS3, JavaScript, Bootstrap 5, Chart.js (pages statiques à la racine + assets dans `css/` et `js/`)
+- **Frontend:** HTML5, CSS3, JavaScript, Bootstrap 5, Chart.js (pages dans `frontend/` avec assets dans `frontend/css/` et `frontend/js/`)
 - **Backend:** PHP 8.x, Laravel (dossier `backend/`), JWT Auth possible via package
 - **Database:** PostgreSQL 13+
 - **Déploiement:** Compatible Nixpacks, Railway, Heroku
@@ -40,8 +48,7 @@ MaMutuelle/
 - [MIGRATION_POSTGRESQL.md](docs/MIGRATION_POSTGRESQL.md) - Migration BD
 - [RAPPORT_PROJET.md](docs/RAPPORT_PROJET.md) - Specs complètes
 - [GUIDE_HEBERGEMENT.md](docs/GUIDE_HEBERGEMENT.md) - Déploiement
-
-Voir également `RAILWAY_DEPLOYMENT.md` à la racine pour les instructions liées à Railway / Docker.
+- [RAILWAY_DEPLOYMENT.md](docs/RAILWAY_DEPLOYMENT.md) - Instructions Railway / Docker
 
 ## ⚠️ **État du Projet - Éléments Manquants**
 

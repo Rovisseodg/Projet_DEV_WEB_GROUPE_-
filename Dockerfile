@@ -16,14 +16,14 @@ RUN mkdir -p backend/bootstrap/cache \
     && chmod -R 775 backend/bootstrap/cache backend/storage
 RUN cd backend && composer install --no-dev --optimize-autoloader
 # Copier les fichiers frontend
-RUN cp index.html backend/public/ 2>/dev/null || true && \
-    cp login.html backend/public/ 2>/dev/null || true && \
-    cp register.html backend/public/ 2>/dev/null || true && \
-    cp dashboard.html backend/public/ 2>/dev/null || true && \
-    cp adherent-dashboard.html backend/public/ 2>/dev/null || true && \
+RUN cp frontend/index.html backend/public/ 2>/dev/null || true && \
+    cp frontend/login.html backend/public/ 2>/dev/null || true && \
+    cp frontend/register.html backend/public/ 2>/dev/null || true && \
+    cp frontend/dashboard.html backend/public/ 2>/dev/null || true && \
+    cp frontend/adherent-dashboard.html backend/public/ 2>/dev/null || true && \
     mkdir -p backend/public/css backend/public/js && \
-    cp -r css/* backend/public/css/ 2>/dev/null || true && \
-    cp -r js/* backend/public/js/ 2>/dev/null || true
+    cp -r frontend/css/* backend/public/css/ 2>/dev/null || true && \
+    cp -r frontend/js/* backend/public/js/ 2>/dev/null || true
 RUN chown -R www-data:www-data /var/www/html \
     && find /var/www/html -type f -exec chmod 644 {} \; \
     && find /var/www/html -type d -exec chmod 755 {} \; \
