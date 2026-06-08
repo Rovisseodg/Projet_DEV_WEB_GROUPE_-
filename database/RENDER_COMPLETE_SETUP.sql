@@ -232,8 +232,8 @@ CREATE TABLE IF NOT EXISTS failed_jobs (
     uuid VARCHAR(255) UNIQUE,
     connection VARCHAR(255) NOT NULL,
     queue VARCHAR(255) NOT NULL,
-    payload LONGTEXT NOT NULL,
-    exception LONGTEXT NOT NULL,
+    payload TEXT NOT NULL,
+    exception TEXT NOT NULL,
     failed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -243,7 +243,7 @@ CREATE TABLE IF NOT EXISTS personal_access_tokens (
     tokenable_id BIGINT NOT NULL,
     name VARCHAR(255) NOT NULL,
     token VARCHAR(80) UNIQUE NOT NULL,
-    abilities LONGTEXT,
+    abilities TEXT,
     last_used_at TIMESTAMP,
     expires_at TIMESTAMP,
     created_at TIMESTAMP,
