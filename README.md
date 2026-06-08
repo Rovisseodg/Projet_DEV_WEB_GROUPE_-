@@ -27,11 +27,13 @@ MaMutuelle/
 │   └── adherent-dashboard.html  # Tableau de bord des adhérents
 ├── database/                # Schémas SQL & scripts de seed (schema.sql, seed-data.sql)
 ├── docs/                    # Documentation complète et guides
-├── scripts/                 # Scripts d'infrastructure (seeding, etc.)
-├── Dockerfile               # Dockerfile pour build
-├── docker-compose.yml       # Orchestration locale (services: app, db...)
-├── railway.json             # Configuration Railway (si utilisé)
+├── scripts/                 # Scripts d'infrastructure (seeding, déploiement, etc.)
+├── Dockerfile               # Dockerfile (optimisé pour Render port 8080)
+├── docker-compose.yml       # Orchestration locale (services: app, db, pgadmin)
+├── render.yaml              # ⭐ Configuration Render (déploiement automatique)
+├── .env.example             # Template variables d'environnement
 ├── package.json             # Dépendances du projet
+├── railway.json             # ℹ️ Configuration Railway (archivée - voir docs/RAILWAY_DEPLOYMENT.md)
 └── README.md                # Ce fichier
 ```
 
@@ -39,16 +41,42 @@ MaMutuelle/
 
 - **Frontend:** HTML5, CSS3, JavaScript, Bootstrap 5, Chart.js (pages dans `frontend/` avec assets dans `frontend/css/` et `frontend/js/`)
 - **Backend:** PHP 8.x, Laravel (dossier `backend/`), JWT Auth possible via package
-- **Database:** PostgreSQL 13+
-- **Déploiement:** Compatible Nixpacks, Railway, Heroku
+- **Database:** PostgreSQL 15+
+- **Déploiement:** 🎯 **Render** (recommandé - gratuit + PostgreSQL gratuit)
+
+## 🚀 Déploiement
+
+### 📌 Render (RECOMMANDÉ)
+
+```bash
+# ⚡ Déploiement rapide (5 min):
+# Voir: RENDER_QUICKSTART.md
+
+# 📖 Guide complet (30 min - toutes les étapes):
+# Voir: docs/DEPLOYMENT_RENDER.md
+
+# 🔄 Migration depuis Railway:
+# Voir: docs/MIGRATION_RAILWAY_TO_RENDER.md
+```
+
+**Coût:** 🆓 **Gratuit** (plan Free + PostgreSQL gratuit)
+**Temps:** ⏱️ 5-10 minutes
+
+### ℹ️ Ancienne configuration (Railway - archivée)
+
+- Voir: `docs/RAILWAY_DEPLOYMENT.md` pour les archives
+- Migration vers Render: `docs/MIGRATION_RAILWAY_TO_RENDER.md`
 
 ## 📖 Documentation
 
-- [GUIDE_DEMARRAGE_RAPIDE.md](docs/GUIDE_DEMARRAGE_RAPIDE.md) - Setup complet
+- **⚡ [RENDER_QUICKSTART.md](RENDER_QUICKSTART.md)** - **Déploiement rapide (5 min)**
+- **[DEPLOYMENT_RENDER.md](docs/DEPLOYMENT_RENDER.md)** ⭐ - **Guide complet Render**
+- **[MIGRATION_RAILWAY_TO_RENDER.md](docs/MIGRATION_RAILWAY_TO_RENDER.md)** - Migration depuis Railway
+- [GUIDE_DEMARRAGE_RAPIDE.md](docs/GUIDE_DEMARRAGE_RAPIDE.md) - Setup local avec Docker
 - [MIGRATION_POSTGRESQL.md](docs/MIGRATION_POSTGRESQL.md) - Migration BD
 - [RAPPORT_PROJET.md](docs/RAPPORT_PROJET.md) - Specs complètes
-- [GUIDE_HEBERGEMENT.md](docs/GUIDE_HEBERGEMENT.md) - Déploiement
-- [RAILWAY_DEPLOYMENT.md](docs/RAILWAY_DEPLOYMENT.md) - Instructions Railway / Docker
+- [GUIDE_HEBERGEMENT.md](docs/GUIDE_HEBERGEMENT.md) - Déploiement général
+- [RAILWAY_DEPLOYMENT.md](docs/RAILWAY_DEPLOYMENT.md) - Archives Railway
 
 ## ⚠️ **État du Projet - Éléments Manquants**
 

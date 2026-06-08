@@ -1,20 +1,52 @@
-# Données de Test - MaMutuelle
+# 📊 Database Setup - MaMutuelle
 
-Ce document explique comment utiliser les données de test pour le système MaMutuelle.
+## ⚠️ IMPORTANT - FICHIER UNIFIÉ 
 
-## Comptes de Test Disponibles
+Depuis 2024, tous les fichiers SQL ont été consolidés dans un **unique fichier**:
 
-### ⚠️ Identifiants Universels de Test
-**Tous les comptes utilisent le même mot de passe : `password123`**
+### ✅ À utiliser:
+```
+database/database.sql  ← Utiliser CE FICHIER
+```
+
+### ❌ Archivés (legacy):
+- `schema.sql` (archive v0.x)
+- `seed-data.sql` (archive v0.x)
+- `test-data-additional.sql` (archive v0.x)
+
+## 🚀 Utilisation rapide
+
+### Via pgAdmin (recommandé):
+```
+1. Ouvrir pgAdmin
+2. Query Tool → File → Open → database/database.sql
+3. Execute (F5)
+4. ✅ "Database setup complete!"
+```
+
+### Via Terminal:
+```bash
+psql -h host -U mamutuelle_user -d mamutuelle < database/database.sql
+```
+
+### Via Docker:
+```bash
+docker-compose exec db psql -U mamutuelle_user -d mamutuelle < database/database.sql
+```
+
+## 🔐 Comptes de Test Disponibles
+
+### ⚠️ Identifiants de Test
+**Tous les comptes utilisent le même password bcrypt (voir database.sql)**
 
 ### Comptes Administrateur et Agent
-- **Admin** : `admin@mamutuelle.bf` / `password123`
-- **Agent** : `agent@mamutuelle.bf` / `password123`
+- **Admin** : `admin@mamutuelle.bf`
+- **Agent** : `agent@mamutuelle.bf`
 
 ### Comptes Adhérents (15 comptes)
-Tous les mots de passe sont identiques : `password123`
+Tous les comptes utilisent le même password (à changer en production!)
 
-**Note de Sécurité:** En production, chaque utilisateur doit avoir un mot de passe unique et fort.
+**Note de Sécurité:** En production, utiliser des passwords uniques et forts.
 
 | Email | Nom | Prénom | N° Adhérent | Statut |
 |-------|-----|--------|-------------|--------|
@@ -34,20 +66,45 @@ Tous les mots de passe sont identiques : `password123`
 | compaore.sophie@email.bf | Compaoré | Sophie | ADH014 | Actif |
 | zida.michel@email.bf | Zida | Michel | ADH015 | Suspendu |
 
-## Installation des Données
+## 📊 Contenu inclus
 
-### 1. Données de Base (Seeder Laravel)
+Le fichier `database.sql` contient:
+
+✅ **Schema complet** (10 tables)
+✅ **17 users** (admin, agent, 15 adhérents)
+✅ **15 adhérents** + 25 dépendants
+✅ **29+ cotisations** (payées, retard, attente)
+✅ **5 prêts** (approuvés, rejetés, remboursés)
+✅ **4 remboursements**
+✅ **3 sinistres** avec prestations
+✅ **4+ alertes** système
+
+## 🚀 Installation des données
+
+### Option 1: Exécution simple (recommandé)
 ```bash
-cd backend
-php artisan db:seed
+# En local (Docker)
+docker-compose exec db psql -U mamutuelle_user -d mamutuelle < database/database.sql
+
+# En Render (terminal local)
+psql -h your-render-host.onrender.com -U mamutuelle_user -d mamutuelle < database/database.sql
 ```
 
-### 2. Données Supplémentaires (SQL)
+### Option 2: Via pgAdmin
+```
+1. Ouvrir pgAdmin
+2. Query Tool
+3. File → Open → database/database.sql
+4. Execute (F5)
+```
+
+### Option 3: Avec Laravel (optionnel)
 ```bash
-# Depuis le répertoire racine du projet
-mysql -u [username] -p [database_name] < database/test-data-additional.sql
-# ou
-psql -U [username] -d [database_name] -f database/test-data-additional.sql
+cd backend
+# Exécuter d'abord le SQL
+# Puis Laravel comme interface
+php artisan tinker
+```
 ```
 
 ## Statistiques des Données

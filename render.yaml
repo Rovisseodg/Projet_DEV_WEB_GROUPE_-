@@ -1,0 +1,62 @@
+services:
+  # Application Laravel - API Backend
+  - type: web
+    name: mamutuelle-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_PORT
+        value: "5432"
+      
+      # Ces variables seront complétées automatiquement
+      - key: APP_URL
+        value: https://mamutuelle-api.onrender.com
+      
+      # ⚠️ À configurer dans Render Dashboard:
+      # APP_KEY: (générer avec `php artisan key:generate`)
+      # JWT_SECRET: (secret JWT sécurisé)
+      # DB_HOST: (fourni par Render PostgreSQL)
+      # DB_DATABASE: (défini lors création DB)
+      # DB_USERNAME: (défini lors création DB)
+      # DB_PASSWORD: (défini lors création DB)
+    
+    healthCheckPath: /api
+    maxInstances: 1
+    minInstances: 1
+    
+    # Deploy hook
+    preDeployCommand: |
+      cd backend && \
+      composer install --no-dev --optimize-autoloader && \
+      php artisan migrate --force && \
+      php artisan config:cache && \
+      php artisan route:cache
+
+  # Base de données PostgreSQL
+  - type: pgsql
+    name: mamutuelle-db
+    plan: free
+    ipAllowList: []
+    preDeployCommand: ""
+    
+    # Configuration PostgreSQL
+    databaseName: mamutuelle
+    username: mamutuelle_user
+    
+    # Variables d'environnement
+    envVars:
+      - key: POSTGRES_INITDB_ARGS
+        value: -E UTF8 --locale=C
+
+databases:
+  - name: mamutuelle-db
+    databaseName: mamutuelle
+    user: mamutuelle_user

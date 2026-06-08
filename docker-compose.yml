@@ -1,8 +1,8 @@
-# 🐳 Docker Compose - MaMutuelle (Test local)
+# 🐳 Docker Compose - MaMutuelle (Développement Local)
 version: '3.8'
 
 services:
-  # Application Laravel
+  # ===== Application Laravel =====
   app:
     build:
       context: .
@@ -10,7 +10,7 @@ services:
     container_name: mamutuelle_app
     restart: unless-stopped
     ports:
-      - "8000:80"
+      - "8000:8080"
     environment:
       - APP_ENV=local
       - APP_DEBUG=true
@@ -19,45 +19,66 @@ services:
       - DB_PORT=5432
       - DB_DATABASE=mamutuelle
       - DB_USERNAME=mamutuelle_user
-      - DB_PASSWORD=mamutuelle_pass
+      - DB_PASSWORD=mamutuelle_pass_local
       - APP_KEY=base64:2Fh6U9w3Z8qTs1rV7yN0mJ6LxQ4pRfB2sC0gHjKlMzQ=
-      - JWT_SECRET=secure-jwt-secret-for-production-use-only-change-this
+      - JWT_SECRET=local-jwt-secret-not-for-production
+      - APP_URL=http://localhost:8000
+      - LOG_CHANNEL=stderr
+      - RUN_MIGRATIONS=true
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - mamutuelle
+    volumes:
+      - ./backend/storage:/var/www/html/backend/storage
 
-  # Base de données PostgreSQL
+  # ===== PostgreSQL Database =====
   db:
-    image: postgres:15
+    image: postgres:15-alpine
     container_name: mamutuelle_db
     restart: unless-stopped
     environment:
       POSTGRES_DB: mamutuelle
       POSTGRES_USER: mamutuelle_user
-      POSTGRES_PASSWORD: mamutuelle_pass
+      POSTGRES_PASSWORD: mamutuelle_pass_local
+      POSTGRES_INITDB_ARGS: -E UTF8 --locale=C
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
     networks:
       - mamutuelle
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mamutuelle_user -d mamutuelle"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ===== PostgreSQL Admin UI (optionnel) =====
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: mamutuelle_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@mamutuelle.local
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    networks:
+      - mamutuelle
+    depends_on:
+      - db
 
 volumes:
   postgres_data:
+    driver: local
 
 networks:
   mamutuelle:
     driver: bridge
-    image: postgres:13
-    container_name: mamutuelle_db
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: mamutuelle
-      POSTGRES_USER: mamutuelle_user
-      POSTGRES_PASSWORD: mamutuelle_pass
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+
       - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
     ports:
       - "5432:5432"
