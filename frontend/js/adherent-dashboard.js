@@ -182,25 +182,22 @@ async function loadUserData() {
     if (!user) return;
 
     try {
-        // Récupérer les données adhérent
-        const adherentRes = await apiCall('/api/adherent/profile', 'GET');
-        if (adherentRes.success && adherentRes.data) {
-            const adherent = adherentRes.data;
-            document.getElementById('sb-numero').textContent = adherent.numero_adherent || 'N/A';
-            document.getElementById('sb-statut').textContent = adherent.statut || 'Actif';
+        const adherentRes = await apiCall('/mon-profil', { method: 'GET' });
+        if (adherentRes) {
+            document.getElementById('sb-numero').textContent = adherentRes.numero_adherent || 'N/A';
+            document.getElementById('sb-statut').textContent = adherentRes.statut || 'Actif';
             
-            // Remplir le profil
-            document.getElementById('cm-numero').textContent = adherent.numero_adherent || 'ADH-000';
-            document.getElementById('cm-nom').textContent = adherent.nom || '—';
-            document.getElementById('cm-depuis').textContent = adherent.date_adhesion || '—';
-            document.getElementById('cm-ville').textContent = adherent.ville || '—';
+            document.getElementById('cm-numero').textContent = adherentRes.numero_adherent || 'ADH-000';
+            document.getElementById('cm-nom').textContent = adherentRes.nom || '—';
+            document.getElementById('cm-depuis').textContent = adherentRes.date_inscription || '—';
+            document.getElementById('cm-ville').textContent = adherentRes.ville || '—';
             
-            document.getElementById('pm-numero').textContent = adherent.numero_adherent || '—';
+            document.getElementById('pm-numero').textContent = adherentRes.numero_adherent || '—';
             document.getElementById('pm-email').textContent = user.email || '—';
-            document.getElementById('pm-tel').textContent = adherent.telephone || '—';
-            document.getElementById('pm-ville').textContent = adherent.ville || '—';
-            document.getElementById('pm-adresse').textContent = adherent.adresse || '—';
-            document.getElementById('pm-depuis').textContent = adherent.date_adhesion || '—';
+            document.getElementById('pm-tel').textContent = adherentRes.telephone || '—';
+            document.getElementById('pm-ville').textContent = adherentRes.ville || '—';
+            document.getElementById('pm-adresse').textContent = adherentRes.adresse || '—';
+            document.getElementById('pm-depuis').textContent = adherentRes.date_inscription || '—';
         }
     } catch (err) {
         console.error('Erreur chargement données:', err);
@@ -212,16 +209,15 @@ async function loadUserData() {
    ============================== */
 async function loadOverview() {
     try {
-        const res = await apiCall('/api/adherent/overview', 'GET');
-        if (!res.success) return;
+        const res = await apiCall('/mon-tableau-de-bord', { method: 'GET' });
+        if (!res) return;
 
-        const data = res.data || {};
+        const data = res.stats || {};
         
-        // Mettre à jour les stats
-        document.getElementById('st-cot-payees').textContent = data.cotisations_paid || '—';
-        document.getElementById('st-pret').textContent = data.prets_active || '—';
-        document.getElementById('st-sinistres').textContent = data.sinistres_open || '—';
-        document.getElementById('st-ayants').textContent = data.ayants_count || '—';
+        document.getElementById('st-cot-payees').textContent = data.cotisations_payees || '—';
+        document.getElementById('st-pret').textContent = data.pret_actif ? 'En cours' : '—';
+        document.getElementById('st-sinistres').textContent = data.sinistres_ouverts || '—';
+        document.getElementById('st-ayants').textContent = data.nb_ayants_droit || '—';
     } catch (err) {
         console.error('Erreur overview:', err);
     }
@@ -232,11 +228,11 @@ async function loadOverview() {
    ============================== */
 async function loadCotisations() {
     try {
-        const res = await apiCall('/api/adherent/cotisations', 'GET');
-        if (!res.success) return;
+        const res = await apiCall('/mes-cotisations', { method: 'GET' });
+        if (!res) return;
 
         const tbody = document.getElementById('cotisations-body');
-        const cotisations = res.data || [];
+        const cotisations = res || [];
 
         if (cotisations.length === 0) {
             tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Aucune cotisation</td></tr>';
@@ -266,11 +262,11 @@ async function loadCotisations() {
    ============================== */
 async function loadPrets() {
     try {
-        const res = await apiCall('/api/adherent/prets', 'GET');
-        if (!res.success) return;
+        const res = await apiCall('/mes-prets', { method: 'GET' });
+        if (!res) return;
 
         const container = document.getElementById('prets-list');
-        const prets = res.data || [];
+        const prets = res || [];
 
         if (prets.length === 0) {
             container.innerHTML = '<div class="tcard" style="padding:40px;text-align:center;color:#999">Aucun prêt</div>';
@@ -319,12 +315,11 @@ async function loadAmortissement() {
     }
 
     try {
-        const res = await apiCall(`/api/adherent/prets/${pretId}/amortissement`, 'GET');
-        if (!res.success) return;
+        const res = await apiCall(`/mes-prets/${pretId}/amortissement`, { method: 'GET' });
+        if (!res) return;
 
         const tbody = document.getElementById('amort-body');
-        const data = res.data || {};
-        const echances = data.echances || [];
+        const echances = res.echances || [];
 
         if (echances.length === 0) {
             tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">Aucune échéance</td></tr>';
@@ -353,11 +348,11 @@ async function loadAmortissement() {
    ============================== */
 async function loadSinistres() {
     try {
-        const res = await apiCall('/api/adherent/sinistres', 'GET');
-        if (!res.success) return;
+        const res = await apiCall('/mes-sinistres', { method: 'GET' });
+        if (!res) return;
 
         const container = document.getElementById('sinistres-list') || document.querySelector('[id*="sinistre"]');
-        const sinistres = res.data || [];
+        const sinistres = res || [];
 
         if (!container) return;
 
@@ -386,40 +381,17 @@ async function loadSinistres() {
 }
 
 function declarerSinistre() {
-    showModal('modal-sinistre');
+    openModal('modal-sinistre');
 }
 
 /* ==============================
    SECTIONS — ALERTES
    ============================== */
 async function loadAlertes() {
-    try {
-        const res = await apiCall('/api/adherent/alertes', 'GET');
-        if (!res.success) return;
-
-        const tbody = document.getElementById('alertes-body') || document.querySelector('[id*="alerte"]');
-        const alertes = res.data || [];
-
-        if (!tbody) return;
-
-        if (alertes.length === 0) {
-            tbody.innerHTML = '<div class="tcard" style="padding:20px;text-align:center;color:#999">Aucune alerte</div>';
-            return;
-        }
-
-        tbody.innerHTML = alertes.map(a => `
-            <div class="tcard alert alert-${a.type_alerte === 'retard_cotisation' ? 'danger' : 'warning'}" style="margin-bottom:10px">
-                <div style="display:flex;justify-content:space-between;align-items:center">
-                    <div>
-                        <strong>${a.type_alerte}</strong>
-                        <div style="font-size:.9rem">${a.message}</div>
-                    </div>
-                    <span class="badge">${a.statut}</span>
-                </div>
-            </div>
-        `).join('');
-    } catch (err) {
-        console.error('Erreur alertes:', err);
+    console.log('Alertes non implémentées');
+    const container = document.getElementById('alertes-full-list') || document.querySelector('[id*="alerte"]');
+    if (container) {
+        container.innerHTML = '<div class="tcard" style="padding:20px;text-align:center;color:#999">Aucune alerte</div>';
     }
 }
 
@@ -428,11 +400,11 @@ async function loadAlertes() {
    ============================== */
 async function loadAyantsDroit() {
     try {
-        const res = await apiCall('/api/adherent/ayants-droit', 'GET');
-        if (!res.success) return;
+        const res = await apiCall('/mes-ayants-droit', { method: 'GET' });
+        if (!res) return;
 
         const container = document.getElementById('ayants-grid') || document.querySelector('[id*="ayant"]');
-        const ayants = res.data || [];
+        const ayants = res || [];
 
         if (!container) return;
 
@@ -490,18 +462,20 @@ async function saveProfil() {
     }
 
     try {
-        const res = await apiCall('/api/adherent/profile', 'POST', {
-            nom, prenom, email, telephone: tel, adresse, ville
+        const res = await apiCall('/mon-profil', {
+            method: 'PUT',
+            body: JSON.stringify({ nom, prenom, email, telephone: tel, adresse, ville })
         });
 
-        if (res.success) {
+        if (res) {
             showToast('Profil mis à jour', 'success');
             closeModal('modal-profil');
+            const user = getCurrentUser();
             const newUser = { ...user, name: `${prenom} ${nom}`, email, telephone: tel };
             localStorage.setItem('mamutuelle_user', JSON.stringify(newUser));
             injectUserInfo();
         } else {
-            showToast(res.error || 'Erreur', 'error');
+            showToast('Erreur', 'error');
         }
     } catch (err) {
         showToast('Erreur: ' + err.message, 'error');
@@ -529,19 +503,19 @@ async function savePassword() {
     }
 
     try {
-        const res = await apiCall('/api/adherent/password', 'POST', {
-            current_password: ancien,
-            new_password: nouveau
+        const res = await apiCall('/mon-mot-de-passe', {
+            method: 'PUT',
+            body: JSON.stringify({ current_password: ancien, new_password: nouveau })
         });
 
-        if (res.success) {
+        if (res) {
             showToast('Mot de passe changé', 'success');
             closeModal('modal-password');
             document.getElementById('pwd-ancien').value = '';
             document.getElementById('pwd-nouveau').value = '';
             document.getElementById('pwd-confirm').value = '';
         } else {
-            showToast(res.error || 'Erreur', 'error');
+            showToast('Erreur', 'error');
         }
     } catch (err) {
         showToast('Erreur: ' + err.message, 'error');
@@ -560,16 +534,17 @@ async function saveAyant() {
     }
 
     try {
-        const res = await apiCall('/api/adherent/ayants-droit', 'POST', {
-            nom, prenom, relation, date_naissance: dob
+        const res = await apiCall('/mes-ayants-droit', {
+            method: 'POST',
+            body: JSON.stringify({ nom, prenom, relation, date_naissance: dob })
         });
 
-        if (res.success) {
+        if (res) {
             showToast('Ayant droit ajouté', 'success');
             closeModal('modal-ayant');
             loadAyantsDroit();
         } else {
-            showToast(res.error || 'Erreur', 'error');
+            showToast('Erreur', 'error');
         }
     } catch (err) {
         showToast('Erreur: ' + err.message, 'error');
