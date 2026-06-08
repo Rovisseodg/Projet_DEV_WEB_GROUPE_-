@@ -256,8 +256,8 @@ CREATE TABLE failed_jobs (
     uuid VARCHAR(255) UNIQUE NOT NULL,
     connection TEXT NOT NULL,
     queue TEXT NOT NULL,
-    payload LONGTEXT NOT NULL,
-    exception LONGTEXT NOT NULL,
+    payload TEXT NOT NULL,
+    exception TEXT NOT NULL,
     failed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
