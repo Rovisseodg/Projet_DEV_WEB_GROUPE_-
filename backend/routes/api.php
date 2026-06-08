@@ -10,6 +10,9 @@ use App\Http\Controllers\AlerteController;
 use App\Http\Controllers\AdherentDashboardController;
 use App\Http\Controllers\MigrationController;
 
+// Apply CORS middleware to ALL API routes
+Route::middleware(\App\Http\Middleware\CorsMiddleware::class)->group(function () {
+
 /* ====================================================================
  * ROUTE PUBLIQUE — Santé de l'API
  * ==================================================================== */
@@ -133,3 +136,6 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/register-admin', [AuthController::class, 'registerAdmin']);
     });
 });
+
+});
+

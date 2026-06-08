@@ -11,8 +11,7 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // CORS Middleware - must be first to handle OPTIONS preflight requests
-        $middleware->prepend(\App\Http\Middleware\CorsMiddleware::class);
+        // CORS applied directly in routes/api.php to ensure it's first
         
         // Sanctum retiré : le projet utilise JWT (tymon/jwt-auth)
         // $middleware->statefulApi(); ← causait l'erreur Sanctum
