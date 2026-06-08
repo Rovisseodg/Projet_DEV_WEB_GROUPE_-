@@ -13,6 +13,11 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         // Sanctum retiré : le projet utilise JWT (tymon/jwt-auth)
         // $middleware->statefulApi(); ← causait l'erreur Sanctum
+        
+        // Ajouter le middleware CORS
+        $middleware->append(
+            \App\Http\Middleware\CorsMiddleware::class,
+        );
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
