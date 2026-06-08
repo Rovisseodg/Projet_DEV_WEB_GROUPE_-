@@ -265,24 +265,29 @@ CREATE TABLE failed_jobs (
 -- ÉTAPE 3: DONNÉES INITIALES - USERS
 -- ============================================================================
 
+-- Hashes bcrypt valides pour le mot de passe: "password123"
+-- Généré avec: password_hash('password123', PASSWORD_BCRYPT, ['cost' => 12])
+-- Tous les comptes utilisent le MÊME mot de passe pour faciliter les tests
+-- À CHANGER EN PRODUCTION pour des passwords uniques et forts!
+
 INSERT INTO users (name, email, password, role, created_at, updated_at) VALUES
-('Admin MaMutuelle', 'admin@mamutuelle.bf', '$2y$12$K1kJm8F7t.RZV.LH2.dS0uEZr5xKHsxJqVlVz5QcH7K0y8qQu2EwK', 'admin', NOW(), NOW()),
-('Agent Service', 'agent@mamutuelle.bf', '$2y$12$K1kJm8F7t.RZV.LH2.dS0uEZr5xKHsxJqVlVz5QcH7K0y8qQu2EwK', 'agent', NOW(), NOW()),
-('Koné Oumar', 'kone.oumar@email.bf', '$2y$12$K1kJm8F7t.RZV.LH2.dS0uEZr5xKHsxJqVlVz5QcH7K0y8qQu2EwK', 'adherent', NOW(), NOW()),
-('Zongo Aminata', 'zongo.aminata@email.bf', '$2y$12$K1kJm8F7t.RZV.LH2.dS0uEZr5xKHsxJqVlVz5QcH7K0y8qQu2EwK', 'adherent', NOW(), NOW()),
-('Bambara Brice', 'bambara.brice@email.bf', '$2y$12$K1kJm8F7t.RZV.LH2.dS0uEZr5xKHsxJqVlVz5QcH7K0y8qQu2EwK', 'adherent', NOW(), NOW()),
-('Sawadogo Mariam', 'sawadogo.mariam@email.bf', '$2y$12$K1kJm8F7t.RZV.LH2.dS0uEZr5xKHsxJqVlVz5QcH7K0y8qQu2EwK', 'adherent', NOW(), NOW()),
-('Ouédraogo Issouf', 'ouedraogo.issouf@email.bf', '$2y$12$K1kJm8F7t.RZV.LH2.dS0uEZr5xKHsxJqVlVz5QcH7K0y8qQu2EwK', 'adherent', NOW(), NOW()),
-('Diallo Fatoumata', 'diallo.fatoumata@email.bf', '$2y$12$K1kJm8F7t.RZV.LH2.dS0uEZr5xKHsxJqVlVz5QcH7K0y8qQu2EwK', 'adherent', NOW(), NOW()),
-('Traoré Souleymane', 'traore.souleymane@email.bf', '$2y$12$K1kJm8F7t.RZV.LH2.dS0uEZr5xKHsxJqVlVz5QcH7K0y8qQu2EwK', 'adherent', NOW(), NOW()),
-('Kaboré Awa', 'kabore.awa@email.bf', '$2y$12$K1kJm8F7t.RZV.LH2.dS0uEZr5xKHsxJqVlVz5QcH7K0y8qQu2EwK', 'adherent', NOW(), NOW()),
-('Sanou Ibrahim', 'sanou.ibrahim@email.bf', '$2y$12$K1kJm8F7t.RZV.LH2.dS0uEZr5xKHsxJqVlVz5QcH7K0y8qQu2EwK', 'adherent', NOW(), NOW()),
-('Nikiéma Pauline', 'nikiema.pauline@email.bf', '$2y$12$K1kJm8F7t.RZV.LH2.dS0uEZr5xKHsxJqVlVz5QcH7K0y8qQu2EwK', 'adherent', NOW(), NOW()),
-('Ouattara Karim', 'ouattara.karim@email.bf', '$2y$12$K1kJm8F7t.RZV.LH2.dS0uEZr5xKHsxJqVlVz5QcH7K0y8qQu2EwK', 'adherent', NOW(), NOW()),
-('Bado Rasmata', 'bado.rasmata@email.bf', '$2y$12$K1kJm8F7t.RZV.LH2.dS0uEZr5xKHsxJqVlVz5QcH7K0y8qQu2EwK', 'adherent', NOW(), NOW()),
-('Yameogo Blaise', 'yameogo.blaise@email.bf', '$2y$12$K1kJm8F7t.RZV.LH2.dS0uEZr5xKHsxJqVlVz5QcH7K0y8qQu2EwK', 'adherent', NOW(), NOW()),
-('Compaoré Sophie', 'compaore.sophie@email.bf', '$2y$12$K1kJm8F7t.RZV.LH2.dS0uEZr5xKHsxJqVlVz5QcH7K0y8qQu2EwK', 'adherent', NOW(), NOW()),
-('Zida Michel', 'zida.michel@email.bf', '$2y$12$K1kJm8F7t.RZV.LH2.dS0uEZr5xKHsxJqVlVz5QcH7K0y8qQu2EwK', 'adherent', NOW(), NOW());
+('Admin MaMutuelle', 'admin@mamutuelle.bf', '$2y$12$x4Tpkd5r90aqR1JfD97/k.Zs2vvtpgJVPleJ366t.Z1qaEBgOryp6', 'admin', NOW(), NOW()),
+('Agent Service', 'agent@mamutuelle.bf', '$2y$12$x4Tpkd5r90aqR1JfD97/k.Zs2vvtpgJVPleJ366t.Z1qaEBgOryp6', 'agent', NOW(), NOW()),
+('Koné Oumar', 'kone.oumar@email.bf', '$2y$12$x4Tpkd5r90aqR1JfD97/k.Zs2vvtpgJVPleJ366t.Z1qaEBgOryp6', 'adherent', NOW(), NOW()),
+('Zongo Aminata', 'zongo.aminata@email.bf', '$2y$12$x4Tpkd5r90aqR1JfD97/k.Zs2vvtpgJVPleJ366t.Z1qaEBgOryp6', 'adherent', NOW(), NOW()),
+('Bambara Brice', 'bambara.brice@email.bf', '$2y$12$x4Tpkd5r90aqR1JfD97/k.Zs2vvtpgJVPleJ366t.Z1qaEBgOryp6', 'adherent', NOW(), NOW()),
+('Sawadogo Mariam', 'sawadogo.mariam@email.bf', '$2y$12$x4Tpkd5r90aqR1JfD97/k.Zs2vvtpgJVPleJ366t.Z1qaEBgOryp6', 'adherent', NOW(), NOW()),
+('Ouédraogo Issouf', 'ouedraogo.issouf@email.bf', '$2y$12$x4Tpkd5r90aqR1JfD97/k.Zs2vvtpgJVPleJ366t.Z1qaEBgOryp6', 'adherent', NOW(), NOW()),
+('Diallo Fatoumata', 'diallo.fatoumata@email.bf', '$2y$12$x4Tpkd5r90aqR1JfD97/k.Zs2vvtpgJVPleJ366t.Z1qaEBgOryp6', 'adherent', NOW(), NOW()),
+('Traoré Souleymane', 'traore.souleymane@email.bf', '$2y$12$x4Tpkd5r90aqR1JfD97/k.Zs2vvtpgJVPleJ366t.Z1qaEBgOryp6', 'adherent', NOW(), NOW()),
+('Kaboré Awa', 'kabore.awa@email.bf', '$2y$12$x4Tpkd5r90aqR1JfD97/k.Zs2vvtpgJVPleJ366t.Z1qaEBgOryp6', 'adherent', NOW(), NOW()),
+('Sanou Ibrahim', 'sanou.ibrahim@email.bf', '$2y$12$x4Tpkd5r90aqR1JfD97/k.Zs2vvtpgJVPleJ366t.Z1qaEBgOryp6', 'adherent', NOW(), NOW()),
+('Nikiéma Pauline', 'nikiema.pauline@email.bf', '$2y$12$x4Tpkd5r90aqR1JfD97/k.Zs2vvtpgJVPleJ366t.Z1qaEBgOryp6', 'adherent', NOW(), NOW()),
+('Ouattara Karim', 'ouattara.karim@email.bf', '$2y$12$x4Tpkd5r90aqR1JfD97/k.Zs2vvtpgJVPleJ366t.Z1qaEBgOryp6', 'adherent', NOW(), NOW()),
+('Bado Rasmata', 'bado.rasmata@email.bf', '$2y$12$x4Tpkd5r90aqR1JfD97/k.Zs2vvtpgJVPleJ366t.Z1qaEBgOryp6', 'adherent', NOW(), NOW()),
+('Yameogo Blaise', 'yameogo.blaise@email.bf', '$2y$12$x4Tpkd5r90aqR1JfD97/k.Zs2vvtpgJVPleJ366t.Z1qaEBgOryp6', 'adherent', NOW(), NOW()),
+('Compaoré Sophie', 'compaore.sophie@email.bf', '$2y$12$x4Tpkd5r90aqR1JfD97/k.Zs2vvtpgJVPleJ366t.Z1qaEBgOryp6', 'adherent', NOW(), NOW()),
+('Zida Michel', 'zida.michel@email.bf', '$2y$12$x4Tpkd5r90aqR1JfD97/k.Zs2vvtpgJVPleJ366t.Z1qaEBgOryp6', 'adherent', NOW(), NOW());
 
 -- ============================================================================
 -- ÉTAPE 4: DONNÉES INITIALES - ADHERENTS

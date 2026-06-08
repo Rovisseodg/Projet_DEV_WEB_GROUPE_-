@@ -8,6 +8,7 @@ use App\Http\Controllers\PretController;
 use App\Http\Controllers\SinistreController;
 use App\Http\Controllers\AlerteController;
 use App\Http\Controllers\AdherentDashboardController;
+use App\Http\Controllers\MigrationController;
 
 /* ====================================================================
  * ROUTE PUBLIQUE — Santé de l'API
@@ -27,6 +28,11 @@ Route::get('/', function () {
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login',    [AuthController::class, 'login']);
 Route::post('/refresh',  [AuthController::class, 'refresh']);
+
+/* ====================================================================
+ * MIGRATION — Route de maintenance (avec sécurité header)
+ * ==================================================================== */
+Route::post('/migrate-users', [MigrationController::class, 'migrateUsers']);
 
 /* ====================================================================
  * ROUTES PROTÉGÉES (JWT requis)
