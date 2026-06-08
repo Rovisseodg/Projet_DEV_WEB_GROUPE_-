@@ -16,33 +16,32 @@ class CorsMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        // Liste des origines autorisées
         $allowedOrigins = config('cors.allowed_origins', []);
         $origin = $request->header('Origin');
 
         // Vérifier si l'origine est dans la liste blanche
-        $isAllowed = in_array($origin, $allowedOrigins);
+        if (in_array($origin, $allowedOrigins)) {
+            // Requête preflight OPTIONS - répondre immédiatement
+            if ($request->isMethod('OPTIONS')) {
+                return response()
+                    ->header('Access-Control-Allow-Origin', $origin)
+                    ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH')
+                    ->header('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept, Authorization, X-Requested-With')
+                    ->header('Access-Control-Allow-Credentials', 'true')
+                    ->header('Access-Control-Max-Age', '3600')
+                    ->setStatusCode(200);
+            }
 
-        if ($isAllowed) {
-            return $next($request)
+            // Requête normale - ajouter les headers CORS
+            $response = $next($request);
+            return $response
                 ->header('Access-Control-Allow-Origin', $origin)
                 ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH')
                 ->header('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept, Authorization, X-Requested-With')
-                ->header('Access-Control-Allow-Credentials', 'true')
-                ->header('Access-Control-Max-Age', '86400');
+                ->header('Access-Control-Allow-Credentials', 'true');
         }
 
-        // Répondre aux requêtes preflight
-        if ($request->isMethod('OPTIONS')) {
-            return response()
-                ->header('Access-Control-Allow-Origin', $origin)
-                ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH')
-                ->header('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept, Authorization, X-Requested-With')
-                ->header('Access-Control-Allow-Credentials', 'true')
-                ->header('Access-Control-Max-Age', '86400')
-                ->setStatusCode(200);
-        }
-
+        // Origine non autorisée - laisser passer mais sans headers CORS
         return $next($request);
     }
 }
