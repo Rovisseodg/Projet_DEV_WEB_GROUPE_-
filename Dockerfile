@@ -52,14 +52,13 @@ RUN printf '<VirtualHost *:8080>\n\
         Require all granted\n\
         Options Indexes FollowSymLinks MultiViews\n\
         DirectoryIndex index.php index.html\n\
+        <IfModule mod_rewrite.c>\n\
+            RewriteEngine On\n\
+            RewriteCond %%{REQUEST_FILENAME} !-f\n\
+            RewriteCond %%{REQUEST_FILENAME} !-d\n\
+            RewriteRule ^(.*)$ index.php [L]\n\
+        </IfModule>\n\
     </Directory>\n\
-    <IfModule mod_rewrite.c>\n\
-        RewriteEngine On\n\
-        RewriteBase /\n\
-        RewriteCond %%{REQUEST_FILENAME} !-f\n\
-        RewriteCond %%{REQUEST_FILENAME} !-d\n\
-        RewriteRule ^(.*)$ index.php [L]\n\
-    </IfModule>\n\
     ErrorLog /proc/self/fd/2\n\
     CustomLog /proc/self/fd/1 combined\n\
 </VirtualHost>\n' > /etc/apache2/sites-available/000-default.conf
@@ -80,7 +79,7 @@ RUN a2dismod -f mpm_event mpm_worker mpm_prefork 2>/dev/null || true && \
     echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 # Script de démarrage
-RUN printf '#!/bin/bash\nset -e\n\necho "=== Demarrage MaMutuelle (Render) ==="\n\ncd /var/www/html/backend\n\n# Variables d'\''environnement\nexport APP_ENV=${APP_ENV:-production}\nexport APP_DEBUG=${APP_DEBUG:-false}\n\n# Création fichier .env\nif [ ! -f .env ]; then\n    echo "Création du fichier .env..."\n    cat > .env << ENVEOF\nAPP_NAME=MaMutuelle\nAPP_ENV=production\nAPP_DEBUG=false\nAPP_KEY=${APP_KEY}\nAPP_URL=${APP_URL}\nLOG_CHANNEL=stderr\n\nDB_CONNECTION=pgsql\nDB_HOST=${DATABASE_URL}\nDB_PORT=5432\nDB_DATABASE=${DB_DATABASE}\nDB_USERNAME=${DB_USERNAME}\nDB_PASSWORD=${DB_PASSWORD}\n\nSESSION_DRIVER=file\nCACHE_DRIVER=file\nCACHE_STORE=file\nQUEUE_CONNECTION=sync\n\nJWT_SECRET=${JWT_SECRET}\nJWT_TTL=60\nJWT_REFRESH_TTL=20160\nJWT_ALGORITHM=HS256\nENVEOF\nfi\n\n# Cache et migrations\necho "Préparation de l'\''application..."\nphp artisan config:clear  2>/dev/null || true\nphp artisan cache:clear   2>/dev/null || true\nphp artisan config:cache  2>/dev/null || true\nphp artisan route:cache   2>/dev/null || true\n\n# Migration BD\nif [ "$RUN_MIGRATIONS" = "true" ] || [ -z "$DB_MIGRATED" ]; then\n    echo "Exécution des migrations..."\n    php artisan migrate --force 2>/dev/null || echo "[INFO] Migration skipped"\nfi\n\necho "✅ Démarrage d'\''Apache sur port 8080"\nexec apache2-foreground\n' > /usr/local/bin/start.sh && chmod +x /usr/local/bin/start.sh
+RUN printf '#!/bin/bash\nset -e\n\necho "=== Demarrage MaMutuelle (Render) ==="\n\ncd /var/www/html/backend\n\n# Variables d'\''environnement\nexport APP_ENV=${APP_ENV:-production}\nexport APP_DEBUG=${APP_DEBUG:-false}\n\n# Création fichier .env\nif [ ! -f .env ]; then\n    echo "Création du fichier .env..."\n    cat > .env << ENVEOF\nAPP_NAME=MaMutuelle\nAPP_ENV=production\nAPP_DEBUG=false\nAPP_KEY=${APP_KEY}\nAPP_URL=${APP_URL}\nLOG_CHANNEL=stderr\n\nDB_CONNECTION=pgsql\nDB_HOST=${DATABASE_URL}\nDB_PORT=5432\nDB_DATABASE=${DB_DATABASE}\nDB_USERNAME=${DB_USERNAME}\nDB_PASSWORD=${DB_PASSWORD}\n\nSESSION_DRIVER=file\nCACHE_DRIVER=file\nCACHE_STORE=file\nQUEUE_CONNECTION=sync\n\nJWT_SECRET=${JWT_SECRET}\nJWT_TTL=60\nJWT_REFRESH_TTL=20160\nJWT_ALGORITHM=HS256\nENVEOF\nfi\n\n# Cache et config\necho "Préparation de l'\''application..."\nphp artisan config:clear  2>/dev/null || true\nphp artisan cache:clear   2>/dev/null || true\nphp artisan config:cache  2>/dev/null || true\nphp artisan route:cache   2>/dev/null || true\n\necho "✅ Démarrage d'\''Apache sur port 8080"\nexec apache2-foreground\n' > /usr/local/bin/start.sh && chmod +x /usr/local/bin/start.sh
 
 EXPOSE 8080
 CMD ["/usr/local/bin/start.sh"]
