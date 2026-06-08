@@ -84,16 +84,3 @@ RUN printf '#!/bin/bash\nset -e\n\necho "=== Demarrage MaMutuelle (Render) ==="\
 
 EXPOSE 8080
 CMD ["/usr/local/bin/start.sh"]
-DB_DATABASE=${DB_DATABASE:-railway}\n\
-DB_USERNAME=${DB_USERNAME:-postgres}\n\
-DB_PASSWORD=${DB_PASSWORD:-QRHXAkivTmqedTaebHEgRQNptkPfCPip}\n\
-SESSION_DRIVER=file\n\
-CACHE_DRIVER=file\n\
-CACHE_STORE=file\n\
-QUEUE_CONNECTION=sync\n\
-JWT_SECRET=${JWT_SECRET:-5xTQ8uD6jR2nY1pFvG4kLz7wHx9sC3mV}\n\
-JWT_TTL=60\n\
-JWT_REFRESH_TTL=20160\n\
-JWT_ALGORITHM=HS256\n\
-ENVEOF\n\
-\n\
