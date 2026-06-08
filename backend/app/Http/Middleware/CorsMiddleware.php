@@ -7,41 +7,44 @@ use Illuminate\Http\Request;
 
 class CorsMiddleware
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
-     */
     public function handle(Request $request, Closure $next)
     {
-        $allowedOrigins = config('cors.allowed_origins', []);
+        $allowedOrigins = [
+            'http://localhost:3000',
+            'http://127.0.0.1:3000',
+            'http://localhost:8000',
+            'https://mutuelle-frontend.onrender.com',
+            'https://mamutuelle-api.onrender.com',
+        ];
+
         $origin = $request->header('Origin');
 
-        // Vérifier si l'origine est dans la liste blanche
-        if (in_array($origin, $allowedOrigins)) {
-            // Requête preflight OPTIONS - répondre immédiatement
-            if ($request->isMethod('OPTIONS')) {
+        // Always respond to OPTIONS with CORS headers if origin is allowed
+        if ($request->isMethod('OPTIONS')) {
+            if (in_array($origin, $allowedOrigins)) {
                 return response()
+                    ->setStatusCode(200)
                     ->header('Access-Control-Allow-Origin', $origin)
                     ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH')
                     ->header('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept, Authorization, X-Requested-With')
                     ->header('Access-Control-Allow-Credentials', 'true')
-                    ->header('Access-Control-Max-Age', '3600')
-                    ->setStatusCode(200);
+                    ->header('Access-Control-Max-Age', '3600');
             }
+            return response()->setStatusCode(403);
+        }
 
-            // Requête normale - ajouter les headers CORS
-            $response = $next($request);
-            return $response
+        $response = $next($request);
+
+        // Add CORS headers to all responses if origin is allowed
+        if (in_array($origin, $allowedOrigins)) {
+            $response
                 ->header('Access-Control-Allow-Origin', $origin)
                 ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH')
                 ->header('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept, Authorization, X-Requested-With')
                 ->header('Access-Control-Allow-Credentials', 'true');
         }
 
-        // Origine non autorisée - laisser passer mais sans headers CORS
-        return $next($request);
+        return $response;
     }
 }
+
