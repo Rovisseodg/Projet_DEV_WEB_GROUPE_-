@@ -81,7 +81,7 @@ RUN a2dismod -f mpm_event mpm_worker mpm_prefork 2>/dev/null || true && \
     echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 # Script de démarrage - NO MIGRATIONS (database.sql handles schema)
-RUN sh -c 'cat > /usr/local/bin/start.sh << "STARTUP"
+RUN cat > /usr/local/bin/start.sh << 'EOF' && chmod +x /usr/local/bin/start.sh
 #!/bin/bash
 set -e
 
@@ -91,7 +91,7 @@ cd /var/www/html/backend
 # Create .env
 if [ ! -f .env ]; then
     echo "Création du fichier .env..."
-    cat > .env << ENVEOF
+    cat > .env << 'ENVEOF'
 APP_NAME=MaMutuelle
 APP_ENV=production
 APP_DEBUG=false
@@ -118,16 +118,15 @@ JWT_ALGORITHM=HS256
 ENVEOF
 fi
 
-echo "Préparation de l'\''application..."
+echo "Préparation de l'application..."
 php artisan config:clear 2>/dev/null || true
 php artisan cache:clear 2>/dev/null || true
 php artisan config:cache 2>/dev/null || true
 php artisan route:cache 2>/dev/null || true
 
-echo "✅ Démarrage d'\''Apache sur port 8080"
+echo "✅ Démarrage d'Apache sur port 8080"
 exec apache2-foreground
-STARTUP
-chmod +x /usr/local/bin/start.sh'
+EOF
 
 EXPOSE 8080
 CMD ["/usr/local/bin/start.sh"]
