@@ -3,6 +3,7 @@
    Gestion du dashboard adhérent
    ============================================================ */
 
+// Protections au chargement
 if (!isAuthenticated()) {
     window.location.href = 'login.html';
 }
@@ -27,9 +28,11 @@ function getCurrentUser() {
    INITIALISATION AU CHARGEMENT
    ============================== */
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('Dashboard chargé');
     injectUserInfo();
     initSidebar();
     initModals();
+    initFilterButtons();
     showSection('overview');
     loadUserData();
     updateHeaderDate();
@@ -40,36 +43,34 @@ document.addEventListener('DOMContentLoaded', () => {
    ============================== */
 function injectUserInfo() {
     const user = getCurrentUser();
-    if (!user) return;
+    if (!user) {
+        console.error('Pas d\'utilisateur trouvé');
+        return;
+    }
 
     const name = user.name || 'Utilisateur';
     const initials = name.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2);
-    const email = user.email || '';
 
     const set = (id, val) => {
         const el = document.getElementById(id);
         if (el) el.textContent = val;
     };
 
-    const setQ = (sel, val) => {
-        const el = document.querySelector(sel);
-        if (el) el.textContent = val;
-    };
-
     set('sb-name', name);
     set('sb-user-name', name);
-    setQ('.sb-avatar', initials);
-    setQ('.profile-avatar', initials);
-    setQ('.profile-name', name);
-    document.getElementById('profil-nom').textContent = name;
-    document.getElementById('profil-avatar').textContent = initials;
+    
+    const avatars = document.querySelectorAll('.sb-avatar, .profile-avatar');
+    avatars.forEach(a => a.textContent = initials);
+    
+    set('profil-nom', name);
+    set('profil-avatar', initials);
 }
 
 /* ==============================
    SIDEBAR NAVIGATION
    ============================== */
 function initSidebar() {
-    // Clics sur les items de navigation
+    // Clics sur les items de navigation principaux
     document.querySelectorAll('[data-section]').forEach(item => {
         item.addEventListener('click', (e) => {
             e.preventDefault();
@@ -78,7 +79,7 @@ function initSidebar() {
         });
     });
 
-    // Sous-menus
+    // Sous-menus (toggle)
     document.querySelectorAll('[data-toggle]').forEach(toggle => {
         toggle.addEventListener('click', (e) => {
             e.preventDefault();
@@ -101,11 +102,28 @@ function initSidebar() {
     // Déconnexion
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {
-        logoutBtn.addEventListener('click', () => {
+        logoutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
             logout();
             window.location.href = 'login.html';
         });
     }
+}
+
+/* ==============================
+   FILTRES COTISATIONS
+   ============================== */
+function initFilterButtons() {
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            // Mettre à jour l'état actif
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // Recharger les cotisations avec le filtre
+            loadCotisations();
+        });
+    });
 }
 
 /* ==============================
@@ -124,7 +142,7 @@ function initModals() {
     // Touches Escape
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
-            document.querySelectorAll('.overlay[style*="display: block"]').forEach(o => {
+            document.querySelectorAll('.overlay').forEach(o => {
                 o.style.display = 'none';
             });
         }
@@ -145,33 +163,49 @@ function closeModal(id) {
     }
 }
 
-function handleLogout(e) {
-    e.preventDefault();
-    logout();
-    window.location.href = 'login.html';
-}
-
 /* ==============================
    AFFICHAGE DES SECTIONS
    ============================== */
 function showSection(name) {
+    // Masquer toutes les sections
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    
+    // Afficher la section demandée
     const sec = document.getElementById('section-' + name);
     if (sec) sec.classList.add('active');
 
+    // Mettre à jour la navigation
     document.querySelectorAll('[data-section]').forEach(el => el.classList.remove('active'));
     const ni = document.querySelector(`[data-section="${name}"]`);
     if (ni) ni.classList.add('active');
 
     // Charger les données si nécessaire
-    if (name === 'overview') loadOverview();
-    if (name === 'cotisations') loadCotisations();
-    if (name === 'prets') loadPrets();
-    if (name === 'amortissement') loadAmortissement();
-    if (name === 'sinistres') loadSinistres();
-    if (name === 'alertes') loadAlertes();
-    if (name === 'ayants-droit') loadAyantsDroit();
-    if (name === 'profil') initProfile();
+    switch(name) {
+        case 'overview':
+            loadOverview();
+            break;
+        case 'cotisations':
+            loadCotisations();
+            break;
+        case 'prets':
+            loadPrets();
+            break;
+        case 'amortissement':
+            loadAmortissement();
+            break;
+        case 'sinistres':
+            loadSinistres();
+            break;
+        case 'alertes':
+            loadAlertes();
+            break;
+        case 'ayants-droit':
+            loadAyantsDroit();
+            break;
+        case 'profil':
+            initProfile();
+            break;
+    }
 }
 
 /* ==============================
@@ -182,22 +216,24 @@ async function loadUserData() {
     if (!user) return;
 
     try {
-        const adherentRes = await apiCall('/mon-profil', { method: 'GET' });
-        if (adherentRes) {
-            document.getElementById('sb-numero').textContent = adherentRes.numero_adherent || 'N/A';
-            document.getElementById('sb-statut').textContent = adherentRes.statut || 'Actif';
+        const res = await apiCall('/mon-profil', { method: 'GET' });
+        if (res && res.adherent) {
+            const a = res.adherent;
             
-            document.getElementById('cm-numero').textContent = adherentRes.numero_adherent || 'ADH-000';
-            document.getElementById('cm-nom').textContent = adherentRes.nom || '—';
-            document.getElementById('cm-depuis').textContent = adherentRes.date_inscription || '—';
-            document.getElementById('cm-ville').textContent = adherentRes.ville || '—';
+            document.getElementById('sb-numero').textContent = a.numero_adherent || 'N/A';
+            document.getElementById('sb-statut').textContent = a.statut || 'Actif';
             
-            document.getElementById('pm-numero').textContent = adherentRes.numero_adherent || '—';
+            document.getElementById('cm-numero').textContent = a.numero_adherent || 'ADH-000';
+            document.getElementById('cm-nom').textContent = (a.prenom + ' ' + a.nom).trim() || '—';
+            document.getElementById('cm-depuis').textContent = a.date_inscription || '—';
+            document.getElementById('cm-ville').textContent = a.ville || '—';
+            
+            document.getElementById('pm-numero').textContent = a.numero_adherent || '—';
             document.getElementById('pm-email').textContent = user.email || '—';
-            document.getElementById('pm-tel').textContent = adherentRes.telephone || '—';
-            document.getElementById('pm-ville').textContent = adherentRes.ville || '—';
-            document.getElementById('pm-adresse').textContent = adherentRes.adresse || '—';
-            document.getElementById('pm-depuis').textContent = adherentRes.date_inscription || '—';
+            document.getElementById('pm-tel').textContent = a.telephone || '—';
+            document.getElementById('pm-ville').textContent = a.ville || '—';
+            document.getElementById('pm-adresse').textContent = a.adresse || '—';
+            document.getElementById('pm-depuis').textContent = a.date_inscription || '—';
         }
     } catch (err) {
         console.error('Erreur chargement données:', err);
@@ -210,16 +246,72 @@ async function loadUserData() {
 async function loadOverview() {
     try {
         const res = await apiCall('/mon-tableau-de-bord', { method: 'GET' });
-        if (!res) return;
+        if (!res || !res.stats) {
+            console.error('Réponse invalide pour overview');
+            return;
+        }
 
-        const data = res.stats || {};
+        const stats = res.stats;
+        const adherent = res.adherent;
         
-        document.getElementById('st-cot-payees').textContent = data.cotisations_payees || '—';
-        document.getElementById('st-pret').textContent = data.pret_actif ? 'En cours' : '—';
-        document.getElementById('st-sinistres').textContent = data.sinistres_ouverts || '—';
-        document.getElementById('st-ayants').textContent = data.nb_ayants_droit || '—';
+        // Mettre à jour stats cards
+        const setText = (id, val) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = val;
+        };
+        
+        setText('st-cot-payees', stats.cotisations_payees || 0);
+        setText('st-pret', stats.pret_actif ? 'En cours' : 'Aucun');
+        setText('st-sinistres', stats.sinistres_ouverts || 0);
+        setText('st-ayants', stats.nb_ayants_droit || 0);
+
+        // Mettre à jour carte adhérent
+        setText('cm-numero', adherent.numero_adherent || 'ADH-000');
+        setText('cm-nom', (adherent.prenom + ' ' + adherent.nom).trim() || '—');
+        setText('cm-ville', adherent.ville || '—');
+
+        // Prochaines échéances
+        const econtainer = document.getElementById('prochaines-echeances');
+        if (res.prochaine_cotisation) {
+            const c = res.prochaine_cotisation;
+            econtainer.innerHTML = `
+                <div style="padding:8px 0">
+                    <div style="font-weight:600">Cotisation</div>
+                    <div style="font-size:.9rem;color:#666">Montant: ${c.montant || 0} FCFA</div>
+                    <div style="font-size:.85rem;color:#999">Échéance: ${c.date_echeance || '—'}</div>
+                </div>
+            `;
+        } else {
+            econtainer.innerHTML = '<div class="text-muted">Aucune échéance</div>';
+        }
+
+        // Prêt actif
+        const pcontainer = document.getElementById('pret-actif-overview');
+        if (res.pret_actif && stats.pret_actif) {
+            const p = res.pret_actif;
+            const pct = p.progression_pct || 0;
+            pcontainer.innerHTML = `
+                <div style="margin-bottom:12px">
+                    <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+                        <span style="font-size:.9rem">Remboursement</span>
+                        <span style="font-weight:600">${pct.toFixed(1)}%</span>
+                    </div>
+                    <div style="background:#eee;height:6px;border-radius:3px;overflow:hidden">
+                        <div style="background:var(--gold);height:100%;width:${pct}%;transition:width 0.3s"></div>
+                    </div>
+                </div>
+                <div style="font-size:.85rem;color:#666">
+                    <div>Montant restant: ${p.montant_restant || 0} FCFA</div>
+                    <div>Mensualités restantes: ${p.duree_mois - p.mensualites_payees || 0}</div>
+                </div>
+            `;
+        } else {
+            pcontainer.innerHTML = '<div class="text-muted">Aucun prêt actif</div>';
+        }
+
     } catch (err) {
         console.error('Erreur overview:', err);
+        showToast('Erreur chargement dashboard: ' + err.message, 'error');
     }
 }
 
@@ -228,11 +320,29 @@ async function loadOverview() {
    ============================== */
 async function loadCotisations() {
     try {
-        const res = await apiCall('/mes-cotisations', { method: 'GET' });
-        if (!res) return;
+        // Récupérer le filtre actif
+        const activeFilter = document.querySelector('.filter-btn.active');
+        const filtre = activeFilter ? activeFilter.dataset.filtre : '';
+        
+        const res = await apiCall(`/mes-cotisations${filtre ? '?statut=' + encodeURIComponent(filtre) : ''}`, { method: 'GET' });
+        if (!res || !res.cotisations) {
+            console.error('Réponse invalide pour cotisations');
+            return;
+        }
 
         const tbody = document.getElementById('cotisations-body');
-        const cotisations = res || [];
+        const cotisations = res.cotisations;
+
+        // Mettre à jour résumé
+        if (res.resume) {
+            const setText = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = val;
+            };
+            setText('cot-total-paye', (res.resume.total_paye || 0) + ' FCFA');
+            setText('cot-en-attente', res.resume.en_attente || 0);
+            setText('cot-en-retard', res.resume.en_retard || 0);
+        }
 
         if (cotisations.length === 0) {
             tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Aucune cotisation</td></tr>';
@@ -246,14 +356,15 @@ async function loadCotisations() {
                 <td>${c.mode_paiement || '-'}</td>
                 <td>${c.reference_paiement || '-'}</td>
                 <td>${c.date_paiement || '-'}</td>
-                <td>${c.retard ? '⚠️ Oui' : '-'}</td>
+                <td>${c.jours_retard ? '⚠️ ' + c.jours_retard + 'j' : '-'}</td>
                 <td><span class="badge bg-${c.statut === 'payée' ? 'success' : c.statut === 'en retard' ? 'danger' : 'warning'}">${c.statut}</span></td>
             </tr>
         `).join('');
     } catch (err) {
         console.error('Erreur cotisations:', err);
         const tbody = document.getElementById('cotisations-body');
-        if (tbody) tbody.innerHTML = '<tr><td colspan="7" class="text-danger">Erreur chargement</td></tr>';
+        if (tbody) tbody.innerHTML = `<tr><td colspan="7" class="text-danger">Erreur chargement: ${err.message}</td></tr>`;
+        showToast('Erreur cotisations: ' + err.message, 'error');
     }
 }
 
@@ -263,10 +374,13 @@ async function loadCotisations() {
 async function loadPrets() {
     try {
         const res = await apiCall('/mes-prets', { method: 'GET' });
-        if (!res) return;
+        if (!res || !res.prets) {
+            console.error('Réponse invalide pour prets');
+            return;
+        }
 
         const container = document.getElementById('prets-list');
-        const prets = res || [];
+        const prets = res.prets;
 
         if (prets.length === 0) {
             container.innerHTML = '<div class="tcard" style="padding:40px;text-align:center;color:#999">Aucun prêt</div>';
@@ -276,12 +390,18 @@ async function loadPrets() {
         container.innerHTML = prets.map(p => `
             <div class="tcard" style="margin-bottom:15px;padding:15px">
                 <div style="display:flex;justify-content:space-between;align-items:center">
-                    <div>
+                    <div style="flex:1">
                         <div style="font-weight:600">Montant: ${p.montant} FCFA</div>
-                        <div style="font-size:.9rem;color:#666">Durée: ${p.duree_mois} mois | Taux: ${p.taux_interet}%</div>
-                        <div style="font-size:.85rem;color:#999">Début: ${p.date_debut} | Fin: ${p.date_fin}</div>
+                        <div style="font-size:.9rem;color:#666">Durée: ${p.duree_mois} mois | Taux: ${p.taux_interet || 0}%</div>
+                        <div style="font-size:.85rem;color:#999">Début: ${p.date_debut} | Fin: ${p.date_fin || '—'}</div>
+                        <div style="margin-top:8px">
+                            <div style="font-size:.85rem;color:#666">Remboursement: ${p.progression_pct || 0}%</div>
+                            <div style="background:#eee;height:4px;border-radius:2px;overflow:hidden;margin-top:4px">
+                                <div style="background:var(--gold);height:100%;width:${p.progression_pct || 0}%;transition:width 0.3s"></div>
+                            </div>
+                        </div>
                     </div>
-                    <div style="text-align:right">
+                    <div style="text-align:right;margin-left:20px">
                         <span class="badge bg-${p.statut === 'approuvé' ? 'success' : p.statut === 'remboursé' ? 'secondary' : 'warning'}">${p.statut}</span>
                         <button class="btn btn-sm btn-outline-primary" onclick="viewPretAmortissement(${p.id})" style="margin-top:8px">
                             Détails
@@ -293,7 +413,8 @@ async function loadPrets() {
     } catch (err) {
         console.error('Erreur prêts:', err);
         const container = document.getElementById('prets-list');
-        if (container) container.innerHTML = '<div class="text-danger">Erreur chargement</div>';
+        if (container) container.innerHTML = `<div class="text-danger">Erreur chargement: ${err.message}</div>`;
+        showToast('Erreur prêts: ' + err.message, 'error');
     }
 }
 
@@ -316,10 +437,13 @@ async function loadAmortissement() {
 
     try {
         const res = await apiCall(`/mes-prets/${pretId}/amortissement`, { method: 'GET' });
-        if (!res) return;
+        if (!res || !res.amortissement) {
+            console.error('Réponse invalide pour amortissement');
+            return;
+        }
 
         const tbody = document.getElementById('amort-body');
-        const echances = res.echances || [];
+        const echances = res.amortissement;
 
         if (echances.length === 0) {
             tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">Aucune échéance</td></tr>';
@@ -328,18 +452,19 @@ async function loadAmortissement() {
 
         tbody.innerHTML = echances.map((e, i) => `
             <tr>
-                <td>${i + 1}</td>
+                <td>${e.numero_echeance || i + 1}</td>
                 <td>${e.date_echeance}</td>
                 <td>${e.montant}</td>
-                <td>${e.interets}</td>
-                <td>${e.capital}</td>
-                <td>${e.restant_du}</td>
+                <td>${e.interet}</td>
+                <td>${e.amortissement}</td>
+                <td>${e.capital_restant}</td>
                 <td>${e.date_paiement || '-'}</td>
-                <td><span class="badge bg-${e.statut === 'payée' ? 'success' : 'warning'}">${e.statut}</span></td>
+                <td><span class="badge bg-${e.statut === 'payé' || e.statut === 'payée' ? 'success' : 'warning'}">${e.statut}</span></td>
             </tr>
         `).join('');
     } catch (err) {
         console.error('Erreur amortissement:', err);
+        showToast('Erreur amortissement: ' + err.message, 'error');
     }
 }
 
@@ -349,12 +474,18 @@ async function loadAmortissement() {
 async function loadSinistres() {
     try {
         const res = await apiCall('/mes-sinistres', { method: 'GET' });
-        if (!res) return;
+        if (!res || !res.sinistres) {
+            console.error('Réponse invalide pour sinistres');
+            return;
+        }
 
-        const container = document.getElementById('sinistres-list') || document.querySelector('[id*="sinistre"]');
-        const sinistres = res || [];
+        const container = document.getElementById('sinistres-list');
+        const sinistres = res.sinistres;
 
-        if (!container) return;
+        if (!container) {
+            console.warn('Container sinistres-list non trouvé');
+            return;
+        }
 
         if (sinistres.length === 0) {
             container.innerHTML = '<div class="tcard" style="padding:40px;text-align:center;color:#999">Aucun sinistre déclaré</div>';
@@ -364,34 +495,58 @@ async function loadSinistres() {
         container.innerHTML = sinistres.map(s => `
             <div class="tcard" style="margin-bottom:15px;padding:15px">
                 <div style="display:flex;justify-content:space-between">
-                    <div>
-                        <div style="font-weight:600">${s.type_sinistre}</div>
-                        <div style="font-size:.9rem;color:#666">${s.description}</div>
+                    <div style="flex:1">
+                        <div style="font-weight:600">${s.type_sinistre || 'Sinistre'}</div>
+                        <div style="font-size:.9rem;color:#666">${s.description || '—'}</div>
                         <div style="font-size:.85rem;color:#999">Date: ${s.date_sinistre}</div>
+                        <div style="margin-top:8px">
+                            <div style="font-size:.85rem">Montant réclamé: ${s.montant_reclamation || 0} FCFA</div>
+                            <div style="font-size:.85rem">Montant remboursé: ${s.montant_remboursement || 0} FCFA</div>
+                        </div>
                     </div>
                     <div style="text-align:right">
-                        <span class="badge bg-${s.statut === 'approuvé' ? 'success' : 'warning'}">${s.statut}</span>
+                        <span class="badge bg-${s.statut === 'approuvé' || s.statut === 'remboursé' ? 'success' : s.statut === 'déclaré' ? 'info' : 'warning'}">${s.statut}</span>
                     </div>
                 </div>
             </div>
         `).join('');
     } catch (err) {
         console.error('Erreur sinistres:', err);
+        const container = document.getElementById('sinistres-list');
+        if (container) container.innerHTML = `<div class="text-danger">Erreur chargement: ${err.message}</div>`;
+        showToast('Erreur sinistres: ' + err.message, 'error');
     }
-}
-
-function declarerSinistre() {
-    openModal('modal-sinistre');
 }
 
 /* ==============================
    SECTIONS — ALERTES
    ============================== */
 async function loadAlertes() {
-    console.log('Alertes non implémentées');
-    const container = document.getElementById('alertes-full-list') || document.querySelector('[id*="alerte"]');
-    if (container) {
-        container.innerHTML = '<div class="tcard" style="padding:20px;text-align:center;color:#999">Aucune alerte</div>';
+    try {
+        const res = await apiCall('/mon-tableau-de-bord', { method: 'GET' });
+        if (res && res.alertes) {
+            const container = document.getElementById('alertes-full-list') || document.querySelector('[id*="alerte"]');
+            if (!container) return;
+
+            const alertes = res.alertes;
+            if (alertes.length === 0) {
+                container.innerHTML = '<div class="tcard" style="padding:20px;text-align:center;color:#999">Aucune alerte</div>';
+                return;
+            }
+
+            container.innerHTML = alertes.map(a => `
+                <div class="tcard" style="padding:15px;margin-bottom:10px;border-left:4px solid ${a.type === 'danger' ? 'var(--red)' : a.type === 'warning' ? 'var(--gold)' : 'var(--blue)'}">
+                    <div style="display:flex;gap:12px">
+                        <div style="font-size:1.2rem">${a.type === 'danger' ? '⚠️' : a.type === 'warning' ? '⚡' : 'ℹ️'}</div>
+                        <div>
+                            <div style="font-weight:600;cursor:pointer" onclick="showSection('${a.section || 'overview'}')">${a.message}</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+    } catch (err) {
+        console.error('Erreur alertes:', err);
     }
 }
 
@@ -401,12 +556,18 @@ async function loadAlertes() {
 async function loadAyantsDroit() {
     try {
         const res = await apiCall('/mes-ayants-droit', { method: 'GET' });
-        if (!res) return;
+        if (!res || !res.ayants_droit) {
+            console.error('Réponse invalide pour ayants-droit');
+            return;
+        }
 
-        const container = document.getElementById('ayants-grid') || document.querySelector('[id*="ayant"]');
-        const ayants = res || [];
+        const container = document.getElementById('ayants-grid');
+        const ayants = res.ayants_droit;
 
-        if (!container) return;
+        if (!container) {
+            console.warn('Container ayants-grid non trouvé');
+            return;
+        }
 
         if (ayants.length === 0) {
             container.innerHTML = '<div style="grid-column:1/-1;padding:40px;text-align:center;color:#999">Aucun ayant droit</div>';
@@ -427,6 +588,9 @@ async function loadAyantsDroit() {
         `).join('');
     } catch (err) {
         console.error('Erreur ayants droit:', err);
+        const container = document.getElementById('ayants-grid');
+        if (container) container.innerHTML = `<div class="text-danger">Erreur chargement: ${err.message}</div>`;
+        showToast('Erreur ayants droit: ' + err.message, 'error');
     }
 }
 
@@ -446,6 +610,8 @@ function initProfile() {
     document.getElementById('edit-nom').value = nom;
     document.getElementById('edit-email').value = user.email || '';
     document.getElementById('edit-tel').value = user.telephone || '';
+    document.getElementById('edit-adresse').value = user.adresse || '';
+    document.getElementById('edit-ville').value = user.ville || '';
 }
 
 async function saveProfil() {
@@ -453,11 +619,11 @@ async function saveProfil() {
     const prenom = document.getElementById('edit-prenom').value.trim();
     const email = document.getElementById('edit-email').value.trim();
     const tel = document.getElementById('edit-tel').value.trim();
-    const adresse = document.getElementById('edit-adresse')?.value.trim() || '';
-    const ville = document.getElementById('edit-ville')?.value.trim() || '';
+    const adresse = document.getElementById('edit-adresse').value.trim();
+    const ville = document.getElementById('edit-ville').value.trim();
 
     if (!nom || !prenom || !email) {
-        showToast('Veuillez remplir tous les champs', 'error');
+        showToast('Veuillez remplir tous les champs obligatoires', 'error');
         return;
     }
 
@@ -471,9 +637,10 @@ async function saveProfil() {
             showToast('Profil mis à jour', 'success');
             closeModal('modal-profil');
             const user = getCurrentUser();
-            const newUser = { ...user, name: `${prenom} ${nom}`, email, telephone: tel };
+            const newUser = { ...user, name: `${prenom} ${nom}`, email, telephone: tel, adresse, ville };
             localStorage.setItem('mamutuelle_user', JSON.stringify(newUser));
             injectUserInfo();
+            loadUserData();
         } else {
             showToast('Erreur', 'error');
         }
@@ -542,6 +709,10 @@ async function saveAyant() {
         if (res) {
             showToast('Ayant droit ajouté', 'success');
             closeModal('modal-ayant');
+            document.getElementById('ayant-nom').value = '';
+            document.getElementById('ayant-prenom').value = '';
+            document.getElementById('ayant-relation').value = '';
+            document.getElementById('ayant-dob').value = '';
             loadAyantsDroit();
         } else {
             showToast('Erreur', 'error');
@@ -555,8 +726,11 @@ async function saveAyant() {
    NOTIFICATIONS TOAST
    ============================== */
 function showToast(msg, type = 'info') {
-    const wrap = document.getElementById('toast-wrap');
-    if (!wrap) return;
+    const wrap = document.getElementById('toast-wrap') || document.querySelector('.toast-wrap');
+    if (!wrap) {
+        console.warn('toast-wrap non trouvé');
+        return;
+    }
 
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
@@ -569,6 +743,7 @@ function showToast(msg, type = 'info') {
         display: flex;
         align-items: center;
         gap: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         animation: slideIn 0.3s;
     `;
     
