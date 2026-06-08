@@ -376,6 +376,42 @@ textarea.form-control { resize: vertical; min-height: 82px; }
 .toast-close { margin-left: auto; background: none; border: none; color: rgba(255,255,255,.6); cursor: pointer; font-size: 1rem; }
 
 /* ==============================
+   MODALS
+   ============================== */
+.overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(28,18,7,.5); z-index: 900;
+  align-items: center; justify-content: center;
+  backdrop-filter: blur(3px);
+}
+.overlay[style*="display: flex"] { display: flex !important; }
+.modal {
+  background: var(--white); border-radius: var(--rad-xl);
+  padding: 28px; width: 90%; max-width: 540px;
+  max-height: 90vh; overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  animation: modalIn .24s ease;
+}
+.modal.wide { max-width: 720px; }
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(.95) translateY(-10px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.modal-head h2 { font-size: 1.05rem; font-weight: 700; color: var(--dark); }
+.modal-close {
+  background: none; border: none; font-size: 1.3rem;
+  color: var(--gray-3); cursor: pointer;
+  transition: color var(--tr); padding: 2px; line-height: 1;
+}
+.modal-close:hover { color: var(--red); }
+.modal-footer {
+  display: flex; justify-content: flex-end; gap: 10px;
+  margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--gray-2);
+}
+.modal-err { font-size: .82rem; color: var(--red); margin-bottom: 10px; min-height: 18px; }
+
+/* ==============================
    RESPONSIVE
    ============================== */
 @media (max-width: 1100px) {
